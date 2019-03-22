@@ -1,0 +1,12 @@
+@NC_1.1 Test genome 1, complete genome
+GAACAAAAAGCTGCGACGGC
++
+!!!!!!!!!!!!!!!!!!!!
+@NC_1.2 Test genome 1, complete genome
+GAACAACTGGCTGCGACGGG
++
+!!!!!!!!!!!!!!!!!!!!
+@NC_2 Test genome 2, complete genome
+GAACAAAAAGCTGCGACGGT
++
+!!!!!!!!!!!!!!!!!!!!
