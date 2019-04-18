@@ -7,6 +7,7 @@ import (
     "fmt"
     "os"
     "time"
+    "runtime"
     // "math"
     // "path/filepath"
     // "strconv"
@@ -90,6 +91,9 @@ func main() {
     f.Save(*filter_saved_file)
     // log.Printf("Saved: %s.", *filter_saved_file)
 
+    // print Memory Usage    
+    PrintMemUsage()
+
 }
 
 //-----------------------------------------------------------------------------
@@ -103,6 +107,28 @@ func TimeConsume(start time.Time, name string) {
     // log.Printf("%s run in %s", name, elapsed)
     // fmt.Printf("%s run in %s \n\n", name, elapsed)
     fmt.Printf("%s%s\n", name, elapsed)
+}
+
+//-----------------------------------------------------------------------------
+// PrintMemUsage outputs the current, total and OS memory being used. As well as the number 
+// of garage collection cycles completed.
+// Alloc is bytes of allocated heap objects.
+// TotalAlloc is cumulative bytes allocated for heap objects.
+// Sys is the total bytes of memory obtained from the OS.
+// NumGC is the number of completed GC cycles.
+func PrintMemUsage() {
+        var m runtime.MemStats
+        runtime.ReadMemStats(&m)
+        // For info on each, see: https://golang.org/pkg/runtime/#MemStats
+        fmt.Printf("\nMemory Usage\n")
+        fmt.Printf("Alloc = %v MiB", bToMb(m.Alloc))
+        fmt.Printf("\tTotalAlloc = %v MiB", bToMb(m.TotalAlloc))
+        fmt.Printf("\tSys = %v MiB", bToMb(m.Sys))
+        fmt.Printf("\tNumGC = %v\n", m.NumGC)
+}
+
+func bToMb(b uint64) uint64 {
+    return b / 1024 / 1024
 }
 
 //-----------------------------------------------------------------------------
