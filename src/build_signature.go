@@ -46,16 +46,18 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int) {
 }
 
 //-----------------------------------------------------------------------------
-func BuildFilter(refseq string, k int, n_hf int, table_size int64) *ppt_filter.Filter {
+func BuildFilter(refseq string, k int, n_hf int, table_size int64, n_phases int) *ppt_filter.Filter {
     // Create an empty filter
     f := ppt_filter.NewFilter(table_size, k, n_hf)
 
     // 1st walk
     VerifySignature(f, refseq, k)
 
-    // 2nd walk
-    VerifySignature(f, refseq, k)
-    
+    if n_phases == 2 {
+        // 2nd walk
+        VerifySignature(f, refseq, k)
+    }
+
     return f
 }
 
@@ -69,6 +71,8 @@ func main() {
     filter_saved_file := flag.String("save", "", "filter saved file")
     power := flag.Int("p", 1000, "power")
     N_HASH_FUNCTIONS := flag.Int("n", 2, "number of hash functions")
+    N_PHASES := flag.Int("ph", 1, "number of phases")
+
     //
     flag.Parse()
     var FILTER_LEN int64
@@ -81,7 +85,7 @@ func main() {
     defer TimeConsume(time.Now(), "Run time: ")
     
     // Build
-    f := BuildFilter(*refseq_genomes, *K, *N_HASH_FUNCTIONS, FILTER_LEN)
+    f := BuildFilter(*refseq_genomes, *K, *N_HASH_FUNCTIONS, FILTER_LEN, *N_PHASES)
 
     // Print Summary
     fmt.Println("Summary")
