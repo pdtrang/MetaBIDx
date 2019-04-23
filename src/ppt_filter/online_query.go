@@ -24,7 +24,7 @@ func (f *Filter) OnlineQuery(read []byte, bacteria_map map[int64]*Bacteria) {
 
 		}
 
-		if isUniqueGenome(gidx) && (len(gidx) > 0) {
+		if isUniqueGenomeID(gidx) && (len(gidx) > 0) {
 			idx := gidx[0]
 
 			if !(bacteria_map[idx].Signatures.Has(string(kmer_scanner.Kmer))) {
@@ -42,7 +42,7 @@ func (f *Filter) OnlineQuery(read []byte, bacteria_map map[int64]*Bacteria) {
 
 }
 
-func isUniqueGenome(idx []int64) bool {
+func isUniqueGenomeID(idx []int64) bool {
 	for i := 1; i < len(idx); i++ {
         if idx[i] != idx[0] {
             return false
