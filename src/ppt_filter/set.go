@@ -44,3 +44,7 @@ func (s *StringSet) Has(item string) bool {
 	}
 	return false
 }
+
+func (s *StringSet) Size() int {
+	return len(s.Table)
+}
