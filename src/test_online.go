@@ -46,16 +46,16 @@ func main() {
 
     scanner := ppt_filter.NewFastqScanner(fq)
     c := 0
-    defer TimeConsume(time.Now(), "")
+    defer TimeConsume(time.Now(), "\nQuery Time ")
     log.Printf("\nStart querying...")
     for scanner.Scan() {
     	c += 1
     	f.OnlineQuery([]byte(scanner.Seq), bacteria_map)
     }
 
-    fmt.Printf("%s has %d reads.\n", *read_file, c)
+    fmt.Printf("\n%s has %d reads.\n", *read_file, c)
     PrintMemUsage()
-  	// for k, _ := range bacteria_map {
+ //  	for k, _ := range bacteria_map {
 	// 	bacteria_map[k].PrintBacteria()
 	// }
 
@@ -75,6 +75,7 @@ func TimeConsume(start time.Time, name string) {
 func PrintMemUsage() {
         var m runtime.MemStats
         runtime.ReadMemStats(&m)
+        fmt.Println("\nMemory Usage")
         // For info on each, see: https://golang.org/pkg/runtime/#MemStats
         fmt.Printf("Alloc = %v MiB", bToMb(m.Alloc))
         fmt.Printf("\tTotalAlloc = %v MiB", bToMb(m.TotalAlloc))

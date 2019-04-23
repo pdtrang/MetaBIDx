@@ -27,15 +27,8 @@ func (b *Bacteria) PrintBacteria() {
 	
 }
 
-func (b *Bacteria) AddSignature(sig string) {
-	temp := b.Signatures
-	temp.Add(sig)
-	b.Signatures = temp
-}
-
 func (b *Bacteria) ReachThreshold() bool {
-	temp := b.Signatures
-	if float32(temp.Size()) >= b.Threshold {
+	if float32(b.Signatures.Size()) >= b.Threshold {
 		return true
 	} else {
 		return false

@@ -28,11 +28,10 @@ func (f *Filter) OnlineQuery(read []byte, bacteria_map map[int64]*Bacteria) {
 			idx := gidx[0]
 
 			if !(bacteria_map[idx].Signatures.Has(string(kmer_scanner.Kmer))) {
-				tempSet := bacteria_map[idx].Signatures
-				tempSet.Add(string(kmer_scanner.Kmer))
-				bacteria_map[idx] = &Bacteria{tempSet, bacteria_map[idx].Threshold, bacteria_map[idx].Reported}
+				bacteria_map[idx].Signatures.Add(string(kmer_scanner.Kmer))
 			}
 
+			// fmt.Println(bacteria_map[idx].Signatures)
 			if bacteria_map[idx].ReachThreshold() && (bacteria_map[idx].Reported == false) {
 				fmt.Println("Found bacteria ", idx)
 				bacteria_map[idx] = &Bacteria{bacteria_map[idx].Signatures, bacteria_map[idx].Threshold, true}
