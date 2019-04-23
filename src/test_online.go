@@ -55,9 +55,9 @@ func main() {
 
     fmt.Printf("\n%s has %d reads.\n", *read_file, c)
     PrintMemUsage()
- //  	for k, _ := range bacteria_map {
-	// 	bacteria_map[k].PrintBacteria()
-	// }
+  	for k, _ := range bacteria_map {
+		bacteria_map[k].PrintBacteria()
+	}
 
 }
 

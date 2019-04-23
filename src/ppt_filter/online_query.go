@@ -21,22 +21,19 @@ func (f *Filter) OnlineQuery(read []byte, bacteria_map map[int64]*Bacteria) {
 			
 			if int64(f.table[j]) != int64(65534) && int64(f.table[j]) != int64(0) {
 				idx = int64(f.table[j])
-				break
+				
+				if !(bacteria_map[idx].Signatures.Has(j)) {
+					bacteria_map[idx].Signatures.Add(j)
+				}
+
+				// fmt.Println("Updated signatures:", idx, bacteria_map[idx].Signatures)
+				if bacteria_map[idx].ReachThreshold() && (bacteria_map[idx].Reported == false) {
+					// fmt.Println("Found bacteria ", idx)
+					log.Printf("Found bacteria %d", idx)
+					bacteria_map[idx] = &Bacteria{bacteria_map[idx].Signatures, bacteria_map[idx].Threshold, true}
+				}
 			}
 
-		}
-
-		if idx != int64(0) {
-			if !(bacteria_map[idx].Signatures.Has(string(kmer_scanner.Kmer))) {
-				bacteria_map[idx].Signatures.Add(string(kmer_scanner.Kmer))
-			}
-
-			// fmt.Println(bacteria_map[idx].Signatures)
-			if bacteria_map[idx].ReachThreshold() && (bacteria_map[idx].Reported == false) {
-				// fmt.Println("Found bacteria ", idx)
-				log.Printf("Found bacteria %d", idx)
-				bacteria_map[idx] = &Bacteria{bacteria_map[idx].Signatures, bacteria_map[idx].Threshold, true}
-			}
 		}
 		
     }	

@@ -5,14 +5,14 @@ import (
 )
 
 type Bacteria struct {
-	Signatures *StringSet
+	Signatures *Int64Set
 	Threshold float32
 	Reported bool
 }
 
 func NewBacteria(t float32) *Bacteria {
 	b := &Bacteria {
-		Signatures: NewStringSet(),
+		Signatures: NewInt64Set(),
 		Threshold: t,
 		Reported: false,
 	}

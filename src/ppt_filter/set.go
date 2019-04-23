@@ -48,3 +48,27 @@ func (s *StringSet) Has(item string) bool {
 func (s *StringSet) Size() int {
 	return len(s.Table)
 }
+
+//-----------------------------------------------------------------------------
+type Int64Set struct {
+	Table map[int64]struct{}
+}
+
+func NewInt64Set() *Int64Set {
+	return &Int64Set{Table: make(map[int64]struct{})}
+}
+
+func (s *Int64Set) Add(item int64) {
+	s.Table[item] = struct{}{}
+} 
+
+func (s *Int64Set) Has(item int64) bool {
+	if _, ok := s.Table[item]; ok {
+		return true
+	}
+	return false
+}
+
+func (s *Int64Set) Size() int {
+	return len(s.Table)
+}
