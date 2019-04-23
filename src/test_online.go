@@ -47,7 +47,7 @@ func main() {
     scanner := ppt_filter.NewFastqScanner(fq)
     c := 0
     defer TimeConsume(time.Now(), "\nQuery Time ")
-    log.Printf("\nStart querying...")
+    log.Printf("Start querying...")
     for scanner.Scan() {
     	c += 1
     	f.OnlineQuery([]byte(scanner.Seq), bacteria_map)

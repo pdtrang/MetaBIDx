@@ -1,7 +1,8 @@
 package ppt_filter
 
 import (
-	"fmt"
+	// "fmt"
+	"log"
 )
 
 //-----------------------------------------------------------------------------
@@ -13,39 +14,31 @@ func (f *Filter) OnlineQuery(read []byte, bacteria_map map[int64]*Bacteria) {
 
 	for kmer_scanner.Scan() {
 
-		gidx := make([]int64, 0)
+		idx := int64(0)
         j := int64(0)
 		for i := 0; i < len(f.HashFunction); i++ {
 			j = f.HashFunction[i].SlidingHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer)
 			
 			if int64(f.table[j]) != int64(65534) && int64(f.table[j]) != int64(0) {
-				gidx = append(gidx, int64(f.table[j]))
+				idx = int64(f.table[j])
+				break
 			}
 
 		}
 
-		if isUniqueGenomeID(gidx) && (len(gidx) > 0) {
-			idx := gidx[0]
-
+		if idx != int64(0) {
 			if !(bacteria_map[idx].Signatures.Has(string(kmer_scanner.Kmer))) {
 				bacteria_map[idx].Signatures.Add(string(kmer_scanner.Kmer))
 			}
 
 			// fmt.Println(bacteria_map[idx].Signatures)
 			if bacteria_map[idx].ReachThreshold() && (bacteria_map[idx].Reported == false) {
-				fmt.Println("Found bacteria ", idx)
+				// fmt.Println("Found bacteria ", idx)
+				log.Printf("Found bacteria %d", idx)
 				bacteria_map[idx] = &Bacteria{bacteria_map[idx].Signatures, bacteria_map[idx].Threshold, true}
 			}
 		}
+		
     }	
 
-}
-
-func isUniqueGenomeID(idx []int64) bool {
-	for i := 1; i < len(idx); i++ {
-        if idx[i] != idx[0] {
-            return false
-        }
-    }
-    return true
 }
