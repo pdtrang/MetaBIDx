@@ -2,18 +2,19 @@ package main
 
 import (
 	"./ppt_filter"
+	"./utils"
 	"fmt"
 	"flag"
 	"log"
 	"os"
 	"time"
-	"runtime"
 )
 
 func main() {
 	// get inputs from commandline
 	filter_saved_file := flag.String("load", "", "filter saved file")
-    read_file := flag.String("fq", "", "fastq/fq file")
+    read_1 := flag.String("r1", "", "fastq/fq file")
+    read_2 := flag.String("r2", "", "fastq/fq file")
     flag.Parse()
 	
 	// Load filter
@@ -34,55 +35,61 @@ func main() {
 		bacteria_map[int64(k)] = ppt_filter.NewBacteria(float32(v) * threshold)
 	}
 
-	// for k, _ := range bacteria_map {
-	// 	bacteria_map[k].PrintBacteria()
-	// }
+	if *read_2 == "" {
+		QuerySingle(*read_1, f, bacteria_map)	
+	} else {
+		QueryPair(*read_1, *read_2, f, bacteria_map)
+	}
 
-    log.Printf("Get reads")
-    fq, err := os.Open(*read_file)
+}
+
+func QuerySingle(read_file string, f *ppt_filter.Filter, bacteria_map map[int64]*ppt_filter.Bacteria) {
+	log.Printf("Get reads")
+    fq, err := os.Open(read_file)
     if err != nil {
         panic(err)
     }
 
     scanner := ppt_filter.NewFastqScanner(fq)
     c := 0
-    defer TimeConsume(time.Now(), "\nQuery Time ")
+    defer utils.TimeConsume(time.Now(), "\nQuery Time ")
     log.Printf("Start querying...")
     for scanner.Scan() {
     	c += 1
-    	f.OnlineQuery([]byte(scanner.Seq), bacteria_map)
-    }
-
-    fmt.Printf("\n%s has %d reads.\n", *read_file, c)
-    PrintMemUsage()
-  	for k, _ := range bacteria_map {
-		bacteria_map[k].PrintBacteria()
+    	f.OnlineQuerySingle([]byte(scanner.Seq), bacteria_map)
 	}
 
+	fmt.Printf("\n%s has %d reads.\n", read_file, c)
+    utils.PrintMemUsage()
+
 }
 
-//-----------------------------------------------------------------------------
-func TimeConsume(start time.Time, name string) {
-    elapsed := time.Since(start)
-    // log.Printf("%s run in %s", name, elapsed)
-    // fmt.Printf("%s run in %s \n\n", name, elapsed)
-    fmt.Printf("%s%s\n", name, elapsed)
-}
+func QueryPair(read_1 string, read_2 string, f *ppt_filter.Filter, bacteria_map map[int64]*ppt_filter.Bacteria) {
 
-//-----------------------------------------------------------------------------
-// PrintMemUsage outputs the current, total and OS memory being used. As well as the number 
-// of garage collection cycles completed.
-func PrintMemUsage() {
-        var m runtime.MemStats
-        runtime.ReadMemStats(&m)
-        fmt.Println("\nMemory Usage")
-        // For info on each, see: https://golang.org/pkg/runtime/#MemStats
-        fmt.Printf("Alloc = %v MiB", bToMb(m.Alloc))
-        fmt.Printf("\tTotalAlloc = %v MiB", bToMb(m.TotalAlloc))
-        fmt.Printf("\tSys = %v MiB", bToMb(m.Sys))
-        fmt.Printf("\tNumGC = %v\n", m.NumGC)
-}
+	log.Printf("Get reads")
+    fq, err := os.Open(read_1)
+    if err != nil {
+        panic(err)
+    }
 
-func bToMb(b uint64) uint64 {
-    return b / 1024 / 1024
+	fq2, err := os.Open(read_2)
+    if err != nil {
+        panic(err)
+    }
+
+	scanner := ppt_filter.NewFastqScanner(fq)
+	scanner2 := ppt_filter.NewFastqScanner(fq2)
+    c := 0
+    defer utils.TimeConsume(time.Now(), "\nQuery Time ")
+    log.Printf("Start querying...")
+	for scanner.Scan() && scanner2.Scan() {
+		c += 1
+		// fmt.Println(scanner.Seq)
+		// fmt.Println(scanner2.Seq)
+		f.OnlineQueryPair([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map)
+	}
+
+	fmt.Printf("\n%s and %s have %d pairs.\n", read_1, read_2, c)
+    utils.PrintMemUsage()
+
 }
