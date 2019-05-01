@@ -32,7 +32,6 @@ func (b *Bacteria) PrintBacteria() {
 
 func (b *Bacteria) ReachThreshold() bool {
 	if float32(b.Signatures.Size()) >= b.Threshold {
-		b.Reported = true
 		return true
 	} else {
 		return false

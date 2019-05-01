@@ -21,9 +21,9 @@ func main() {
     log.Println("Finish loading filter.")
 
 	if *read_2 == "" {
-		f.OnlineQuerySingle(*read_1)	
+		f.OnlineSingleQuery(*read_1)	
 	} else {
-		f.OnlineQueryPair(*read_1, *read_2)
+		f.OnlinePairQuery(*read_1, *read_2)
 	}
 
 }

@@ -15,7 +15,7 @@ const Empty = uint16(0)
 // Online Query for single-end reads
 // For each genome, store all the kmers which are matched.
 //-----------------------------------------------------------------------------
-func (f *Filter) OnlineQuerySingle(read_file string) {
+func (f *Filter) OnlineSingleQuery(read_file string) {
 
 	bacteria_map := make(map[uint16]*Bacteria)
 
@@ -41,7 +41,7 @@ func (f *Filter) OnlineQuerySingle(read_file string) {
     log.Printf("Start querying...")
     for scanner.Scan() {
     	c += 1
-    	f.QuerySingle([]byte(scanner.Seq), bacteria_map)
+    	f.QuerySingleRead([]byte(scanner.Seq), bacteria_map)
 	}
 
 	fmt.Printf("\n%s has %d reads.\n", read_file, c)
@@ -49,7 +49,7 @@ func (f *Filter) OnlineQuerySingle(read_file string) {
 
 }
 
-func (f *Filter) QuerySingle(read []byte, bacteria_map map[uint16]*Bacteria) {
+func (f *Filter) QuerySingleRead(read []byte, bacteria_map map[uint16]*Bacteria) {
 	kmer_scanner := NewKmerScanner(read, f.K)
 
 	for kmer_scanner.ScanBothStrands() {
@@ -65,9 +65,10 @@ func (f *Filter) QuerySingle(read []byte, bacteria_map map[uint16]*Bacteria) {
 				
 				bacteria_map[idx].AddSignature(j)
 				
-				fmt.Println("Updated signatures:", idx, bacteria_map[idx].Signatures)
-				if bacteria_map[idx].ReachThreshold() {
+				// fmt.Println(idx, bacteria_map[idx].Signatures)
+				if bacteria_map[idx].ReachThreshold() && bacteria_map[idx].Reported == false {
 					log.Printf("Found bacteria %d", idx)
+					bacteria_map[idx].Reported = true
 				}
 			}
 
