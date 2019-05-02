@@ -50,30 +50,77 @@ func (f *Filter) OnlineSingleQuery(read_file string) {
 }
 
 func (f *Filter) QuerySingleRead(read []byte, bacteria_map map[uint16]*Bacteria) {
-	kmer_scanner := NewKmerScanner(read, f.K)
+	gidx := f.QueryKmersBothStrands(read)
+	idx := FindMajorHit(gidx)
+	reported_bacteria := 0
 
-	for kmer_scanner.ScanBothStrands() {
-		// fmt.Println(string(kmer_scanner.Kmer))
+	reported_bacteria += StoreSignatures(gidx, idx, bacteria_map)
+	if reported_bacteria == 0 {
+		log.Printf("No bacteria found.")
+	} else {
+		log.Printf("Found %d bacteria.", reported_bacteria)
+	}
 
-		idx := uint16(0)
-        j := int64(0)
-		for i := 0; i < len(f.HashFunction); i++ {
-			j = f.HashFunction[i].SlidingHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer)
-			
-			if f.table[j] != Dirty && f.table[j] != Empty {
-				idx = uint16(f.table[j])
-				
-				bacteria_map[idx].AddSignature(j)
-				
-				// fmt.Println(idx, bacteria_map[idx].Signatures)
-				if bacteria_map[idx].ReachThreshold() && bacteria_map[idx].Reported == false {
-					log.Printf("Found bacteria %d", idx)
-					bacteria_map[idx].Reported = true
-				}
-			}
+	if reported_bacteria < len(bacteria_map) {
+		log.Printf("These bacteria may exist in the sample:")
+		PrintUnreportedBacteria(bacteria_map)	
+	}
+	
 
-		}
-		
-    }
 }
 
+func (f *Filter) QueryKmersBothStrands(read []byte) map[uint16][]int64 {
+	gidx := make(map[uint16][]int64, 0)
+
+	kmer_scanner := NewKmerScanner(read, f.K)
+	for kmer_scanner.ScanBothStrands() {
+		for i := 0; i < len(f.HashFunction); i++ {
+			j := f.HashFunction[i].SlidingHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer)
+
+			if f.table[j] != Dirty && f.table[j] != Empty {
+				gidx[f.table[j]] = append(gidx[f.table[j]], j)
+			}
+			
+		}
+	}
+
+	return gidx
+}
+
+func FindMajorHit(gidx map[uint16][]int64) uint16{
+	idx := uint16(0)
+	m_value := 0
+	for k, v := range gidx {
+		if len(v) > m_value {
+			m_value = len(v)
+			idx = k
+		}
+	}
+
+	return idx
+}
+
+func StoreSignatures(gidx map[uint16][]int64, idx uint16, bacteria_map map[uint16]*Bacteria) int {
+	for i := 0; i < len(gidx[idx]); i++ {
+		bacteria_map[idx].AddSignature(gidx[idx][i])
+
+		fmt.Println(idx, bacteria_map[idx].Signatures)
+		if bacteria_map[idx].ReachThreshold() && bacteria_map[idx].Reported == false {
+			log.Printf("Found bacteria %d", idx)
+			bacteria_map[idx].Reported = true
+			return 1
+		}
+	}
+	return 0
+}
+
+func PrintUnreportedBacteria(bacteria_map map[uint16]*Bacteria) {
+	for k, v := range bacteria_map {
+		if bacteria_map[k].Reported == false {
+			if v.Signatures.Size() > 0 {
+				fmt.Println("Bacteria ", k)
+			}
+		}
+	}
+
+}
