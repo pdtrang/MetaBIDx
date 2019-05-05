@@ -36,7 +36,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int) {
             // fmt.Printf("%s,",fa_scanner.Header)
             count = count + len(fa_scanner.Seq)
             kmer_scanner := ppt_filter.NewKmerScanner(fa_scanner.Seq, k)
-            for kmer_scanner.Scan() {
+            for kmer_scanner.ScanBothStrands() {
                 //fmt.Println(string(kmer_scanner.Kmer))
                 f.HashSignature(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, uint16(fidx+1))
             }

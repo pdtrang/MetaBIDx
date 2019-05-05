@@ -50,7 +50,8 @@ func (f *Filter) OnlineSingleQuery(read_file string) {
 }
 
 func (f *Filter) QuerySingleRead(read []byte, bacteria_map map[uint16]*Bacteria) {
-	gidx := f.QueryKmersBothStrands(read)
+	gidx := make(map[uint16][]int64, 0)
+	f.QueryKmersBothStrands(read, gidx)
 	idx := FindMajorHit(gidx)
 	reported_bacteria := 0
 
@@ -60,18 +61,12 @@ func (f *Filter) QuerySingleRead(read []byte, bacteria_map map[uint16]*Bacteria)
 	} else {
 		log.Printf("Found %d bacteria.", reported_bacteria)
 	}
-
-	if reported_bacteria < len(bacteria_map) {
-		log.Printf("These bacteria may exist in the sample:")
-		PrintUnreportedBacteria(bacteria_map)	
-	}
 	
 
 }
 
-func (f *Filter) QueryKmersBothStrands(read []byte) map[uint16][]int64 {
-	gidx := make(map[uint16][]int64, 0)
-
+func (f *Filter) QueryKmersBothStrands(read []byte, gidx map[uint16][]int64) {
+	
 	kmer_scanner := NewKmerScanner(read, f.K)
 	for kmer_scanner.ScanBothStrands() {
 		for i := 0; i < len(f.HashFunction); i++ {
@@ -84,7 +79,6 @@ func (f *Filter) QueryKmersBothStrands(read []byte) map[uint16][]int64 {
 		}
 	}
 
-	return gidx
 }
 
 func FindMajorHit(gidx map[uint16][]int64) uint16{
@@ -112,15 +106,4 @@ func StoreSignatures(gidx map[uint16][]int64, idx uint16, bacteria_map map[uint1
 		}
 	}
 	return 0
-}
-
-func PrintUnreportedBacteria(bacteria_map map[uint16]*Bacteria) {
-	for k, v := range bacteria_map {
-		if bacteria_map[k].Reported == false {
-			if v.Signatures.Size() > 0 {
-				fmt.Println("Bacteria ", k)
-			}
-		}
-	}
-
 }

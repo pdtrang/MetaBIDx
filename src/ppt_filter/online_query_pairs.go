@@ -54,37 +54,19 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string) {
 }
 
 func (f *Filter) QueryPairs(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria) {
+	gidx := make(map[uint16][]int64, 0)
 
-	gidx_1 := f.QueryKmersOneStrand(read_1)
-	gidx_2 := f.QueryKmersOneStrand(read_2)
+	f.QueryKmersOneStrand(read_1, gidx)
+	f.QueryKmersOneStrand(read_2, gidx)
 
-	fmt.Println("gidx_1 ", gidx_1)
-	fmt.Println("gidx_2 ", gidx_2)
+	fmt.Println("gidx ", gidx)
 
-	idx_1 := FindMajorHit(gidx_1)
-	idx_2 := FindMajorHit(gidx_2)
+	idx := FindMajorHit(gidx)
 
-	fmt.Println("idx_1 ", idx_1)
-	fmt.Println("idx_2 ", idx_2)
+	fmt.Println("idx ", idx)
 
 	reported_bacteria := 0
-	if idx_1 != idx_2 && idx_1 != Empty && idx_2 != Empty {
-		if len(gidx_1[idx_1]) > len(gidx_2[idx_2]) {
-			reported_bacteria += StoreSignatures(gidx_1, idx_1, bacteria_map)
-			if _, ok := gidx_2[idx_1]; ok {
-				reported_bacteria += StoreSignatures(gidx_2, idx_1, bacteria_map)
-			}
-		} else if len(gidx_2[idx_2]) > len(gidx_1[idx_1]) {
-			reported_bacteria += StoreSignatures(gidx_2, idx_2, bacteria_map)
-			if _, ok := gidx_1[idx_2]; ok {
-				reported_bacteria += StoreSignatures(gidx_1, idx_2, bacteria_map)
-			}
-		}
-
-	} else {
-		reported_bacteria += StoreSignatures(gidx_1, idx_1, bacteria_map)
-		reported_bacteria += StoreSignatures(gidx_2, idx_2, bacteria_map)	
-	}
+	reported_bacteria += StoreSignatures(gidx, idx, bacteria_map)
 		
 	if reported_bacteria == 0 {
 		log.Printf("No bacteria found.")
@@ -94,8 +76,7 @@ func (f *Filter) QueryPairs(read_1 []byte, read_2 []byte, bacteria_map map[uint1
 }
 
 
-func (f *Filter) QueryKmersOneStrand(read []byte) map[uint16][]int64 {
-	gidx := make(map[uint16][]int64, 0)
+func (f *Filter) QueryKmersOneStrand(read []byte, gidx map[uint16][]int64) {
 
 	kmer_scanner := NewKmerScanner(read, f.K)
 	for kmer_scanner.ScanOneStrand() {
@@ -109,5 +90,4 @@ func (f *Filter) QueryKmersOneStrand(read []byte) map[uint16][]int64 {
 		}
 	}
 
-	return gidx
 }
