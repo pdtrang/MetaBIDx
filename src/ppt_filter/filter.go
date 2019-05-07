@@ -60,6 +60,15 @@ func (f *Filter) Summarize() {
 	}
 }
 
+func (f *Filter) CountSignature()  map[uint16]int {
+	count := make(map[uint16]int)
+	for i := int64(0); i < f.M; i++ {
+		count[f.table[i]]++
+	}
+
+	return count
+}
+
 //-----------------------------------------------------------------------------
 func (f *Filter) Show() {
 	fmt.Println("Number of hash functions: ", len(f.HashFunction))
