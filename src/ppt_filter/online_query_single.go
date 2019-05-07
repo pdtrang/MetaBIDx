@@ -53,16 +53,9 @@ func (f *Filter) QuerySingleRead(read []byte, bacteria_map map[uint16]*Bacteria)
 	gidx := make(map[uint16][]int64, 0)
 	f.QueryKmersBothStrands(read, gidx)
 	idx := FindMajorHit(gidx)
-	reported_bacteria := 0
 
-	reported_bacteria += StoreSignatures(gidx, idx, bacteria_map)
-	if reported_bacteria == 0 {
-		log.Printf("No bacteria found.")
-	} else {
-		log.Printf("Found %d bacteria.", reported_bacteria)
-	}
+	SaveSignatures(gidx, idx, bacteria_map)
 	
-
 }
 
 func (f *Filter) QueryKmersBothStrands(read []byte, gidx map[uint16][]int64) {
@@ -94,16 +87,15 @@ func FindMajorHit(gidx map[uint16][]int64) uint16{
 	return idx
 }
 
-func StoreSignatures(gidx map[uint16][]int64, idx uint16, bacteria_map map[uint16]*Bacteria) int {
+func SaveSignatures(gidx map[uint16][]int64, idx uint16, bacteria_map map[uint16]*Bacteria){
 	for i := 0; i < len(gidx[idx]); i++ {
 		bacteria_map[idx].AddSignature(gidx[idx][i])
 
-		fmt.Println(idx, bacteria_map[idx].Signatures)
+		// fmt.Println(idx, bacteria_map[idx].Signatures)
 		if bacteria_map[idx].ReachThreshold() && bacteria_map[idx].Reported == false {
 			log.Printf("Found bacteria %d", idx)
 			bacteria_map[idx].Reported = true
-			return 1
 		}
 	}
-	return 0
+
 }

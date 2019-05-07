@@ -59,20 +59,14 @@ func (f *Filter) QueryPairs(read_1 []byte, read_2 []byte, bacteria_map map[uint1
 	f.QueryKmersOneStrand(read_1, gidx)
 	f.QueryKmersOneStrand(read_2, gidx)
 
-	fmt.Println("gidx ", gidx)
+	// fmt.Println("gidx ", gidx)
 
 	idx := FindMajorHit(gidx)
 
-	fmt.Println("idx ", idx)
+	// fmt.Println("idx ", idx)
 
-	reported_bacteria := 0
-	reported_bacteria += StoreSignatures(gidx, idx, bacteria_map)
-		
-	if reported_bacteria == 0 {
-		log.Printf("No bacteria found.")
-	} else {
-		log.Printf("Found %d bacteria.", reported_bacteria)
-	}
+	SaveSignatures(gidx, idx, bacteria_map)
+	
 }
 
 
