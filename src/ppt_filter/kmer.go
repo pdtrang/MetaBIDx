@@ -33,12 +33,18 @@ func NewKmerScanner(seq []byte, k int) *KmerScanner {
 	}
 }
 
+
+func (s *KmerScanner) Scan() bool {
+	return s.ScanBothStrands()
+}
+
+
 //-----------------------------------------------------------------------------
 // (1) Scan k-mers from the primary strand from left to right, then
 // (2) Scan k-mers from the complementary strand from right to left.
 // Skip k-mers that contain characters other than A, C, G, T.
 //-----------------------------------------------------------------------------
-func (s *KmerScanner) Scan() bool {
+func (s *KmerScanner) ScanBothStrands() bool {
 	if s.IsPrimary {
 		if s.I >= len(s.Seq)-s.K+1 || s.K > len(s.Seq) {
 			s.I = len(s.Seq) - s.K
@@ -57,7 +63,7 @@ func (s *KmerScanner) Scan() bool {
 				if s.Seq[i] != 'A' && s.Seq[i] != 'C' && s.Seq[i] != 'G' && s.Seq[i] != 'T' {
 					s.I = i + 1
 					s.Restarted = true
-					return s.Scan()
+					return s.ScanBothStrands()
 				}
 			}
 			s.Kmer = s.Seq[s.I : s.K+s.I]
@@ -82,11 +88,38 @@ func (s *KmerScanner) Scan() bool {
 			if s.Seq[i] != 'A' && s.Seq[i] != 'C' && s.Seq[i] != 'G' && s.Seq[i] != 'T' {
 				s.I = i - s.K
 				s.Restarted = true
-				return s.Scan()
+				return s.ScanBothStrands()
 			}
 		}
 		s.Kmer = s.ReverseComplement(s.Seq[s.I : s.K+s.I])
 		s.I--
+		return true
+	}
+}
+
+func (s *KmerScanner) ScanOneStrand() bool {
+
+	if s.I >= len(s.Seq)-s.K+1 || s.K > len(s.Seq) {
+		s.I = len(s.Seq) - s.K
+		s.IsFirstKmer = true
+		s.Restarted = false
+		return false
+	} else {
+		if s.I == 0 || s.Restarted {
+			s.IsFirstKmer = true
+			s.Restarted = false
+		} else {
+			s.IsFirstKmer = false
+		}
+		for i := s.I; i < s.K+s.I; i++ {
+			if s.Seq[i] != 'A' && s.Seq[i] != 'C' && s.Seq[i] != 'G' && s.Seq[i] != 'T' {
+				s.I = i + 1
+				s.Restarted = true
+				return s.ScanOneStrand()
+			}
+		}
+		s.Kmer = s.Seq[s.I : s.K+s.I]
+		s.I++
 		return true
 	}
 }
