@@ -37,24 +37,27 @@ func (f *Filter) OnlineSingleQuery(read_file string) {
 
     scanner := NewFastqScanner(fq)
     c := 0
-    defer utils.TimeConsume(time.Now(), "\nQuery Time ")
+    start_time := time.Now()
+    defer utils.TimeConsume(start_time, "\nQuery Time ")
+    num_bacteria := 0
     log.Printf("Start querying...")
     for scanner.Scan() {
     	c += 1
-    	f.QuerySingleRead([]byte(scanner.Seq), bacteria_map)
+    	num_bacteria += f.QuerySingleRead([]byte(scanner.Seq), bacteria_map, start_time)
 	}
 
 	fmt.Printf("\n%s has %d reads.\n", read_file, c)
+	ComputeAverageQueryTime(bacteria_map, num_bacteria)
     utils.PrintMemUsage()	
 
 }
 
-func (f *Filter) QuerySingleRead(read []byte, bacteria_map map[uint16]*Bacteria) {
+func (f *Filter) QuerySingleRead(read []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
 	gidx := make(map[uint16][]int64, 0)
 	f.QueryKmersBothStrands(read, gidx)
 	idx := FindMajorHit(gidx)
 
-	SaveSignatures(gidx, idx, bacteria_map)
+	return SaveSignatures(f, gidx, idx, bacteria_map, start_time)
 	
 }
 
@@ -87,15 +90,35 @@ func FindMajorHit(gidx map[uint16][]int64) uint16{
 	return idx
 }
 
-func SaveSignatures(gidx map[uint16][]int64, idx uint16, bacteria_map map[uint16]*Bacteria){
+func SaveSignatures(f *Filter, gidx map[uint16][]int64, idx uint16, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
 	for i := 0; i < len(gidx[idx]); i++ {
 		bacteria_map[idx].AddSignature(gidx[idx][i])
 
 		// fmt.Println(idx, bacteria_map[idx].Signatures)
 		if bacteria_map[idx].ReachThreshold() && bacteria_map[idx].Reported == false {
-			log.Printf("Found bacteria %d", idx)
+			elapsed := time.Since(start_time)
+			log.Printf("Found [%s], elapsed: %s ", f.Gid[idx], elapsed)
 			bacteria_map[idx].Reported = true
+			bacteria_map[idx].QueryTime = elapsed
+			return 1
 		}
 	}
 
+	return 0
+}
+
+func ComputeAverageQueryTime(bacteria_map map[uint16]*Bacteria, num_bacteria int) {
+	if num_bacteria > 0 {
+		sum := float64(0)
+		for _, b := range bacteria_map {
+			if b.Reported == true {
+				sum += float64(b.QueryTime)
+			}
+		}
+
+		t := time.Duration(sum/float64(num_bacteria))*time.Nanosecond
+		fmt.Printf("Average query time = %s", t)
+	} else {
+		fmt.Println("No bacteria found.")
+	}
 }

@@ -2,12 +2,14 @@ package ppt_filter
 
 import (
 	"fmt"
+	"time"
 )
 
 type Bacteria struct {
 	Signatures *Int64Set
 	Threshold float32
 	Reported bool
+	QueryTime time.Duration
 }
 
 func NewBacteria(t float32) *Bacteria {
@@ -15,6 +17,7 @@ func NewBacteria(t float32) *Bacteria {
 		Signatures: NewInt64Set(),
 		Threshold: t,
 		Reported: false,
+		QueryTime: time.Duration(0),
 	}
 }
 

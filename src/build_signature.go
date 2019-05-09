@@ -31,6 +31,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int) {
         fa_scanner := ppt_filter.NewFastaScanner(fa)
         // Scan through all sequences in the fasta file
         for fa_scanner.Scan() {
+            f.Gid[uint16(fidx+1)] = fa_scanner.Header[1:]
             // Sequence header, and seq length            
             // fmt.Println(fa_scanner.Header[1:], len(fa_scanner.Seq))
             // fmt.Printf("%s,",fa_scanner.Header)
@@ -70,7 +71,7 @@ func main() {
     refseq_genomes := flag.String("refseq", "", "refseq genome dir")    
     K := flag.Int("k", 16, "kmer length")
     filter_saved_file := flag.String("save", "", "filter saved file")
-    power := flag.Int("p", 1000, "power")
+    power := flag.Int("p", 32, "power")
     N_HASH_FUNCTIONS := flag.Int("n", 2, "number of hash functions")
     N_PHASES := flag.Int("ph", 1, "number of phases")
 
@@ -79,8 +80,8 @@ func main() {
     var FILTER_LEN int64
 
     // FILTER_LEN = int64(math.Pow(float64(2), float64(24)))
-    // FILTER_LEN = int64(math.Pow(float64(2), float64(*power)))
-    FILTER_LEN = int64(*power)
+    FILTER_LEN = int64(math.Pow(float64(2), float64(*power)))
+    // FILTER_LEN = int64(*power)
 
     // Time On
     defer TimeConsume(time.Now(), "Run time: ")

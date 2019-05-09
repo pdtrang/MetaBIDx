@@ -39,21 +39,24 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string) {
 	scanner := NewFastqScanner(fq)
 	scanner2 := NewFastqScanner(fq2)
     c := 0
-    defer utils.TimeConsume(time.Now(), "\nQuery Time ")
+    start_time := time.Now()
+    num_bacteria := 0
+    defer utils.TimeConsume(start_time, "\nQuery Time ")
     log.Printf("Start querying...")
 	for scanner.Scan() && scanner2.Scan() {
 		c += 1
 		// fmt.Println(scanner.Seq)
 		// fmt.Println(scanner2.Seq)
-		f.QueryPairs([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map)
+		num_bacteria += f.QueryPairs([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time)
 	}
 
 	fmt.Printf("\n%s and %s have %d pairs.\n", read_file_1, read_file_2, c)
+	ComputeAverageQueryTime(bacteria_map, num_bacteria)
     utils.PrintMemUsage()
 
 }
 
-func (f *Filter) QueryPairs(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria) {
+func (f *Filter) QueryPairs(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
 	gidx := make(map[uint16][]int64, 0)
 
 	f.QueryKmersOneStrand(read_1, gidx)
@@ -65,7 +68,7 @@ func (f *Filter) QueryPairs(read_1 []byte, read_2 []byte, bacteria_map map[uint1
 
 	// fmt.Println("idx ", idx)
 
-	SaveSignatures(gidx, idx, bacteria_map)
+	return SaveSignatures(f, gidx, idx, bacteria_map, start_time)
 	
 }
 
