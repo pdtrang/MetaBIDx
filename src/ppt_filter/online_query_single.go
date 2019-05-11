@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	// "utils"
 	"time"
 	"../utils"
 )
@@ -15,7 +14,7 @@ const Empty = uint16(0)
 // Online Query for single-end reads
 // For each genome, store all the kmers which are matched.
 //-----------------------------------------------------------------------------
-func (f *Filter) OnlineSingleQuery(read_file string) {
+func (f *Filter) OnlineSingleQuery(read_file string, out_filename string) {
 
 	bacteria_map := make(map[uint16]*Bacteria)
 
@@ -47,6 +46,7 @@ func (f *Filter) OnlineSingleQuery(read_file string) {
 
     	if num_bacteria == len(bacteria_map) {
 			log.Printf("Query ", c, "pairs, found ", num_bacteria, " bacteria.")
+			SaveQueryResult(f, bacteria_map, out_filename)
 			break
 		}
 	}
@@ -126,4 +126,25 @@ func ComputeAverageQueryTime(bacteria_map map[uint16]*Bacteria, num_bacteria int
 	} else {
 		fmt.Println("No bacteria found.")
 	}
+}
+
+
+func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, fn string) {
+	fi, err := os.Create(fn)
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
+
+    for k, b := range bacteria_map {
+    	if b.Reported == true {
+    		_, err := fi.WriteString(f.Gid[k]+"\n")
+		    if err != nil {
+		        fmt.Println(err)
+		        fi.Close()
+		        return
+		    }	
+    	}
+        
+    }
 }

@@ -11,7 +11,7 @@ import (
 //-----------------------------------------------------------------------------
 // Online Query for paired-end reads
 //-----------------------------------------------------------------------------
-func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string) {
+func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_filename string) {
 	
 	bacteria_map := make(map[uint16]*Bacteria)
 
@@ -57,6 +57,7 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string) {
 
 	fmt.Printf("\n%s and %s have %d pairs.\n", read_file_1, read_file_2, c)
 	ComputeAverageQueryTime(bacteria_map, num_bacteria)
+	SaveQueryResult(f, bacteria_map, out_filename)
     utils.PrintMemUsage()
 
 }
@@ -93,3 +94,4 @@ func (f *Filter) QueryKmersOneStrand(read []byte, gidx map[uint16][]int64) {
 	}
 
 }
+

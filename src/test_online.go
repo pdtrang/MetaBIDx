@@ -12,6 +12,7 @@ func main() {
 	filter_saved_file := flag.String("load", "", "filter saved file")
     read_1 := flag.String("r1", "", "fastq/fq file")
     read_2 := flag.String("r2", "", "fastq/fq file")
+    out := flag.String("out", "result.csv", "output filename")
     flag.Parse()
 	
 	// Load filter
@@ -22,9 +23,9 @@ func main() {
     log.Println("Finish loading filter.")
 
 	if *read_2 == "" {
-		f.OnlineSingleQuery(*read_1)	
+		f.OnlineSingleQuery(*read_1, *out)	
 	} else {
-		f.OnlinePairQuery(*read_1, *read_2)
+		f.OnlinePairQuery(*read_1, *read_2, *out)
 	}
 
 }
