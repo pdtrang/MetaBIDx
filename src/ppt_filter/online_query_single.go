@@ -44,6 +44,11 @@ func (f *Filter) OnlineSingleQuery(read_file string) {
     for scanner.Scan() {
     	c += 1
     	num_bacteria += f.QuerySingleRead([]byte(scanner.Seq), bacteria_map, start_time)
+
+    	if num_bacteria == len(bacteria_map) {
+			log.Printf("Query ", c, "pairs, found ", num_bacteria, " bacteria.")
+			break
+		}
 	}
 
 	fmt.Printf("\n%s has %d reads.\n", read_file, c)

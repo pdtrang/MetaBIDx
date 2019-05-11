@@ -48,6 +48,11 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string) {
 		// fmt.Println(scanner.Seq)
 		// fmt.Println(scanner2.Seq)
 		num_bacteria += f.QueryPairs([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time)
+
+		if num_bacteria == len(bacteria_map) {
+			log.Printf("Query ", c, "pairs, found ", num_bacteria, " bacteria.")
+			break
+		}
 	}
 
 	fmt.Printf("\n%s and %s have %d pairs.\n", read_file_1, read_file_2, c)
