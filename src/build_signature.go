@@ -90,8 +90,8 @@ func main() {
     f := BuildFilter(*refseq_genomes, *K, *N_HASH_FUNCTIONS, FILTER_LEN, *N_PHASES)
 
     // Print Summary
-    fmt.Println("Summary")
-    f.Summarize()
+    // fmt.Println("Summary")
+    // f.Summarize()
     // Save
     f.Save(*filter_saved_file)
     // log.Printf("Saved: %s.", *filter_saved_file)
