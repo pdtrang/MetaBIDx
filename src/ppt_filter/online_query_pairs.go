@@ -22,7 +22,9 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
     // initialize bacteria_map
     // where each Bacteria is initialized with threshold
 	for k, v := range count {
-		bacteria_map[k] = NewBacteria(float32(v) * threshold)
+		if k != Empty && k != Dirty {
+			bacteria_map[k] = NewBacteria(float32(v) * threshold)
+		}
 	}
 
 	log.Printf("Get reads")
@@ -49,7 +51,7 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 		// fmt.Println(scanner2.Seq)
 		num_bacteria += f.QueryPairs([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time)
 
-		if num_bacteria == len(bacteria_map)-2 {
+		if num_bacteria == len(bacteria_map) {
 			log.Printf("Query ", c, "pairs, found ", num_bacteria, " bacteria.")
 			break
 		}
