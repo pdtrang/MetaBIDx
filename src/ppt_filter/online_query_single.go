@@ -47,7 +47,7 @@ func (f *Filter) OnlineSingleQuery(read_file string, out_filename string) {
     	num_bacteria += f.QuerySingleRead([]byte(scanner.Seq), bacteria_map, start_time)
 
     	if num_bacteria == len(bacteria_map) {
-			log.Printf("Query ", c, "pairs, found ", num_bacteria, " bacteria.")
+			log.Printf("Query %d pairs, found %d bacteria.", c, num_bacteria)
 			SaveQueryResult(f, bacteria_map, out_filename)
 			break
 		}
@@ -140,7 +140,8 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, fn string) {
 
     for k, b := range bacteria_map {
     	if b.Reported == true {
-    		_, err := fi.WriteString(f.Gid[k]+"\n")
+    		s := f.Gid[k] + "\t" + b.QueryTime.String() + "\n"
+    		_, err := fi.WriteString(s)
 		    if err != nil {
 		        fmt.Println(err)
 		        fi.Close()

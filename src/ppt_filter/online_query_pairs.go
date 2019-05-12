@@ -52,7 +52,7 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 		num_bacteria += f.QueryPairs([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time)
 
 		if num_bacteria == len(bacteria_map) {
-			log.Printf("Query ", c, "pairs, found ", num_bacteria, " bacteria.")
+			log.Printf("Query %d pairs, found %d bacteria.", c, num_bacteria)
 			break
 		}
 	}
