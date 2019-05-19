@@ -1,11 +1,11 @@
 package ppt_filter
 
 import (
-	"fmt"
-	"log"
-	"os"
-	"time"
-	"../utils"
+	// "fmt"
+	// "log"
+	// "os"
+	// "time"
+	// "../utils"
 )
 
 const Empty = uint16(0)
@@ -14,140 +14,76 @@ const Empty = uint16(0)
 // Online Query for single-end reads
 // For each genome, store all the kmers which are matched.
 //-----------------------------------------------------------------------------
-func (f *Filter) OnlineSingleQuery(read_file string, out_filename string) {
+func (f *Filter) OnlineSingleQuery(read_file string, out_filename string, strategy string) {
 
-	bacteria_map := make(map[uint16]*Bacteria)
+	// bacteria_map := make(map[uint16]*Bacteria)
 
-    threshold := float32(0.5)
+ //    threshold := float32(0.5)
 
-    // compute threshold for each bacteria
-    count := f.CountSignature()	
-    // initialize bacteria_map
-    // where each Bacteria is initialized with threshold
-	for k, v := range count {
-		if k != Empty && k != Dirty {
-			bacteria_map[k] = NewBacteria(float32(v) * threshold)	
-		}
-	}
+ //    // compute threshold for each bacteria
+ //    count := f.CountSignature()	
+ //    // initialize bacteria_map
+ //    // where each Bacteria is initialized with threshold
+	// for k, v := range count {
+	// 	if k != Empty && k != Dirty {
+	// 		bacteria_map[k] = NewBacteria(float32(v) * threshold)	
+	// 	}
+	// }
 
-	log.Printf("Get reads")
-    fq, err := os.Open(read_file)
-    if err != nil {
-        panic(err)
-    }
+	// log.Printf("Get reads")
+ //    fq, err := os.Open(read_file)
+ //    if err != nil {
+ //        panic(err)
+ //    }
 
-    scanner := NewFastqScanner(fq)
-    c := 0
-    start_time := time.Now()
-    defer utils.TimeConsume(start_time, "\nQuery Time ")
-    num_bacteria := 0
-    log.Printf("Start querying...")
-    for scanner.Scan() {
-    	c += 1
-    	num_bacteria += f.QuerySingleRead([]byte(scanner.Seq), bacteria_map, start_time)
+ //    scanner := NewFastqScanner(fq)
+ //    c := 0
+ //    start_time := time.Now()
+ //    defer utils.TimeConsume(start_time, "\nQuery Time ")
+ //    num_bacteria := 0
+ //    log.Printf("Start querying...")
+ //    for scanner.Scan() {
+ //    	c += 1
+ //    	num_bacteria += f.QuerySingleRead([]byte(scanner.Seq), bacteria_map, start_time)
 
-    	if num_bacteria == len(bacteria_map) {
-			log.Printf("Query %d pairs, found %d bacteria.", c, num_bacteria)
-			SaveQueryResult(f, bacteria_map, out_filename)
-			break
-		}
-	}
+ //    	if num_bacteria == len(bacteria_map) {
+	// 		log.Printf("Query %d pairs, found %d bacteria.", c, num_bacteria)
+	// 		SaveQueryResult(f, bacteria_map, out_filename)
+	// 		break
+	// 	}
+	// }
 
-	fmt.Printf("\n%s has %d reads.\n", read_file, c)
-	ComputeAverageQueryTime(bacteria_map, num_bacteria)
-    utils.PrintMemUsage()	
+	// fmt.Printf("\n%s has %d reads.\n", read_file, c)
+	// ComputeAverageQueryTime(bacteria_map, num_bacteria)
+ //    utils.PrintMemUsage()	
 
 }
 
-func (f *Filter) QuerySingleRead(read []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
-	gidx := make(map[uint16][]int64, 0)
-	f.QueryKmersBothStrands(read, gidx)
-	idx := FindMajorHit(gidx)
+// func (f *Filter) QuerySingleRead(read []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
+// 	gidx := make(map[uint16][]int64, 0)
+// 	f.QueryKmersBothStrands(read, gidx)
+// 	idx := FindMajority(gidx)
 
-	return SaveSignatures(f, gidx, idx, bacteria_map, start_time)
+// 	return SaveSignatures(f, gidx, idx, bacteria_map, start_time)
 	
-}
+// }
 
-func (f *Filter) QueryKmersBothStrands(read []byte, gidx map[uint16][]int64) {
+// func (f *Filter) QueryKmersBothStrands(read []byte, gidx map[uint16][]int64) {
 	
-	kmer_scanner := NewKmerScanner(read, f.K)
-	for kmer_scanner.ScanBothStrands() {
-		for i := 0; i < len(f.HashFunction); i++ {
-			j := f.HashFunction[i].SlidingHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer)
+// 	kmer_scanner := NewKmerScanner(read, f.K)
+// 	for kmer_scanner.ScanBothStrands() {
+// 		for i := 0; i < len(f.HashFunction); i++ {
+// 			j := f.HashFunction[i].SlidingHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer)
 
-			if f.table[j] != Dirty && f.table[j] != Empty {
-				gidx[f.table[j]] = append(gidx[f.table[j]], j)
-			}
+// 			if f.table[j] != Dirty && f.table[j] != Empty {
+// 				gidx[f.table[j]] = append(gidx[f.table[j]], j)
+// 			}
 			
-		}
-	}
+// 		}
+// 	}
 
-}
-
-func FindMajorHit(gidx map[uint16][]int64) uint16{
-	idx := uint16(0)
-	m_value := 0
-	for k, v := range gidx {
-		if len(v) > m_value {
-			m_value = len(v)
-			idx = k
-		}
-	}
-
-	return idx
-}
-
-func SaveSignatures(f *Filter, gidx map[uint16][]int64, idx uint16, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
-	for i := 0; i < len(gidx[idx]); i++ {
-		bacteria_map[idx].AddSignature(gidx[idx][i])
-
-		// fmt.Println(idx, bacteria_map[idx].Signatures)
-		if bacteria_map[idx].ReachThreshold() && bacteria_map[idx].Reported == false {
-			elapsed := time.Since(start_time)
-			log.Printf("Found [%s], elapsed: %s ", f.Gid[idx], elapsed)
-			bacteria_map[idx].Reported = true
-			bacteria_map[idx].QueryTime = elapsed
-			return 1
-		}
-	}
-
-	return 0
-}
-
-func ComputeAverageQueryTime(bacteria_map map[uint16]*Bacteria, num_bacteria int) {
-	if num_bacteria > 0 {
-		sum := float64(0)
-		for _, b := range bacteria_map {
-			if b.Reported == true {
-				sum += float64(b.QueryTime)
-			}
-		}
-
-		t := time.Duration(sum/float64(num_bacteria))*time.Nanosecond
-		fmt.Printf("Average query time = %s", t)
-	} else {
-		fmt.Println("No bacteria found.")
-	}
-}
+// }
 
 
-func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, fn string) {
-	fi, err := os.Create(fn)
-    if err != nil {
-        fmt.Println(err)
-        return
-    }
 
-    for k, b := range bacteria_map {
-    	if b.Reported == true {
-    		s := f.Gid[k] + "\t" + b.QueryTime.String() + "\n"
-    		_, err := fi.WriteString(s)
-		    if err != nil {
-		        fmt.Println(err)
-		        fi.Close()
-		        return
-		    }	
-    	}
-        
-    }
-}
+

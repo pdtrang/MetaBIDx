@@ -20,6 +20,7 @@ type Filter struct {
 	HashFunction []*LinearHash
 	table        []uint16
 	Gid			 map[uint16]string
+	N_phases	 int
 }
 
 //-----------------------------------------------------------------------------
@@ -27,13 +28,14 @@ type Filter struct {
 // k: length of kmers
 //-----------------------------------------------------------------------------
 
-func NewFilter(m int64, k int, num_hashes int) *Filter {
+func NewFilter(m int64, k int, num_hashes int, n_phases int) *Filter {
 	//num_hashes := 2
 	f := &Filter{
 		M:     m,
 		K:     k,
 		table: make([]uint16, m),
 		Gid: make(map[uint16]string),
+		N_phases: n_phases,
 	}
 	f.HashFunction = make([]*LinearHash, num_hashes)
 	for i := 0; i < num_hashes; i++ {

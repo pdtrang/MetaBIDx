@@ -50,7 +50,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int) {
 //-----------------------------------------------------------------------------
 func BuildFilter(refseq string, k int, n_hf int, table_size int64, n_phases int) *ppt_filter.Filter {
     // Create an empty filter
-    f := ppt_filter.NewFilter(table_size, k, n_hf)
+    f := ppt_filter.NewFilter(table_size, k, n_hf, n_phases)
 
     // 1st walk
     VerifySignature(f, refseq, k)
@@ -73,7 +73,7 @@ func main() {
     filter_saved_file := flag.String("save", "", "filter saved file")
     power := flag.Int("p", 32, "power")
     N_HASH_FUNCTIONS := flag.Int("n", 2, "number of hash functions")
-    N_PHASES := flag.Int("ph", 1, "number of phases")
+    N_PHASES := flag.Int("ph", 2, "number of phases")
 
     //
     flag.Parse()

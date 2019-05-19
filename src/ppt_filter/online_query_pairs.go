@@ -11,7 +11,7 @@ import (
 //-----------------------------------------------------------------------------
 // Online Query for paired-end reads
 //-----------------------------------------------------------------------------
-func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_filename string) {
+func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_filename string, strategy string) {
 	
 	bacteria_map := make(map[uint16]*Bacteria)
 
@@ -49,7 +49,11 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 		c += 1
 		// fmt.Println(scanner.Seq)
 		// fmt.Println(scanner2.Seq)
-		num_bacteria += f.QueryPairs([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time)
+		if f.N_phases == 2 {
+			num_bacteria += f.TwoPhaseQuery([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time, strategy)						
+		} else if f.N_phases == 1 {
+			num_bacteria += f.OnePhaseQuery([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time, strategy)
+		}
 
 		if num_bacteria == len(bacteria_map) {
 			log.Printf("Query %d pairs, found %d bacteria.", c, num_bacteria)
@@ -64,36 +68,9 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 
 }
 
-func (f *Filter) QueryPairs(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
-	gidx := make(map[uint16][]int64, 0)
-
-	f.QueryKmersOneStrand(read_1, gidx)
-	f.QueryKmersOneStrand(read_2, gidx)
-
-	// fmt.Println("gidx ", gidx)
-
-	idx := FindMajorHit(gidx)
-
-	// fmt.Println("idx ", idx)
-
-	return SaveSignatures(f, gidx, idx, bacteria_map, start_time)
-	
-}
 
 
-func (f *Filter) QueryKmersOneStrand(read []byte, gidx map[uint16][]int64) {
 
-	kmer_scanner := NewKmerScanner(read, f.K)
-	for kmer_scanner.ScanOneStrand() {
-		for i := 0; i < len(f.HashFunction); i++ {
-			j := f.HashFunction[i].SlidingHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer)
 
-			if f.table[j] != Dirty && f.table[j] != Empty {
-				gidx[f.table[j]] = append(gidx[f.table[j]], j)
-			}
-			
-		}
-	}
 
-}
 

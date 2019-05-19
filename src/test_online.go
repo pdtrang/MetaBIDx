@@ -12,20 +12,21 @@ func main() {
 	filter_saved_file := flag.String("load", "", "filter saved file")
     read_1 := flag.String("r1", "", "fastq/fq file")
     read_2 := flag.String("r2", "", "fastq/fq file")
-    out := flag.String("out", "result.csv", "output filename")
+    out := flag.String("out", "result.txt", "output filename")
+    strategy := flag.String("strategy", "majority", "querying strategy")
     flag.Parse()
 	
 	// Load filter
 	log.Printf("Load filter")
     f := ppt_filter.Load(*filter_saved_file)
     // fmt.Println(f.Gid)
-    // f.Summarize()	
+    f.Summarize()	
     log.Println("Finish loading filter.")
 
 	if *read_2 == "" {
-		f.OnlineSingleQuery(*read_1, *out)	
+		f.OnlineSingleQuery(*read_1, *out, *strategy)	
 	} else {
-		f.OnlinePairQuery(*read_1, *read_2, *out)
+		f.OnlinePairQuery(*read_1, *read_2, *out, *strategy)
 	}
 
 }
