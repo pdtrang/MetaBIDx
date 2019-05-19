@@ -75,7 +75,7 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
 	        
 	    }
     } else {
-    	return
+    	fmt.Println("No bacteria found.")
     }
     
 }
