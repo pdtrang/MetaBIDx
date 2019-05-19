@@ -62,8 +62,8 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 	}
 
 	fmt.Printf("\n%s and %s have %d pairs.\n", read_file_1, read_file_2, c)
-	ComputeAverageQueryTime(bacteria_map, num_bacteria, out_filename)
-	SaveQueryResult(f, bacteria_map, out_filename)
+	// ComputeAverageQueryTime(bacteria_map, num_bacteria, out_filename)
+	SaveQueryResult(f, bacteria_map, num_bacteria, out_filename)
     utils.PrintMemUsage()
 
 }
