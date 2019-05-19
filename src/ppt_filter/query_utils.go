@@ -24,7 +24,13 @@ func SaveSignatures(f *Filter, signatures []int64, idx uint16, bacteria_map map[
 	return 0
 }
 
-func ComputeAverageQueryTime(bacteria_map map[uint16]*Bacteria, num_bacteria int) {
+func ComputeAverageQueryTime(bacteria_map map[uint16]*Bacteria, num_bacteria int, fn string) {
+	fi, err := os.Create(fn)
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
+
 	if num_bacteria > 0 {
 		sum := float64(0)
 		for _, b := range bacteria_map {
@@ -35,8 +41,23 @@ func ComputeAverageQueryTime(bacteria_map map[uint16]*Bacteria, num_bacteria int
 
 		t := time.Duration(sum/float64(num_bacteria))*time.Nanosecond
 		fmt.Printf("Average query time = %s", t)
+
+		s := "# Average query time = " + string(t)
+		_, err := fi.WriteString(s)
+	    if err != nil {
+	        fmt.Println(err)
+	        fi.Close()
+	        return
+	    }
 	} else {
 		fmt.Println("No bacteria found.")
+		s := "No bacteria found."
+		_, err := fi.WriteString(s)
+	    if err != nil {
+	        fmt.Println(err)
+	        fi.Close()
+	        return
+	    }
 	}
 }
 
