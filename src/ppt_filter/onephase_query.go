@@ -26,13 +26,12 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_ma
 
 		for j := 0; j < len(gidx[idx]); j++ {
 			for i := 0; i < len(f.HashFunction); i++ {
-				signatures = append(signatures, f.HashFunction[i].HashKmer(kmers[j]))
+				signatures = append(signatures, f.HashFunction[i].HashKmer(gidx[idx][j]))
 
 			}
 		}
 
-		SaveSignatures(f, signatures, idx, bacteria_map, start_time)
-		return 1	
+		return SaveSignatures(f, signatures, idx, bacteria_map, start_time)	
 	} else {
 		return 0
 	}

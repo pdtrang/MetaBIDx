@@ -31,8 +31,7 @@ func (f *Filter) TwoPhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_ma
 			}
 		}
 
-		SaveSignatures(f, signatures, idx, bacteria_map, start_time)
-		return 1	
+		return SaveSignatures(f, signatures, idx, bacteria_map, start_time)
 	} else {
 		return 0
 	}
@@ -74,8 +73,7 @@ func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteri
 				}
 			}
 
-			SaveSignatures(f, signatures, idx, bacteria_map, start_time)
-			return 1	
+			return SaveSignatures(f, signatures, idx, bacteria_map, start_time)
 		} else {
 			return 0
 		}
