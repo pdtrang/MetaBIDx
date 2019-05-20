@@ -13,7 +13,7 @@ func SaveSignatures(f *Filter, signatures []int64, idx uint16, bacteria_map map[
 	for i := 0; i < len(signatures); i++ {
 		bacteria_map[idx].AddSignature(signatures[i])
 
-	// fmt.Println(idx, bacteria_map[idx].Signatures)
+		// fmt.Println(idx, bacteria_map[idx].Signatures)
 		if bacteria_map[idx].ReachThreshold() && bacteria_map[idx].Reported == false {
 			elapsed := time.Since(start_time)
 			log.Printf("Found [%s], elapsed: %s ", f.Gid[idx], elapsed)

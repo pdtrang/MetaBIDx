@@ -92,10 +92,11 @@ func (f *Filter) TwoPhasesOONQueryRead(read []byte, kmers [][]byte, idx uint16) 
 		kmer_gid, is_unique_kmer := f.TwoPhasesQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer)  
 		
 		if is_unique_kmer {
+
 			if idx != uint16(0) && kmer_gid == idx {
 				kmers = append(kmers, kmer_scanner.Kmer)	
 				return kmer_gid, true	
-			} else if idx == uint16(0) {
+			} else if idx == uint16(0) && kmer_gid != uint16(0) {
 				kmers = append(kmers, kmer_scanner.Kmer)
 				return kmer_gid, true
 			} else {
