@@ -24,7 +24,7 @@ func SaveSignatures(f *Filter, signatures []int64, idx uint16, bacteria_map map[
 	return 0
 }
 
-func ComputeAverageQueryTime(bacteria_map map[uint16]*Bacteria) time.Duration {
+func ComputeAverageQueryTime(bacteria_map map[uint16]*Bacteria, num_bacteria int) time.Duration {
 	
     t := time.Duration(0)
 	
@@ -55,7 +55,7 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
 
     	fmt.Printf("Average query time = %s\n", t)
     	s := "# Average query time = " + t.String() + "\n"
-    	_, err := fi.WriteString(s)
+    	_, err = fi.WriteString(s)
 	    if err != nil {
 	        fmt.Println(err)
 	        fi.Close()
