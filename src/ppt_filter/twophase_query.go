@@ -75,11 +75,13 @@ func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteri
 		}
 	}
 
+	return 0
+
 
 }
 
 
-func (f *Filter) TwoPhaseOONQueryRead(read []byte, kmers [][]byte, idx uint16) (uint16, bool) {
+func (f *Filter) TwoPhasesOONQueryRead(read []byte, kmers [][]byte, idx uint16) (uint16, bool) {
 	kmer_scanner := NewKmerScanner(read, f.K)
 
 	for kmer_scanner.ScanOneStrand() {

@@ -37,7 +37,7 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_ma
 
 func (f *Filter) OnePhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
 	
-
+	return 0
 }
 
 func (f *Filter) OnePhaseQueryRead(read []byte, gidx map[uint16][][]byte) {
