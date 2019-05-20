@@ -2,6 +2,7 @@ package ppt_filter
 
 import (
 	"time"
+	"fmt"
 )
 
 func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, strategy string) int {
@@ -56,13 +57,14 @@ func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteri
 	kmers := make([][]byte, 0)
 	idx := uint16(0)
 
-	idx, is_valid := f.TwoPhasesOONQueryRead(read_1, kmers, idx)
+	idx, is_valid := f.TwoPhasesOONQueryRead(read_1, &kmers, idx)
 	if is_valid {
-		idx, is_valid = f.TwoPhasesOONQueryRead(read_2, kmers, idx)	
+		idx, is_valid = f.TwoPhasesOONQueryRead(read_2, &kmers, idx)	
 	} else {
 		return 0
 	}
-		
+	
+	// fmt.Println(kmers)
 	if is_valid {
 		if idx != uint16(0) {
 			signatures := make([]int64, 0)
@@ -70,6 +72,7 @@ func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteri
 			for j := 0; j < len(kmers); j++ {
 				for i := 0; i < len(f.HashFunction); i++ {
 					signatures = append(signatures, f.HashFunction[i].HashKmer(kmers[j]))
+
 				}
 			}
 
@@ -85,7 +88,7 @@ func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteri
 }
 
 
-func (f *Filter) TwoPhasesOONQueryRead(read []byte, kmers [][]byte, idx uint16) (uint16, bool) {
+func (f *Filter) TwoPhasesOONQueryRead(read []byte, kmers *[][]byte, idx uint16) (uint16, bool) {
 	kmer_scanner := NewKmerScanner(read, f.K)
 
 	for kmer_scanner.ScanOneStrand() {
@@ -94,10 +97,11 @@ func (f *Filter) TwoPhasesOONQueryRead(read []byte, kmers [][]byte, idx uint16) 
 		if is_unique_kmer {
 
 			if idx != uint16(0) && kmer_gid == idx {
-				kmers = append(kmers, kmer_scanner.Kmer)	
+				*kmers = append(*kmers, kmer_scanner.Kmer)	
 				return kmer_gid, true	
+
 			} else if idx == uint16(0) && kmer_gid != uint16(0) {
-				kmers = append(kmers, kmer_scanner.Kmer)
+				*kmers = append(*kmers, kmer_scanner.Kmer)
 				return kmer_gid, true
 			} else {
 				return uint16(0), false
