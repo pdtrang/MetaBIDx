@@ -36,24 +36,7 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_ma
 }
 
 func (f *Filter) OnePhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
-	gidx := make(map[uint16][][]byte)
-
-	f.OnePhaseQueryRead(read_1, gidx)
-	f.OnePhaseQueryRead(read_2, gidx)
-
-	idx, is_gid := OneOrNothing(gidx)	
-
-	if is_gid == true {
-		for j := 0; j < len(gidx[idx]); j++ {
-			for i := 0; i < len(f.HashFunction); i++ {
-				SaveSignatures(f, f.HashFunction[i].HashKmer(gidx[idx][j]), idx, bacteria_map, start_time)
-			}
-		}
 	
-		return 1
-	} else {
-		return 0
-	}
 
 }
 

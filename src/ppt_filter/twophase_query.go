@@ -17,8 +17,8 @@ func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[ui
 func (f *Filter) TwoPhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
 	gidx := make(map[uint16][][]byte)
 
-	f.TwoPhasesQueryRead(read_1, gidx)
-	f.TwoPhasesQueryRead(read_2, gidx)
+	f.TwoPhasesMajorityQueryRead(read_1, gidx)
+	f.TwoPhasesMajorityQueryRead(read_2, gidx)
 
 	idx := FindMajority(gidx)	
 
@@ -35,30 +35,8 @@ func (f *Filter) TwoPhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_ma
 	}
 }
 
-func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
-	gidx := make(map[uint16][][]byte)
 
-	f.TwoPhasesQueryRead(read_1, gidx)
-	f.TwoPhasesQueryRead(read_2, gidx)
-
-	idx, is_gid := OneOrNothing(gidx)	
-
-	if is_gid == true {
-		for j := 0; j < len(gidx[idx]); j++ {
-			for i := 0; i < len(f.HashFunction); i++ {
-				SaveSignatures(f, f.HashFunction[i].HashKmer(gidx[idx][j]), idx, bacteria_map, start_time)
-			}
-		}
-
-		return 1	
-	} else {
-		return 0
-	}
-
-}
-
-
-func (f *Filter) TwoPhasesQueryRead(read []byte, gidx map[uint16][][]byte) {
+func (f *Filter) TwoPhasesMajorityQueryRead(read []byte, gidx map[uint16][][]byte) {
 	kmer_scanner := NewKmerScanner(read, f.K)
 
 	for kmer_scanner.ScanOneStrand() {
@@ -69,6 +47,61 @@ func (f *Filter) TwoPhasesQueryRead(read []byte, gidx map[uint16][][]byte) {
 		}
 	}
 
+}
+
+
+func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
+	gidx := make(map[uint16][][]byte)
+
+	idx, is_valid := f.TwoPhasesOONQueryRead(read_1, gidx)
+	if is_valid {
+		idx, is_valid = f.TwoPhasesOONQueryRead(read_2, gidx)	
+	} else {
+		return 0
+	}
+		
+	if is_valid {
+		if idx != uint16(0) {
+			for j := 0; j < len(gidx[idx]); j++ {
+				for i := 0; i < len(f.HashFunction); i++ {
+					SaveSignatures(f, f.HashFunction[i].HashKmer(gidx[idx][j]), idx, bacteria_map, start_time)
+				}
+			}
+
+			return 1	
+		} else {
+			return 0
+		}
+	}
+
+
+}
+
+
+func (f *Filter) TwoPhaseOONQueryRead(read []byte, gidx map[uint16][][]byte) (uint16, bool) {
+	kmer_scanner := NewKmerScanner(read, f.K)
+
+	for kmer_scanner.ScanOneStrand() {
+		kmer_gid, is_unique_kmer := f.TwoPhasesQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer)  
+		
+		if is_unique_kmer {
+			if len(gidx) == 1 {
+				if val, ok := gidx[kmer_gid]; ok {
+					gidx[kmer_gid] = append(gidx[kmer_gid], kmer_scanner.Kmer)	
+					return kmer_gid, true
+				} else {
+					return uint16(0), false
+				}	
+			} else if len(gidx) == 0 {
+				gidx[kmer_gid] = append(gidx[kmer_gid], kmer_scanner.Kmer)
+				return kmer_gid, true
+			}
+			
+		} 
+		
+	}	
+
+	return uint16(0), true
 }
 
 
