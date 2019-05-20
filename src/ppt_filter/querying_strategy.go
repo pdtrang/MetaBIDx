@@ -19,15 +19,14 @@ func FindMajority(gidx map[uint16][][]byte) uint16{
 	return idx
 }
 
-func OneOrNothing(gidx map[uint16][][]byte) uint16{
-	idx := uint16(0)
+func OneOrNothing(gidx map[uint16][][]byte) (uint16, bool){
 
 	if len(gidx) == 1 {
 		for k, _ := range gidx {
-			idx = k
+			return k, true
 		}
 
 	}
-
-	return idx
+	
+	return uint16(0), false
 }

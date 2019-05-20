@@ -23,14 +23,13 @@ func (f *Filter) TwoPhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_ma
 	idx := FindMajority(gidx)	
 
 	if idx != uint16(0) {
-		signatures := make([]int64, 0)
 		for j := 0; j < len(gidx[idx]); j++ {
 			for i := 0; i < len(f.HashFunction); i++ {
-				signatures = append(signatures, f.HashFunction[i].HashKmer(gidx[idx][j]))
+				SaveSignatures(f, f.HashFunction[i].HashKmer(gidx[idx][j]), idx, bacteria_map, start_time)
 			}
 		}
 
-		return SaveSignatures(f, signatures, idx, bacteria_map, start_time)	
+		return 1	
 	} else {
 		return 0
 	}
@@ -42,17 +41,16 @@ func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteri
 	f.TwoPhasesQueryRead(read_1, gidx)
 	f.TwoPhasesQueryRead(read_2, gidx)
 
-	idx := OneOrNothing(gidx)	
+	idx, is_gid := OneOrNothing(gidx)	
 
-	if idx != uint16(0) {
-		signatures := make([]int64, 0)
+	if is_gid == true {
 		for j := 0; j < len(gidx[idx]); j++ {
 			for i := 0; i < len(f.HashFunction); i++ {
-				signatures = append(signatures, f.HashFunction[i].HashKmer(gidx[idx][j]))
+				SaveSignatures(f, f.HashFunction[i].HashKmer(gidx[idx][j]), idx, bacteria_map, start_time)
 			}
 		}
 
-		return SaveSignatures(f, signatures, idx, bacteria_map, start_time)	
+		return 1	
 	} else {
 		return 0
 	}
