@@ -26,7 +26,7 @@ func (f *Filter) TwoPhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_ma
 		signatures := make([]int64, 0)
 		for j := 0; j < len(gidx[idx]); j++ {
 			for i := 0; i < len(f.HashFunction); i++ {
-				signatures = append(signatures, f.HashFunction[i].HashKmer(kmers[j]))
+				signatures = append(signatures, f.HashFunction[i].HashKmer(gidx[idx][j]))
 				
 			}
 		}
