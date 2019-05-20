@@ -51,7 +51,7 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
 	    }
 
     	// compute avg query time
-    	t := ComputeAverageQueryTime(bacteria_map)
+    	t := ComputeAverageQueryTime(bacteria_map, num_bacteria)
 
     	fmt.Printf("Average query time = %s\n", t)
     	s := "# Average query time = " + t.String() + "\n"
