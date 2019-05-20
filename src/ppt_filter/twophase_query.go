@@ -2,7 +2,7 @@ package ppt_filter
 
 import (
 	"time"
-	"fmt"
+	// "fmt"
 )
 
 func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, strategy string) int {
