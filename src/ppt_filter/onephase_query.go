@@ -16,8 +16,8 @@ func (f *Filter) OnePhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[ui
 func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
 	gidx := make(map[uint16][][]byte)
 
-	f.OnePhaseQueryRead(read_1, gidx)
-	f.OnePhaseQueryRead(read_2, gidx)
+	f.OnePhaseMajorityQueryRead(read_1, gidx)
+	f.OnePhaseMajorityQueryRead(read_2, gidx)
 
 	idx := FindMajority(gidx)	
 
@@ -37,12 +37,7 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_ma
 	}
 }
 
-func (f *Filter) OnePhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
-	
-	return 0
-}
-
-func (f *Filter) OnePhaseQueryRead(read []byte, gidx map[uint16][][]byte) {
+func (f *Filter) OnePhaseMajorityQueryRead(read []byte, gidx map[uint16][][]byte) {
 	kmer_scanner := NewKmerScanner(read, f.K)
 
 	for kmer_scanner.ScanOneStrand() {
@@ -53,6 +48,66 @@ func (f *Filter) OnePhaseQueryRead(read []byte, gidx map[uint16][][]byte) {
 		}
 	}
 }
+
+func (f *Filter) OnePhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
+	kmers := make([][]byte, 0)
+	idx := uint16(0)
+
+	idx, is_valid := f.TwoPhasesOONQueryRead(read_1, &kmers, idx)
+	if is_valid {
+		idx, is_valid = f.TwoPhasesOONQueryRead(read_2, &kmers, idx)	
+	} else {
+		return 0
+	}
+	
+	if is_valid {
+		if idx != uint16(0) {
+			signatures := make([]int64, 0)
+
+			for j := 0; j < len(kmers); j++ {
+				for i := 0; i < len(f.HashFunction); i++ {
+					signatures = append(signatures, f.HashFunction[i].HashKmer(kmers[j]))
+
+				}
+			}
+
+			return SaveSignatures(f, signatures, idx, bacteria_map, start_time)
+		} else {
+			return 0
+		}
+	}
+
+	return 0
+
+
+}
+
+func (f *Filter) OnePhasesOONQueryRead(read []byte, kmers *[][]byte, idx uint16) (uint16, bool) {
+	kmer_scanner := NewKmerScanner(read, f.K)
+
+	for kmer_scanner.ScanOneStrand() {
+		kmer_gid, is_unique_kmer := f.TwoPhasesQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer)  
+		
+		if is_unique_kmer {
+
+			if idx != uint16(0) && kmer_gid == idx {
+				*kmers = append(*kmers, kmer_scanner.Kmer)	
+				return kmer_gid, true	
+
+			} else if idx == uint16(0) && kmer_gid != uint16(0) {
+				*kmers = append(*kmers, kmer_scanner.Kmer)
+				return kmer_gid, true
+			} else {
+				return uint16(0), false
+			}
+			
+		} 
+		
+	}	
+
+	return uint16(0), true
+}
+
 
 func (f *Filter) OnePhaseQueryHashKmer(kmer []byte, is_first_kmer bool) (uint16, bool) {
 	idx := uint16(0)

@@ -71,7 +71,7 @@ func main() {
     refseq_genomes := flag.String("refseq", "", "refseq genome dir")    
     K := flag.Int("k", 16, "kmer length")
     filter_saved_file := flag.String("save", "", "filter saved file")
-    power := flag.Int("p", 31, "power")
+    power := flag.Int("p", 32, "power")
     N_HASH_FUNCTIONS := flag.Int("n", 2, "number of hash functions")
     N_PHASES := flag.Int("ph", 2, "number of phases")
 

@@ -87,7 +87,7 @@ func PrintNotReportedBacteria(f *Filter, bacteria_map map[uint16]*Bacteria) {
 	fmt.Println("Not reported bacteria.")
 	for i, b := range bacteria_map {
 		if b.Reported == false && b.Signatures.Size() > 0 {
-			fmt.Println(f.Gid[i])
+			fmt.Println(f.Gid[i], b.Signatures.Size())
 		}
 	}
 
