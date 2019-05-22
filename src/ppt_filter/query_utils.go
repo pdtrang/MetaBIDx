@@ -44,17 +44,16 @@ func ComputeAverageQueryTime(bacteria_map map[uint16]*Bacteria, num_bacteria int
 
 
 func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria int, fn string) {
-	
+	fi, err := os.Create(fn)
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
+
 	if num_bacteria > 0 {
-		fi, err := os.Create(fn)
-	    if err != nil {
-	        fmt.Println(err)
-	        return
-	    }
 
     	// compute avg query time
     	t := ComputeAverageQueryTime(bacteria_map, num_bacteria)
-
     	fmt.Printf("Average query time = %s\n", t)
     	s := "# Average query time = " + t.String() + "\n"
     	_, err = fi.WriteString(s)
@@ -76,15 +75,62 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
 	    	}
 	        
 	    }
+
+	    // Save unreported bacteria
+	    if num_bacteria < len(bacteria_map) {
+	    	s := "# Unreported bacteria: " + "\n"
+	    	_, err = fi.WriteString(s)
+		    if err != nil {
+		        fmt.Println(err)
+		        fi.Close()
+		        return
+		    }
+
+	    	for k, b := range bacteria_map {
+		    	if b.Reported == false && b.Signatures.Size() > 0 {
+		    		s = ">" + f.Gid[k] + "\t" + time.Now().String() + "\n"
+		    		_, err := fi.WriteString(s)
+				    if err != nil {
+				        fmt.Println(err)
+				        fi.Close()
+				        return
+				    }	
+		    	}
+	        
+	    	}
+	    }
     } else {
     	fmt.Println("No bacteria found.")
+    	// Save unreported bacteria
+	    if num_bacteria < len(bacteria_map) {
+	    	s := "# Unreported bacteria: " + "\n"
+	    	_, err = fi.WriteString(s)
+		    if err != nil {
+		        fmt.Println(err)
+		        fi.Close()
+		        return
+		    }
+
+	    	for k, b := range bacteria_map {
+		    	if b.Reported == false && b.Signatures.Size() > 0 {
+		    		s = ">" + f.Gid[k] + "\t" + time.Now().String() + "\n"
+		    		_, err := fi.WriteString(s)
+				    if err != nil {
+				        fmt.Println(err)
+				        fi.Close()
+				        return
+				    }	
+		    	}
+	        
+	    	}
+	    }
     }
     
 }
 
 
-func PrintNotReportedBacteria(f *Filter, bacteria_map map[uint16]*Bacteria) {
-	fmt.Println("Not reported bacteria.")
+func PrintUnreportedBacteria(f *Filter, bacteria_map map[uint16]*Bacteria) {
+	fmt.Println("Unreported bacteria:")
 	for i, b := range bacteria_map {
 		if b.Reported == false && b.Signatures.Size() > 0 {
 			fmt.Println(f.Gid[i], b.Signatures.Size())

@@ -22,16 +22,21 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_ma
 	idx := FindMajority(gidx)	
 
 	if idx != uint16(0) {
-		signatures := make([]int64, 0)
+		if (bacteria_map[idx].Reported == false) {
+			signatures := make([]int64, 0)
 
-		for j := 0; j < len(gidx[idx]); j++ {
-			for i := 0; i < len(f.HashFunction); i++ {
-				signatures = append(signatures, f.HashFunction[i].HashKmer(gidx[idx][j]))
+			for j := 0; j < len(gidx[idx]); j++ {
+				for i := 0; i < len(f.HashFunction); i++ {
+					signatures = append(signatures, f.HashFunction[i].HashKmer(gidx[idx][j]))
 
+				}
 			}
+
+			return SaveSignatures(f, signatures, idx, bacteria_map, start_time)	
+		} else {
+			return 0
 		}
 
-		return SaveSignatures(f, signatures, idx, bacteria_map, start_time)	
 	} else {
 		return 0
 	}
@@ -61,18 +66,21 @@ func (f *Filter) OnePhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteri
 	}
 	
 	if is_valid_gid && idx != uint16(0) {
-		
-		signatures := make([]int64, 0)
 
-		for j := 0; j < len(kmers); j++ {
-			for i := 0; i < len(f.HashFunction); i++ {
-				signatures = append(signatures, f.HashFunction[i].HashKmer(kmers[j]))
+		if (bacteria_map[idx].Reported == false) {
+			signatures := make([]int64, 0)
 
+			for j := 0; j < len(kmers); j++ {
+				for i := 0; i < len(f.HashFunction); i++ {
+					signatures = append(signatures, f.HashFunction[i].HashKmer(kmers[j]))
+
+				}
 			}
-		}
 
-		return SaveSignatures(f, signatures, idx, bacteria_map, start_time)
-		
+			return SaveSignatures(f, signatures, idx, bacteria_map, start_time)
+		} else {
+			return 0
+		}
 	}
 
 	return 0
@@ -88,13 +96,9 @@ func (f *Filter) OnePhaseOONQueryRead(read []byte, kmers *[][]byte, idx uint16) 
 		
 		if is_unique_kmer {
 
-			if idx != uint16(0) && kmer_gid == idx {
+			if (idx != uint16(0) && kmer_gid == idx) || (idx == uint16(0) && kmer_gid != uint16(0)) {
 				*kmers = append(*kmers, kmer_scanner.Kmer)	
 				return kmer_gid, true	
-
-			} else if idx == uint16(0) && kmer_gid != uint16(0) {
-				*kmers = append(*kmers, kmer_scanner.Kmer)
-				return kmer_gid, true
 			} else {
 				return uint16(0), false
 			}

@@ -66,7 +66,6 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 	SaveQueryResult(f, bacteria_map, num_bacteria, out_filename)
     utils.PrintMemUsage()
 
-    PrintNotReportedBacteria(f, bacteria_map)
 }
 
 
