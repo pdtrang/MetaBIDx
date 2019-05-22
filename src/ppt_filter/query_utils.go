@@ -13,7 +13,6 @@ func SaveSignatures(f *Filter, signatures []int64, idx uint16, bacteria_map map[
 	for i := 0; i < len(signatures); i++ {
 		bacteria_map[idx].AddSignature(signatures[i])
 
-		// fmt.Println(idx, bacteria_map[idx].Signatures)
 		if bacteria_map[idx].ReachThreshold() && bacteria_map[idx].Reported == false {
 			elapsed := time.Since(start_time)
 			log.Printf("Found [%s], elapsed: %s ", f.Gid[idx], elapsed)
@@ -43,7 +42,7 @@ func ComputeAverageQueryTime(bacteria_map map[uint16]*Bacteria, num_bacteria int
 }
 
 
-func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria int, fn string) {
+func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria int, fn string, start_time time.Time) {
 	fi, err := os.Create(fn)
     if err != nil {
         fmt.Println(err)
@@ -78,7 +77,7 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
 
 	    // Save unreported bacteria
 	    if num_bacteria < len(bacteria_map) {
-	    	s := "# Unreported bacteria: " + "\n"
+	    	s := "# Unreported bacteria (below threshold): " + "\n"
 	    	_, err = fi.WriteString(s)
 		    if err != nil {
 		        fmt.Println(err)
@@ -88,7 +87,7 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
 
 	    	for k, b := range bacteria_map {
 		    	if b.Reported == false && b.Signatures.Size() > 0 {
-		    		s = ">" + f.Gid[k] + "\t" + time.Now().String() + "\n"
+		    		s = ">" + f.Gid[k] + "\t" + time.Since(start_time).String() + "\n"
 		    		_, err := fi.WriteString(s)
 				    if err != nil {
 				        fmt.Println(err)
@@ -103,7 +102,7 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
     	fmt.Println("No bacteria found.")
     	// Save unreported bacteria
 	    if num_bacteria < len(bacteria_map) {
-	    	s := "# Unreported bacteria: " + "\n"
+	    	s := "# Unreported bacteria (below threshold): " + "\n"
 	    	_, err = fi.WriteString(s)
 		    if err != nil {
 		        fmt.Println(err)
@@ -113,7 +112,7 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
 
 	    	for k, b := range bacteria_map {
 		    	if b.Reported == false && b.Signatures.Size() > 0 {
-		    		s = ">" + f.Gid[k] + "\t" + time.Now().String() + "\n"
+		    		s = ">" + f.Gid[k] + "\t" + time.Since(start_time).String() + "\n"
 		    		_, err := fi.WriteString(s)
 				    if err != nil {
 				        fmt.Println(err)

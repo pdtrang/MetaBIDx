@@ -16,7 +16,7 @@ func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[ui
 }
 
 func (f *Filter) TwoPhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
-	gidx := make(map[uint16][][]byte)
+	gidx := make(map[uint16][][]byte) // map to keep all the hit kmers for each genome
 
 	f.TwoPhasesMajorityQueryRead(read_1, gidx)
 	f.TwoPhasesMajorityQueryRead(read_2, gidx)
@@ -24,7 +24,12 @@ func (f *Filter) TwoPhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_ma
 	idx := FindMajority(gidx)	
 
 	if idx != uint16(0) {
-		if (bacteria_map[idx].Reported == false) {
+
+		// if bacteria idx has been reported,
+		// there is no need to count the signatures
+		// if bacteria idx is not reported, 
+		// save and count the signatures
+		if (bacteria_map[idx].Reported == false) {  
 			signatures := make([]int64, 0)
 			for j := 0; j < len(gidx[idx]); j++ {
 				for i := 0; i < len(f.HashFunction); i++ {
@@ -68,7 +73,13 @@ func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteri
 		return 0
 	}
 	
+	// if there is only one gid and that gid is not 0
 	if is_valid_gid && idx != uint16(0) {
+
+		// if bacteria idx has been reported,
+		// there is no need to count the signatures
+		// if bacteria idx is not reported, 
+		// save and count the signatures
 		if (bacteria_map[idx].Reported == false) {
 			signatures := make([]int64, 0)
 
@@ -98,6 +109,8 @@ func (f *Filter) TwoPhasesOONQueryRead(read []byte, kmers *[][]byte, idx uint16)
 		
 		if is_unique_kmer {
 
+			// if it is the first gid queried, or
+			// if the current id is same as the queried gid
 			if (idx != uint16(0) && kmer_gid == idx) || (idx == uint16(0) && kmer_gid != uint16(0)) {
 				*kmers = append(*kmers, kmer_scanner.Kmer)	
 				return kmer_gid, true	
@@ -110,6 +123,7 @@ func (f *Filter) TwoPhasesOONQueryRead(read []byte, kmers *[][]byte, idx uint16)
 		
 	}	
 
+	// no kmers get hit in the query
 	return uint16(0), true
 }
 

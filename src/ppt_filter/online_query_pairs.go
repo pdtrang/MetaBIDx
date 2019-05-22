@@ -27,7 +27,7 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 		}
 	}
 
-	log.Printf("Get reads")
+	log.Printf("Opening fastq files")
     fq, err := os.Open(read_file_1)
     if err != nil {
         panic(err)
@@ -40,7 +40,7 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 
 	scanner := NewFastqScanner(fq)
 	scanner2 := NewFastqScanner(fq2)
-    c := 0
+    c := 0 // count number of read pairs processed
     start_time := time.Now()
     num_bacteria := 0
     defer utils.TimeConsume(start_time, "\nQuery Time ")
@@ -55,6 +55,7 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 			num_bacteria += f.OnePhaseQuery([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time, strategy)
 		}
 
+		// break if all the bacteria in the filter are reported
 		if num_bacteria == len(bacteria_map) {
 			log.Printf("Query %d pairs, found %d bacteria.", c, num_bacteria)
 			break
@@ -63,7 +64,7 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 
 	fmt.Printf("\n%s and %s have %d pairs.\n", read_file_1, read_file_2, c)
 	// ComputeAverageQueryTime(bacteria_map, num_bacteria, out_filename)
-	SaveQueryResult(f, bacteria_map, num_bacteria, out_filename)
+	SaveQueryResult(f, bacteria_map, num_bacteria, out_filename, start_time)
     utils.PrintMemUsage()
 
 }
