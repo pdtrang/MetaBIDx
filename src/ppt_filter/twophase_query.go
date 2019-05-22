@@ -57,33 +57,28 @@ func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteri
 	kmers := make([][]byte, 0)
 	idx := uint16(0)
 
-	idx, is_valid := f.TwoPhasesOONQueryRead(read_1, &kmers, idx)
-	if is_valid {
-		idx, is_valid = f.TwoPhasesOONQueryRead(read_2, &kmers, idx)	
+	idx, is_valid_gid := f.TwoPhasesOONQueryRead(read_1, &kmers, idx)
+	if is_valid_gid {
+		idx, is_valid_gid = f.TwoPhasesOONQueryRead(read_2, &kmers, idx)	
 	} else {
 		return 0
 	}
 	
 	// fmt.Println(kmers)
-	if is_valid {
-		if idx != uint16(0) {
-			signatures := make([]int64, 0)
+	if is_valid && idx != uint16(0) {
+		signatures := make([]int64, 0)
 
-			for j := 0; j < len(kmers); j++ {
-				for i := 0; i < len(f.HashFunction); i++ {
-					signatures = append(signatures, f.HashFunction[i].HashKmer(kmers[j]))
+		for j := 0; j < len(kmers); j++ {
+			for i := 0; i < len(f.HashFunction); i++ {
+				signatures = append(signatures, f.HashFunction[i].HashKmer(kmers[j]))
 
-				}
 			}
-
-			return SaveSignatures(f, signatures, idx, bacteria_map, start_time)
-		} else {
-			return 0
 		}
+
+		return SaveSignatures(f, signatures, idx, bacteria_map, start_time)	
 	}
 
 	return 0
-
 
 }
 
