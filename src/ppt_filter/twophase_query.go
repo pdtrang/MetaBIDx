@@ -65,7 +65,7 @@ func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteri
 	}
 	
 	// fmt.Println(kmers)
-	if is_valid && idx != uint16(0) {
+	if is_valid_gid && idx != uint16(0) {
 		signatures := make([]int64, 0)
 
 		for j := 0; j < len(kmers); j++ {
