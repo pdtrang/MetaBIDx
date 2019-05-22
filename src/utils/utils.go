@@ -4,6 +4,8 @@ import (
 	"time"
 	"runtime"
 	"fmt"
+    "strconv"
+    "os"
 )
 
 //-----------------------------------------------------------------------------
@@ -22,10 +24,27 @@ func PrintMemUsage() {
         runtime.ReadMemStats(&m)
         fmt.Println("\nMemory Usage")
         // For info on each, see: https://golang.org/pkg/runtime/#MemStats
-        fmt.Printf("Alloc = %v MiB", bToMb(m.Alloc))
-        fmt.Printf("\tTotalAlloc = %v MiB", bToMb(m.TotalAlloc))
-        fmt.Printf("\tSys = %v MiB", bToMb(m.Sys))
+        fmt.Printf("Alloc = %v MB", bToMb(m.Alloc))
+        fmt.Printf("\tTotalAlloc = %v MB", bToMb(m.TotalAlloc))
+        fmt.Printf("\tSys = %v MB", bToMb(m.Sys))
         fmt.Printf("\tNumGC = %v\n", m.NumGC)
+}
+
+func SaveMemUsage(fi *os.File) {
+    var m runtime.MemStats
+    runtime.ReadMemStats(&m)  
+
+    s := "# Alloc = " + strconv.FormatUint(bToMb(m.Alloc), 10) + " MB\n"
+    s = s + "# Total = " + strconv.FormatUint(bToMb(m.TotalAlloc), 10) + " MB\n"
+    s = s + "# Sys = " + strconv.FormatUint(bToMb(m.Sys), 10) + " MB\n"
+
+    _, err := fi.WriteString(s)
+    if err != nil {
+        fmt.Println(err)
+        fi.Close()
+        return
+    }
+
 }
 
 func bToMb(b uint64) uint64 {

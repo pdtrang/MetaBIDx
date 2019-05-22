@@ -5,6 +5,7 @@ import (
 	"time"
 	"log"
 	"os"
+	"../utils"
 )
 
 func SaveSignatures(f *Filter, signatures []int64, idx uint16, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
@@ -77,56 +78,43 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
 
 	    // Save unreported bacteria
 	    if num_bacteria < len(bacteria_map) {
-	    	s := "# Unreported bacteria (below threshold): " + "\n"
-	    	_, err = fi.WriteString(s)
-		    if err != nil {
-		        fmt.Println(err)
-		        fi.Close()
-		        return
-		    }
-
-	    	for k, b := range bacteria_map {
-		    	if b.Reported == false && b.Signatures.Size() > 0 {
-		    		s = ">" + f.Gid[k] + "\t" + time.Since(start_time).String() + "\n"
-		    		_, err := fi.WriteString(s)
-				    if err != nil {
-				        fmt.Println(err)
-				        fi.Close()
-				        return
-				    }	
-		    	}
-	        
-	    	}
+	    	SaveUnreportedBacteria(f, bacteria_map, start_time, fi)
 	    }
+
     } else {
     	fmt.Println("No bacteria found.")
     	// Save unreported bacteria
-	    if num_bacteria < len(bacteria_map) {
-	    	s := "# Unreported bacteria (below threshold): " + "\n"
-	    	_, err = fi.WriteString(s)
+	    SaveUnreportedBacteria(f, bacteria_map, start_time, fi)
+    }
+
+    utils.SaveMemUsage(fi)
+    
+}
+
+func SaveUnreportedBacteria(f *Filter, bacteria_map map[uint16]*Bacteria, start_time time.Time, fi *os.File) {
+
+	s := "# Unreported bacteria (below threshold): " + "\n"
+	_, err := fi.WriteString(s)
+    if err != nil {
+        fmt.Println(err)
+        fi.Close()
+        return
+    }
+
+	for k, b := range bacteria_map {
+    	if b.Reported == false && b.Signatures.Size() > 0 {
+    		s = ">" + f.Gid[k] + "\t" + time.Since(start_time).String() + "\n"
+    		_, err := fi.WriteString(s)
 		    if err != nil {
 		        fmt.Println(err)
 		        fi.Close()
 		        return
-		    }
-
-	    	for k, b := range bacteria_map {
-		    	if b.Reported == false && b.Signatures.Size() > 0 {
-		    		s = ">" + f.Gid[k] + "\t" + time.Since(start_time).String() + "\n"
-		    		_, err := fi.WriteString(s)
-				    if err != nil {
-				        fmt.Println(err)
-				        fi.Close()
-				        return
-				    }	
-		    	}
-	        
-	    	}
-	    }
-    }
+		    }	
+    	}
     
-}
+	}
 
+}
 
 func PrintUnreportedBacteria(f *Filter, bacteria_map map[uint16]*Bacteria) {
 	fmt.Println("Unreported bacteria:")
