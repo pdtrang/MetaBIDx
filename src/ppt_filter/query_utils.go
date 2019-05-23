@@ -55,7 +55,7 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
     	// compute avg query time
     	t := ComputeAverageQueryTime(bacteria_map, num_bacteria)
     	fmt.Printf("Average query time = %s\n", t)
-    	s := "# Average query time = " + t.String() + "\n"
+    	s := "# Reported bacteria " + t.String() + "\n"
     	_, err = fi.WriteString(s)
 	    if err != nil {
 	        fmt.Println(err)
@@ -79,6 +79,14 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
 	    // Save unreported bacteria
 	    if num_bacteria < len(bacteria_map) {
 	    	SaveUnreportedBacteria(f, bacteria_map, start_time, fi)
+	    }
+
+	    s = "# Average query time = " + t.String() + "\n"
+    	_, err = fi.WriteString(s)
+	    if err != nil {
+	        fmt.Println(err)
+	        fi.Close()
+	        return
 	    }
 
     } else {

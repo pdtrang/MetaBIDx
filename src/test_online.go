@@ -20,7 +20,7 @@ func main() {
 	log.Printf("Load filter")
     f := ppt_filter.Load(*filter_saved_file)
     // fmt.Println(f.Gid)
-    f.Summarize()	
+    // f.Summarize()	
     log.Println("Finish loading filter.")
 
 	if *read_2 == "" {
