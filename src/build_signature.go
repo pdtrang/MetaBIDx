@@ -22,7 +22,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int) {
     for fidx, filename := range fscaner.Scan() {
         // log.Printf("Processing... %s", filepath.Base(filename))
         // fmt.Printf("%d,",fidx+1)
-        fmt.Printf("%s,%d,",filename,fidx+1)
+        // fmt.Printf("%s,%d,",filename,fidx+1)
         count := 0
         fa, err := os.Open(filename)
         if err != nil {
@@ -42,7 +42,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int) {
                 f.HashSignature(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, uint16(fidx+1))
             }
         }       
-        fmt.Printf("%d\n", count)
+        // fmt.Printf("%d\n", count)
     }
 
 }

@@ -79,7 +79,7 @@ func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteri
 		// if bacteria idx has been reported,
 		// there is no need to count the signatures
 		// if bacteria idx is not reported, 
-		// save and count the signatures
+		// continue to save and count the signatures
 		if (bacteria_map[idx].Reported == false) {
 			signatures := make([]int64, 0)
 
