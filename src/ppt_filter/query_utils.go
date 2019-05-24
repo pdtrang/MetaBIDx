@@ -42,6 +42,24 @@ func ComputeAverageQueryTime(bacteria_map map[uint16]*Bacteria, num_bacteria int
 	return t
 }
 
+func ComputeAverageQueryTimeAll(bacteria_map map[uint16]*Bacteria) time.Duration {
+	
+    t := time.Duration(0)
+	
+	count := 0
+	sum := float64(0)
+	for _, b := range bacteria_map {
+		if b.Reported == true || (b.Reported == false && b.Signatures.Size() > 0) {
+			sum += float64(b.QueryTime)
+			count += 1
+		}
+	}
+
+	t = time.Duration(sum/float64(count))*time.Nanosecond
+
+	return t
+}
+
 
 func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria int, fn string, start_time time.Time) {
 	fi, err := os.Create(fn)
@@ -54,6 +72,7 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
 
     	// compute avg query time
     	t := ComputeAverageQueryTime(bacteria_map, num_bacteria)
+    	t_all := ComputeAverageQueryTimeAll(bacteria_map)
     	fmt.Printf("Average query time = %s\n", t)
     	s := "# Reported bacteria " + t.String() + "\n"
     	_, err = fi.WriteString(s)
@@ -65,7 +84,7 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
 
 	    for k, b := range bacteria_map {
 	    	if b.Reported == true {
-	    		s = f.Gid[k] + "\t" + b.QueryTime.String() + "\n"
+	    		s = f.Gid[k] + "\t" + b.QueryTime.String()+ "\n"
 	    		_, err := fi.WriteString(s)
 			    if err != nil {
 			        fmt.Println(err)
@@ -81,7 +100,7 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
 	    	SaveUnreportedBacteria(f, bacteria_map, start_time, fi)
 	    }
 
-	    s = "# Average query time = " + t.String() + "\n"
+	    s = "# Average query time of reported bacteria = " + t.String() + " | All bacteria = " + t_all.String() + "\n"
     	_, err = fi.WriteString(s)
 	    if err != nil {
 	        fmt.Println(err)
