@@ -15,7 +15,8 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 	
 	bacteria_map := make(map[uint16]*Bacteria)
 
-    threshold := float32(0.5)
+    upper_threshold := float32(0.5)
+    lower_threshold := float32(0.2)
 
     // compute threshold for each bacteria
     count := f.CountSignature()	
@@ -23,7 +24,7 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
     // where each Bacteria is initialized with threshold
 	for k, v := range count {
 		if k != Empty && k != Dirty {
-			bacteria_map[k] = NewBacteria(float32(v) * threshold)
+			bacteria_map[k] = NewBacteria(float32(v) * upper_threshold, float32(v) * lower_threshold)
 		}
 	}
 

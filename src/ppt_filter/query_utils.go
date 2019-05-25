@@ -14,7 +14,7 @@ func SaveSignatures(f *Filter, signatures []int64, idx uint16, bacteria_map map[
 	for i := 0; i < len(signatures); i++ {
 		bacteria_map[idx].AddSignature(signatures[i])
 
-		if bacteria_map[idx].ReachThreshold() && bacteria_map[idx].Reported == false {
+		if bacteria_map[idx].ReachUpperThreshold() && bacteria_map[idx].Reported == false {
 			elapsed := time.Since(start_time)
 			log.Printf("Found [%s], elapsed: %s ", f.Gid[idx], elapsed)
 			bacteria_map[idx].Reported = true
@@ -42,21 +42,18 @@ func ComputeAverageQueryTime(bacteria_map map[uint16]*Bacteria, num_bacteria int
 	return t
 }
 
-func ComputeAverageQueryTimeAll(bacteria_map map[uint16]*Bacteria, start_time time.Time) time.Duration {
+func ComputeAverageQueryTimeAll(bacteria_map map[uint16]*Bacteria) time.Duration {
 	
     t := time.Duration(0)
 	
 	count := 0
 	sum := float64(0)
 	for _, b := range bacteria_map {
-		if b.Reported == true {
-			sum += float64(b.QueryTime)
-			count += 1
-		} else if b.Reported == false && b.Signatures.Size() > 0 {
-			b.QueryTime = time.Since(start_time)
+		if b.ReachLowerThreshold() == true {
 			sum += float64(b.QueryTime)
 			count += 1
 		}
+		
 	}
 
 	t = time.Duration(sum/float64(count))*time.Nanosecond
@@ -76,7 +73,7 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
 
     	// compute avg query time
     	t := ComputeAverageQueryTime(bacteria_map, num_bacteria)
-    	t_all := ComputeAverageQueryTimeAll(bacteria_map, start_time)
+    	t_all := ComputeAverageQueryTimeAll(bacteria_map)
     	fmt.Printf("Average query time = %s\n", t)
     	s := "# Reported bacteria \n"
     	_, err = fi.WriteString(s)
@@ -101,7 +98,7 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
 
 	    // Save unreported bacteria
 	    if num_bacteria < len(bacteria_map) {
-	    	SaveUnreportedBacteria(f, bacteria_map, start_time, fi)
+	    	SaveLowThresholdBacteria(f, bacteria_map, start_time, fi)
 	    }
 
 	    s = "# Average query time of reported bacteria = " + t.String() + " | All bacteria = " + t_all.String() + "\n"
@@ -115,16 +112,16 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
     } else {
     	fmt.Println("No bacteria found.")
     	// Save unreported bacteria
-	    SaveUnreportedBacteria(f, bacteria_map, start_time, fi)
+	    SaveLowThresholdBacteria(f, bacteria_map, start_time, fi)
     }
 
     utils.SaveMemUsage(fi)
     
 }
 
-func SaveUnreportedBacteria(f *Filter, bacteria_map map[uint16]*Bacteria, start_time time.Time, fi *os.File) {
+func SaveLowThresholdBacteria(f *Filter, bacteria_map map[uint16]*Bacteria, start_time time.Time, fi *os.File) {
 
-	s := "# Unreported bacteria (below threshold): " + "\n"
+	s := "# Low-threshold bacteria: " + "\n"
 	_, err := fi.WriteString(s)
     if err != nil {
         fmt.Println(err)
@@ -133,7 +130,7 @@ func SaveUnreportedBacteria(f *Filter, bacteria_map map[uint16]*Bacteria, start_
     }
 
 	for k, b := range bacteria_map {
-    	if b.Reported == false && b.Signatures.Size() > 0 {
+    	if b.ReachLowerThreshold() == true && b.ReachUpperThreshold() == false {
     		s = ">" + f.Gid[k] + "\t" + b.QueryTime.String() + "\n"
     		_, err := fi.WriteString(s)
 		    if err != nil {
@@ -147,8 +144,8 @@ func SaveUnreportedBacteria(f *Filter, bacteria_map map[uint16]*Bacteria, start_
 
 }
 
-func PrintUnreportedBacteria(f *Filter, bacteria_map map[uint16]*Bacteria) {
-	fmt.Println("Unreported bacteria:")
+func PrintLowThresholdBacteria(f *Filter, bacteria_map map[uint16]*Bacteria) {
+	fmt.Println("Low-threshold bacteria:")
 	for i, b := range bacteria_map {
 		if b.Reported == false && b.Signatures.Size() > 0 {
 			fmt.Println(f.Gid[i], b.Signatures.Size())
