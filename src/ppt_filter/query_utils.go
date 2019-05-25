@@ -131,7 +131,7 @@ func SaveLowThresholdBacteria(f *Filter, bacteria_map map[uint16]*Bacteria, star
 
 	for k, b := range bacteria_map {
     	if b.ReachLowerThreshold() == true && b.ReachUpperThreshold() == false {
-    		b.QueryTime = t.Since(start_time)
+    		b.QueryTime = time.Since(start_time)
     		s = ">" + f.Gid[k] + "\t" + b.QueryTime.String() + "\n"
     		_, err := fi.WriteString(s)
 		    if err != nil {
