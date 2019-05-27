@@ -23,10 +23,13 @@ func main() {
     // f.Summarize()	
     log.Println("Finish loading filter.")
 
+    upper_threshold := float32(0.3)
+    lower_threshold := float32(0.1)
+
 	if *read_2 == "" {
-		f.OnlineSingleQuery(*read_1, *out, *strategy)	
+		f.OnlineSingleQuery(*read_1, *out, *strategy, upper_threshold, lower_threshold)	
 	} else {
-		f.OnlinePairQuery(*read_1, *read_2, *out, *strategy)
+		f.OnlinePairQuery(*read_1, *read_2, *out, *strategy, upper_threshold, lower_threshold)
 	}
 
 }
