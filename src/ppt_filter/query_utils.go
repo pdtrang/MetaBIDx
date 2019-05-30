@@ -73,19 +73,19 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
 
     	// compute avg query time
     	t := ComputeAverageQueryTime(bacteria_map, num_bacteria)
-    	t_all := ComputeAverageQueryTimeAll(bacteria_map)
+    	// t_all := ComputeAverageQueryTimeAll(bacteria_map)
     	fmt.Printf("Average query time = %s\n", t)
-    	s := "# Reported bacteria \n"
-    	_, err = fi.WriteString(s)
-	    if err != nil {
-	        fmt.Println(err)
-	        fi.Close()
-	        return
-	    }
+    	// s := "# Reported bacteria \n"
+    	// _, err = fi.WriteString(s)
+	    // if err != nil {
+	    //     fmt.Println(err)
+	    //     fi.Close()
+	    //     return
+	    // }
 
 	    for k, b := range bacteria_map {
 	    	if b.Reported == true {
-	    		s = f.Gid[k] + "\t" + b.QueryTime.String()+ "\n"
+	    		s := f.Gid[k] + "\t" + b.QueryTime.String()+ "\n"
 	    		_, err := fi.WriteString(s)
 			    if err != nil {
 			        fmt.Println(err)
@@ -101,7 +101,7 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
 	    	SaveLowThresholdBacteria(f, bacteria_map, start_time, fi)
 	    }
 
-	    s = "# Average query time of reported bacteria = " + t.String() + " | All bacteria = " + t_all.String() + "\n"
+	    s := "# Average query time of reported bacteria = " + t.String() + "\n"
     	_, err = fi.WriteString(s)
 	    if err != nil {
 	        fmt.Println(err)
@@ -121,18 +121,18 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
 
 func SaveLowThresholdBacteria(f *Filter, bacteria_map map[uint16]*Bacteria, start_time time.Time, fi *os.File) {
 
-	s := "# Low-threshold bacteria: " + "\n"
-	_, err := fi.WriteString(s)
-    if err != nil {
-        fmt.Println(err)
-        fi.Close()
-        return
-    }
+	// s := "# Low-threshold bacteria: " + "\n"
+	// _, err := fi.WriteString(s)
+ //    if err != nil {
+ //        fmt.Println(err)
+ //        fi.Close()
+ //        return
+ //    }
 
 	for k, b := range bacteria_map {
     	if b.ReachLowerThreshold() == true && b.ReachUpperThreshold() == false {
     		b.QueryTime = time.Since(start_time)
-    		s = ">" + f.Gid[k] + "\t" + b.QueryTime.String() + "\n"
+    		s := f.Gid[k] + "\t" + b.QueryTime.String() + "\n"
     		_, err := fi.WriteString(s)
 		    if err != nil {
 		        fmt.Println(err)
