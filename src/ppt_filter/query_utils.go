@@ -42,7 +42,7 @@ func ComputeAverageQueryTime(bacteria_map map[uint16]*Bacteria, num_bacteria int
 	return t
 }
 
-func ComputeAverageQueryTimeAll(bacteria_map map[uint16]*Bacteria) time.Duration {
+func ComputeAverageQueryTimeAll(bacteria_map map[uint16]*Bacteria, start_time time.Time) time.Duration {
 	
     t := time.Duration(0)
 	
@@ -50,6 +50,7 @@ func ComputeAverageQueryTimeAll(bacteria_map map[uint16]*Bacteria) time.Duration
 	sum := float64(0)
 	for _, b := range bacteria_map {
 		if b.ReachLowerThreshold() == true {
+			b.QueryTime = time.Since(start_time)
 			sum += float64(b.QueryTime)
 			count += 1
 		}
@@ -73,7 +74,7 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
 
     	// compute avg query time
     	t := ComputeAverageQueryTime(bacteria_map, num_bacteria)
-    	// t_all := ComputeAverageQueryTimeAll(bacteria_map)
+    	t_all := ComputeAverageQueryTimeAll(bacteria_map, start_time)
     	fmt.Printf("Average query time = %s\n", t)
     	// s := "# Reported bacteria \n"
     	// _, err = fi.WriteString(s)
