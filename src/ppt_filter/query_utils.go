@@ -102,7 +102,15 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
 	    	SaveLowThresholdBacteria(f, bacteria_map, start_time, fi)
 	    }
 
-	    s := "# Average query time of reported bacteria = " + t.String() + "\n"
+	    s := "# Average query time of high-threshold bacteria = " + t.String() + "\n"
+    	_, err = fi.WriteString(s)
+	    if err != nil {
+	        fmt.Println(err)
+	        fi.Close()
+	        return
+	    }
+
+	    s = "# Average query time of all bacteria = " + t_all.String() + "\n"
     	_, err = fi.WriteString(s)
 	    if err != nil {
 	        fmt.Println(err)
