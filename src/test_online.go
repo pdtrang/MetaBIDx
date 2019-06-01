@@ -14,6 +14,8 @@ func main() {
     read_2 := flag.String("r2", "", "fastq/fq file")
     out := flag.String("out", "result.txt", "output filename")
     strategy := flag.String("strategy", "majority", "querying strategy")
+    ut := flag.Float64("ut", float64(0.5), "upper threshold")
+    lt := flag.Float64("lt", float64(0.2), "lower threshold")
     flag.Parse()
 	
 	// Load filter
@@ -23,8 +25,8 @@ func main() {
     // f.Summarize()	
     log.Println("Finish loading filter.")
 
-    upper_threshold := float32(0.3)
-    lower_threshold := float32(0.1)
+    upper_threshold := *ut
+    lower_threshold := *lt
 
 	if *read_2 == "" {
 		f.OnlineSingleQuery(*read_1, *out, *strategy, upper_threshold, lower_threshold)	

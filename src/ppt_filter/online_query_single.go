@@ -14,7 +14,7 @@ const Empty = uint16(0)
 // Online Query for single-end reads
 // For each genome, store all the kmers which are matched.
 //-----------------------------------------------------------------------------
-func (f *Filter) OnlineSingleQuery(read_file string, out_filename string, strategy string, upper_threshold float32, lower_threshold float32) {
+func (f *Filter) OnlineSingleQuery(read_file string, out_filename string, strategy string, upper_threshold float64, lower_threshold float64) {
 
 	// bacteria_map := make(map[uint16]*Bacteria)
 

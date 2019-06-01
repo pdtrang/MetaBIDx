@@ -7,13 +7,13 @@ import (
 
 type Bacteria struct {
 	Signatures *Int64Set
-	UpperThreshold float32
-	LowerThreshold float32
+	UpperThreshold float64
+	LowerThreshold float64
 	Reported bool
 	QueryTime time.Duration
 }
 
-func NewBacteria(ut float32, lt float32) *Bacteria {
+func NewBacteria(ut float64, lt float64) *Bacteria {
 	return &Bacteria {
 		Signatures: NewInt64Set(),
 		UpperThreshold: ut,
@@ -37,7 +37,7 @@ func (b *Bacteria) PrintBacteria() {
 }
 
 func (b *Bacteria) ReachUpperThreshold() bool {
-	if float32(b.Signatures.Size()) >= b.UpperThreshold {
+	if float64(b.Signatures.Size()) >= b.UpperThreshold {
 		return true
 	} else {
 		return false
@@ -45,7 +45,7 @@ func (b *Bacteria) ReachUpperThreshold() bool {
 }
 
 func (b *Bacteria) ReachLowerThreshold() bool {
-	if float32(b.Signatures.Size()) >= b.LowerThreshold {
+	if float64(b.Signatures.Size()) >= b.LowerThreshold {
 		return true
 	} else {
 		return false
