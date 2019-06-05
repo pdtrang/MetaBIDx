@@ -25,6 +25,15 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 		}
 	}
 
+	real_num_bacteria := 0
+	for i := range bacteria_map {
+		if bacteria_map[i].UpperThreshold > 0 {
+			real_num_bacteria += 1
+		}
+	}
+
+	fmt.Println("real number of bacteria:", real_num_bacteria)
+
 	log.Printf("Opening fastq files")
     fq, err := os.Open(read_file_1)
     if err != nil {
@@ -54,7 +63,8 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 		}
 
 		// break if all the bacteria in the filter are reported
-		if num_bacteria == len(bacteria_map) {
+		//if num_bacteria == len(bacteria_map) {
+		if num_bacteria == real_num_bacteria {
 			log.Printf("Query %d pairs, found %d bacteria.", c, num_bacteria)
 			break
 		}
