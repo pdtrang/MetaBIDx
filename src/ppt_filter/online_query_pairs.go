@@ -15,9 +15,6 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 	
 	bacteria_map := make(map[uint16]*Bacteria)
 
-    // upper_threshold := float64(0.5)
-    // lower_threshold := float64(0.2)
-
     // compute threshold for each bacteria
     count := f.CountSignature()	
     // initialize bacteria_map

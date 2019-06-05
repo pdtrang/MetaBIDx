@@ -9,12 +9,62 @@ func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[ui
 
 	if strategy == "majority" {
 		return f.TwoPhaseMajorityQuery(read_1, read_2, bacteria_map, start_time)
+	} else if strategy == "one_hit" {
+		return f.TwoPhaseOneHitQuery(read_1, read_2, bacteria_map, start_time)
 	} else {
 		return f.TwoPhaseOneOrNothingQuery(read_1, read_2, bacteria_map, start_time)
 	}
 
 }
 
+//////////////////////////////////////////////////////////////
+// One Hit
+//////////////////////////////////////////////////////////////
+func (f *Filter) TwoPhaseOneHitQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
+
+	idx, is_valid_gid, kmer := f.TwoPhaseOneHitQueryRead(read_1)
+
+	if !is_valid_gid && idx == uint16(0) {
+		idx, is_valid_gid, kmer = f.TwoPhaseOneHitQueryRead(read_2)
+	} 
+
+	if is_valid_gid && idx != uint16(0) {
+
+		if (bacteria_map[idx].Reported == false) {
+			signatures := make([]int64, 0)
+
+			for i := 0; i < len(f.HashFunction); i++ {
+				signatures = append(signatures, f.HashFunction[i].HashKmer(kmer))
+
+			}
+
+			return SaveSignatures(f, signatures, idx, bacteria_map, start_time)	
+		} else {
+			 return 0
+		}
+	} else {
+		return 0
+	}
+	
+}
+
+func (f *Filter) TwoPhaseOneHitQueryRead(read []byte) (uint16, bool, []byte) {
+	kmer_scanner := NewKmerScanner(read, f.K)
+
+	for kmer_scanner.ScanOneStrand() {
+		kmer_gid, is_unique_kmer := f.TwoPhasesQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer)  
+		
+		if is_unique_kmer {
+			return kmer_gid, true, kmer_scanner.Kmer
+		}
+	}
+
+	return uint16(0), false, kmer_scanner.Kmer
+} 
+
+//////////////////////////////////////////////////////////////
+// Majority
+//////////////////////////////////////////////////////////////
 func (f *Filter) TwoPhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
 	gidx := make(map[uint16][][]byte) // map to keep all the hit kmers for each genome
 
@@ -61,7 +111,9 @@ func (f *Filter) TwoPhasesMajorityQueryRead(read []byte, gidx map[uint16][][]byt
 
 }
 
-
+//////////////////////////////////////////////////////////////
+// One Or Nothing
+//////////////////////////////////////////////////////////////
 func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
 	kmers := make([][]byte, 0)
 	idx := uint16(0)
