@@ -89,7 +89,7 @@ func main() {
     // Time On
     defer TimeConsume(time.Now(), "Run time: ")
     
-    fmt.Printn("Build filter...")
+    fmt.Println("Build filter...")
     // Build
     f := BuildFilter(*refseq_genomes, *K, *N_HASH_FUNCTIONS, FILTER_LEN, *N_PHASES)
 
