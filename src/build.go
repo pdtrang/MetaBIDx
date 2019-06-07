@@ -45,7 +45,7 @@ func main() {
     
     
     //
-    f := ppt_filter.NewFilter(FILTER_LEN, *K, *N_HASH_FUNCTIONS)
+    f := ppt_filter.NewFilter(FILTER_LEN, *K, *N_HASH_FUNCTIONS, 2)
     // for i:=0; i<*N_HASH_FUNCTIONS; i++ {
     //     fmt.Println(f.HashFunction[i])    
     // }

@@ -9,6 +9,7 @@ import (
     "time"
     "runtime"
     "math"
+    "strings"
     // "path/filepath"
     // "strconv"
 )
@@ -31,7 +32,9 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int) {
         fa_scanner := ppt_filter.NewFastaScanner(fa)
         // Scan through all sequences in the fasta file
         for fa_scanner.Scan() {
-            f.Gid[uint16(fidx+1)] = fa_scanner.Header[1:]
+            // f.Gid[uint16(fidx+1)] = fa_scanner.Header[1:]
+            name_parts := strings.Split(filename, "/")
+            f.Gid[uint16(fidx+1)] = strings.Replace(name_parts[len(name_parts)-1],".fa","",-1)
             // Sequence header, and seq length            
             // fmt.Println(fa_scanner.Header[1:], len(fa_scanner.Seq))
             // fmt.Printf("%s,",fa_scanner.Header)
@@ -94,6 +97,7 @@ func main() {
     // f.Summarize()
     // Save
     f.Save(*filter_saved_file)
+    fmt.Println(f.Gid)
     // log.Printf("Saved: %s.", *filter_saved_file)
 
     // print Memory Usage    
