@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"../utils"
+	"strings"
 )
 
 func SaveSignatures(f *Filter, signatures []int64, idx uint16, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
@@ -72,6 +73,13 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
         return
     }
 
+    lt_fn := strings.Replace(fn, ".txt", "_lowthreshold.txt", -1)
+    lt_fi, err := os.Create(lt_fn)
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
+
 	if num_bacteria > 0 {
 
     	// compute avg query time
@@ -102,7 +110,7 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
 
 	    // Save unreported bacteria
 	    if num_bacteria < len(bacteria_map) {
-	    	SaveLowThresholdBacteria(f, bacteria_map, start_time, fi)
+	    	SaveLowThresholdBacteria(f, bacteria_map, start_time, lt_fi)
 	    }
 
 	    s := "# Average query time of high-threshold bacteria = " + t.String() + "\n"
