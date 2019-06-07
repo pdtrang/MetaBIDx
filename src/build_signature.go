@@ -89,6 +89,7 @@ func main() {
     // Time On
     defer TimeConsume(time.Now(), "Run time: ")
     
+    fmt.Printn("Build filter...")
     // Build
     f := BuildFilter(*refseq_genomes, *K, *N_HASH_FUNCTIONS, FILTER_LEN, *N_PHASES)
 
@@ -97,7 +98,7 @@ func main() {
     // f.Summarize()
     // Save
     f.Save(*filter_saved_file)
-    fmt.Println(f.Gid)
+    // fmt.Println(f.Gid)
     // log.Printf("Saved: %s.", *filter_saved_file)
 
     // print Memory Usage    
