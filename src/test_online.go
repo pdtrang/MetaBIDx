@@ -16,6 +16,7 @@ func main() {
     strategy := flag.String("strategy", "majority", "querying strategy")
     ut := flag.Float64("ut", float64(0.5), "upper threshold")
     lt := flag.Float64("lt", float64(0.2), "lower threshold")
+    //analysis := flag.Boolean("analysis", false, "save read query to file")
     flag.Parse()
 	
 	// Load filter

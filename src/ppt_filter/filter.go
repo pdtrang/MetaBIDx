@@ -64,6 +64,20 @@ func (f *Filter) Summarize() {
 	}
 }
 
+//-----------------------------------------------------------------------------
+func (f *Filter) GetNumberOfUniqueKmers() {
+	fmt.Println("Number of hash functions: ", len(f.HashFunction))
+	fmt.Println("Kmer length:              ", f.K)
+	fmt.Println("Table size:               ", f.M)
+	count := make(map[uint16]int)
+	for i := int64(0); i < f.M; i++ {
+		count[f.table[i]]++
+	}
+	for k, v := range count {
+		fmt.Printf("%s\t%d\t%f\n", f.Gid[k], v, float64(v) / float64(len(f.HashFunction)))
+	}
+}
+
 func (f *Filter) CountSignature()  map[uint16]int {
 	count := make(map[uint16]int)
 	for i := int64(0); i < f.M; i++ {
