@@ -74,7 +74,7 @@ func (f *Filter) GetNumberOfUniqueKmers() {
 		count[f.table[i]]++
 	}
 	for k, v := range count {
-		fmt.Printf("%s,%d,%f\n", f.Gid[k], v, float64(v) / float64(len(f.HashFunction)))
+		fmt.Printf("%s,%d,%.1f\n", f.Gid[k], v, float64(v) / float64(len(f.HashFunction)))
 	}
 }
 
