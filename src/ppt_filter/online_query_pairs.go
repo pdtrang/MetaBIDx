@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 	"../utils"
+	"strings"
 )
 
 //-----------------------------------------------------------------------------
@@ -55,7 +56,8 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 
     var analysis_fi *os.File
     if analysis == true {
-    	analysis_filename := "analysis_" + out_filename
+    	analysis_filename := strings.Replace(out_filename, ".", "_analysis.", -1)
+    	// analysis_filename := "analysis_" + out_filename
     	analysis_fi, err = os.OpenFile(analysis_filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	    if err != nil {
 	        log.Fatal(err)
