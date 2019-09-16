@@ -2,10 +2,11 @@ package ppt_filter
 
 import (
 	"time"
+	"os"
 )
 
 
-func (f *Filter) OnePhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, strategy string) int {
+func (f *Filter) OnePhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, strategy string, analysis bool, analysis_fi *os.File) int {
 	if strategy == "majority" {
 		return f.OnePhaseMajorityQuery(read_1, read_2, bacteria_map, start_time)
 	} else {

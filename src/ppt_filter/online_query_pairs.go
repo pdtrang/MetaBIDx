@@ -11,7 +11,7 @@ import (
 //-----------------------------------------------------------------------------
 // Online Query for paired-end reads
 //-----------------------------------------------------------------------------
-func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_filename string, strategy string, upper_threshold float64, lower_threshold float64) {
+func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_filename string, strategy string, upper_threshold float64, lower_threshold float64, analysis bool) {
 	
 	bacteria_map := make(map[uint16]*Bacteria)
 
@@ -52,14 +52,25 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
     num_bacteria := 0
     defer utils.TimeConsume(start_time, "\nQuery Time ")
     log.Printf("Start querying...")
+
+    var analysis_fi *os.File
+    if analysis == true {
+    	analysis_filename := "analysis_" + out_filename
+    	analysis_fi, err = os.OpenFile(analysis_filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	    if err != nil {
+	        log.Fatal(err)
+	    }
+
+    }
+
 	for scanner.Scan() && scanner2.Scan() {
 		c += 1
 		// fmt.Println(scanner.Seq)
 		// fmt.Println(scanner2.Seq)
 		if f.N_phases == 2 {
-			num_bacteria += f.TwoPhaseQuery([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time, strategy)						
+			num_bacteria += f.TwoPhaseQuery([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time, strategy, analysis, analysis_fi)						
 		} else if f.N_phases == 1 {
-			num_bacteria += f.OnePhaseQuery([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time, strategy)
+			num_bacteria += f.OnePhaseQuery([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time, strategy, analysis, analysis_fi)
 		}
 
 		// break if all the bacteria in the filter are reported
@@ -74,6 +85,10 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 	// ComputeAverageQueryTime(bacteria_map, num_bacteria, out_filename)
 	SaveQueryResult(f, bacteria_map, num_bacteria, out_filename, start_time)
     utils.PrintMemUsage()
+
+    if analysis == true {
+    	analysis_fi.Close()
+    }
 
 }
 
