@@ -222,7 +222,7 @@ func (f *Filter) TwoPhasesOONQueryRead(read []byte, kmers *[][]byte, idx uint16)
 				return kmer_gid, true, kmer_scanner.Kmer	
 
 			} else {
-				return uint16(0), false
+				return uint16(0), false, kmer_scanner.Kmer
 			}
 			
 		} 
@@ -230,7 +230,7 @@ func (f *Filter) TwoPhasesOONQueryRead(read []byte, kmers *[][]byte, idx uint16)
 	}	
 
 	// no kmers get hit in the query
-	return uint16(0), true
+	return uint16(0), true, kmer_scanner.Kmer
 }
 
 
