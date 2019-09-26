@@ -27,10 +27,11 @@ func SaveSignatures(f *Filter, signatures []int64, idx uint16, bacteria_map map[
 	return bac_found
 }
 
-func PrintOnlineResult(f * Filter, idx uint16, read []byte, kmer []byte) {
+func PrintOnlineResult(f * Filter, idx uint16, read_1 []byte, read_2 []byte, kmer []byte) {
 	fmt.Println("-------------------------")
 	fmt.Println("Signature found!")
-	fmt.Println("Read: ", string(read))
+	fmt.Println("Read 1: ", string(read_1))
+	fmt.Println("Read 2: ", string(read_2))
 	fmt.Println("Signature from filter: ", string(kmer))
 	fmt.Println(f.Gid[idx])
 	fmt.Println("-------------------------")	
