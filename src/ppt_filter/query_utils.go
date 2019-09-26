@@ -27,6 +27,15 @@ func SaveSignatures(f *Filter, signatures []int64, idx uint16, bacteria_map map[
 	return bac_found
 }
 
+func PrintOnlineResult(f * Filter, idx uint16, read []byte, kmer []byte) {
+	fmt.Println("-------------------------")
+	fmt.Println("Signature found!")
+	fmt.Println("Read: ", string(read))
+	fmt.Println("Signature from filter: ", string(kmer))
+	fmt.Println(f.Gid[idx])
+	fmt.Println("-------------------------")	
+}
+
 func ComputeAverageQueryTime(bacteria_map map[uint16]*Bacteria, num_bacteria int) time.Duration {
 	
     t := time.Duration(0)

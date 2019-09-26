@@ -29,17 +29,26 @@ func (f *Filter) TwoPhaseOneHitQuery(read_1 []byte, read_2 []byte, bacteria_map 
 		idx, is_valid_gid, kmer = f.TwoPhaseOneHitQueryRead(read_2)
 	} 
 
-	if is_valid_gid && idx != uint16(0) {
-
+	if is_valid_id {
 		if analysis == true {
 			_, err := analysis_fi.WriteString(string(read_1)+ "," +string(read_2)+","+string(idx)+"\n")
 			if err != nil {
 				fmt.Println(err)
 				analysis_fi.Close()
 			}	
+		}	
+	} else {
+		if analysis == true {
+			_, err := analysis_fi.WriteString(string(read_1)+ "," +string(read_2)+",NA\n")
+			if err != nil {
+				fmt.Println(err)
+				analysis_fi.Close()
+			}	
 		}
-		
+	}
+	
 
+	if is_valid_gid && idx != uint16(0) {
 		if (bacteria_map[idx].Reported == false) {
 			signatures := make([]int64, 0)
 
@@ -53,15 +62,6 @@ func (f *Filter) TwoPhaseOneHitQuery(read_1 []byte, read_2 []byte, bacteria_map 
 			 return 0
 		}
 	} else {
-		if analysis == true {
-			_, err := analysis_fi.WriteString(string(read_1)+ "," +string(read_2)+",NA\n")
-			if err != nil {
-				fmt.Println(err)
-				analysis_fi.Close()
-			}	
-		}
-		
-
 		return 0
 	}
 	
@@ -154,16 +154,17 @@ func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteri
 	kmers := make([][]byte, 0)
 	idx := uint16(0)
 
-	idx, is_valid_gid := f.TwoPhasesOONQueryRead(read_1, &kmers, idx)
+	idx, is_valid_gid, kmer := f.TwoPhasesOONQueryRead(read_1, &kmers, idx)
 	if is_valid_gid {
-		idx, is_valid_gid = f.TwoPhasesOONQueryRead(read_2, &kmers, idx)	
+		PrintOnlineResult(f, idx, read, kmer)
+		idx, is_valid_gid, kmer = f.TwoPhasesOONQueryRead(read_2, &kmers, idx)	
 	} else {
 		return 0
 	}
 	
 	// if there is only one gid and that gid is not 0
 	if is_valid_gid && idx != uint16(0) {
-
+		PrintOnlineResult(f, idx, kmer)
 		if analysis == true {
 			_, err := analysis_fi.WriteString(string(read_1)+ "," +string(read_2)+","+string(idx)+"\n")
 			if err != nil {
@@ -218,7 +219,7 @@ func (f *Filter) TwoPhasesOONQueryRead(read []byte, kmers *[][]byte, idx uint16)
 			// if the current id is same as the queried gid
 			if (idx != uint16(0) && kmer_gid == idx) || (idx == uint16(0) && kmer_gid != uint16(0)) {
 				*kmers = append(*kmers, kmer_scanner.Kmer)	
-				return kmer_gid, true	
+				return kmer_gid, true, kmer_scanner.Kmer	
 
 			} else {
 				return uint16(0), false
