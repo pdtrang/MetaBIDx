@@ -156,7 +156,7 @@ func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteri
 
 	idx, is_valid_gid, kmer := f.TwoPhasesOONQueryRead(read_1, &kmers, idx)
 	if is_valid_gid {
-		PrintOnlineResult(f, idx, read_1, read_2, kmer, false, bacteria_map)
+		PrintOnlineResult(f, idx, read_1, read_2, kmer, bacteria_map)
 		idx, is_valid_gid, kmer = f.TwoPhasesOONQueryRead(read_2, &kmers, idx)	
 	} else {
 		return 0
@@ -164,7 +164,7 @@ func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteri
 	
 	// if there is only one gid and that gid is not 0
 	if is_valid_gid && idx != uint16(0) {
-		PrintOnlineResult(f, idx, read_1, read_2, kmer, true, bacteria_map)
+		PrintOnlineResult(f, idx, read_1, read_2, kmer, bacteria_map)
 		if analysis == true {
 			_, err := analysis_fi.WriteString(string(read_1)+ "," +string(read_2)+","+string(idx)+"\n")
 			if err != nil {
