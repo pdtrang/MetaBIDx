@@ -31,10 +31,10 @@ func SaveSignatures(f *Filter, signatures []int64, idx uint16, bacteria_map map[
 func PrintOnlineResult(f * Filter, idx uint16, read_1 []byte, read_2 []byte, kmer []byte, bool b, bacteria_map map[uint16]*Bacteria) {
 	fmt.Println("Signature from filter: ", string(kmer))
 
-	if strings.Contains(string(read1), string(kmer)) || strings.Contains(string(ReverseComplement(read1)) string(kmer)) {
+	if strings.Contains(string(read1), string(kmer)) || strings.Contains(string(RevComp(read1)), string(kmer)) {
 		fmt.Println("Kmer is in Read 1")
 		fmt.Println("Read 1: ", string(read_1))
-	} else if strings.Contains(string(read2), string(kmer)) || strings.Contains(string(ReverseComplement(read1)) string(kmer)) {
+	} else if strings.Contains(string(read2), string(kmer)) || strings.Contains(string(RevComp(read2)), string(kmer)) {
 		fmt.Println("Kmer is in Read 2")
 		fmt.Println("Read 2: ", string(read_2))
 	} else {
@@ -46,7 +46,7 @@ func PrintOnlineResult(f * Filter, idx uint16, read_1 []byte, read_2 []byte, kme
 	fmt.Println("-------------------------")	
 }
 
-func ReverseComplement(s string) (string){
+func RevComp(s string) (string){
 	bases := map[string]string{"A": "T", "T":"A", "C": "G", "G":"C"}
 	rc_s := ""
 	for i:=range(s) {
