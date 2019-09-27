@@ -158,6 +158,8 @@ func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteri
 	if is_valid_gid {
 		if idx != uint16(0) {
 			PrintOnlineResult(f, idx, read_1, read_2, kmer, bacteria_map)	
+		} else {
+			fmt.Println("NA")
 		}
 		idx, is_valid_gid, kmer = f.TwoPhasesOONQueryRead(read_2, &kmers, idx)	
 	} else {
