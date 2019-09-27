@@ -72,7 +72,7 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
     count_read := 0
 	for scanner.Scan() && scanner2.Scan() {
 
-		if count_read == 1000 {
+		if count_read == 1000000 {
 			break
 		}
 		count_read += 1
@@ -80,15 +80,13 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 		c += 1
 		// fmt.Println(scanner.Seq)
 		// fmt.Println(scanner2.Seq)
-		fmt.Println("-------------------------")	
-		fmt.Println(scanner.Header)
-		fmt.Println(scanner2.Header)
+		// fmt.Println(scanner.Header)
+		// fmt.Println(scanner2.Header)
 		if f.N_phases == 2 {
-			num_bacteria += f.TwoPhaseQuery([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time, strategy, analysis, analysis_fi)						
+			num_bacteria += f.TwoPhaseQuery([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time, strategy, analysis, analysis_fi, scanner.Header, scanner2.Header)						
 		} else if f.N_phases == 1 {
 			num_bacteria += f.OnePhaseQuery([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time, strategy, analysis, analysis_fi)
 		}
-		fmt.Println("-------------------------")	
 
 		// break if all the bacteria in the filter are reported
 		//if num_bacteria == len(bacteria_map) {

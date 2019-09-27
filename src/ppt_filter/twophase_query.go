@@ -6,14 +6,14 @@ import (
 	"os"
 )
 
-func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, strategy string, analysis bool, analysis_fi *os.File) int {
+func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, strategy string, analysis bool, analysis_fi *os.File, header_1 string, header_2 string) int {
 
 	if strategy == "majority" {
 		return f.TwoPhaseMajorityQuery(read_1, read_2, bacteria_map, start_time, analysis, analysis_fi)
 	} else if strategy == "one_hit" {
 		return f.TwoPhaseOneHitQuery(read_1, read_2, bacteria_map, start_time, analysis, analysis_fi)
 	} else {
-		return f.TwoPhaseOneOrNothingQuery(read_1, read_2, bacteria_map, start_time, analysis, analysis_fi)
+		return f.TwoPhaseOneOrNothingQuery(read_1, read_2, bacteria_map, start_time, analysis, analysis_fi, header_1, header_2)
 	}
 
 }
@@ -150,16 +150,14 @@ func (f *Filter) TwoPhasesMajorityQueryRead(read []byte, gidx map[uint16][][]byt
 //////////////////////////////////////////////////////////////
 // One Or Nothing
 //////////////////////////////////////////////////////////////
-func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, analysis bool, analysis_fi *os.File) int {
+func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, analysis bool, analysis_fi *os.File, header_1 string, header_2 string) int {
 	kmers := make([][]byte, 0)
 	idx := uint16(0)
 
 	idx, is_valid_gid, kmer := f.TwoPhasesOONQueryRead(read_1, &kmers, idx)
 	if is_valid_gid {
 		if idx != uint16(0) {
-			PrintOnlineResult(f, idx, read_1, read_2, kmer, bacteria_map)	
-		} else {
-			fmt.Println("NA")
+			PrintOnlineResult(f, idx, read_1, read_2, kmer, bacteria_map, header_1, header_2)	
 		}
 		idx, is_valid_gid, kmer = f.TwoPhasesOONQueryRead(read_2, &kmers, idx)	
 	} else {
@@ -168,7 +166,7 @@ func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteri
 	
 	// if there is only one gid and that gid is not 0
 	if is_valid_gid && idx != uint16(0) {
-		PrintOnlineResult(f, idx, read_1, read_2, kmer, bacteria_map)
+		PrintOnlineResult(f, idx, read_1, read_2, kmer, bacteria_map, header_1, header_2)
 		if analysis == true {
 			_, err := analysis_fi.WriteString(string(read_1)+ "," +string(read_2)+","+string(idx)+"\n")
 			if err != nil {
