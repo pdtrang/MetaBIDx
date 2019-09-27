@@ -56,7 +56,7 @@ func RevComp(s string) (string){
 	
 		rc_s = bases[string(s[i])] + rc_s
 	}
-	fmt.Println(rc_s)
+	// fmt.Println(rc_s)
 
 	return rc_s
 }
