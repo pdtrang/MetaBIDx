@@ -27,12 +27,12 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 		}
 	}
 
-	// real_num_bacteria := 0
-	// for i := range bacteria_map {
-	// 	if bacteria_map[i].UpperThreshold > 0 {
-	// 		real_num_bacteria += 1
-	// 	}
-	// }
+	real_num_bacteria := 0
+	for i := range bacteria_map {
+		if bacteria_map[i].UpperThreshold > 0 {
+			real_num_bacteria += 1
+		}
+	}
 
 	// fmt.Println("real number of bacteria:", real_num_bacteria)
 
