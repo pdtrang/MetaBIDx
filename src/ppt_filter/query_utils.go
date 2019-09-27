@@ -18,6 +18,7 @@ func SaveSignatures(f *Filter, signatures []int64, idx uint16, bacteria_map map[
 		if bacteria_map[idx].ReachUpperThreshold() && bacteria_map[idx].Reported == false {
 			elapsed := time.Since(start_time)
 			log.Printf("Found [%s], elapsed: %s ", f.Gid[idx], elapsed)
+			log.Printf("Threshold: ", bacteria_map[idx].UpperThreshold, bacteria_map[idx].LowerThreshold)
 			bacteria_map[idx].Reported = true
 			bacteria_map[idx].QueryTime = elapsed
 			bac_found = 1
@@ -27,14 +28,34 @@ func SaveSignatures(f *Filter, signatures []int64, idx uint16, bacteria_map map[
 	return bac_found
 }
 
-func PrintOnlineResult(f * Filter, idx uint16, read_1 []byte, read_2 []byte, kmer []byte) {
-	fmt.Println("-------------------------")
-	fmt.Println("Signature found!")
-	fmt.Println("Read 1: ", string(read_1))
-	fmt.Println("Read 2: ", string(read_2))
+func PrintOnlineResult(f * Filter, idx uint16, read_1 []byte, read_2 []byte, kmer []byte, bool b, bacteria_map map[uint16]*Bacteria) {
 	fmt.Println("Signature from filter: ", string(kmer))
+
+	if strings.Contains(string(read1), string(kmer)) || strings.Contains(string(ReverseComplement(read1)) string(kmer)) {
+		fmt.Println("Kmer is in Read 1")
+		fmt.Println("Read 1: ", string(read_1))
+	} else if strings.Contains(string(read2), string(kmer)) || strings.Contains(string(ReverseComplement(read1)) string(kmer)) {
+		fmt.Println("Kmer is in Read 2")
+		fmt.Println("Read 2: ", string(read_2))
+	} else {
+		fmt.Println("Kmer is not in reads.")
+	}
 	fmt.Println(f.Gid[idx])
+	fmt.Println("Number of signature found: ", bacteria_map[idx].Signatures.Size()+1) 
+	fmt.Println("Threshold: ", bacteria_map[idx].UpperThreshold, bacteria_map[idx].LowerThreshold)
 	fmt.Println("-------------------------")	
+}
+
+func ReverseComplement(s string) (string){
+	bases := map[string]string{"A": "T", "T":"A", "C": "G", "G":"C"}
+	rc_s := ""
+	for i:=range(s) {
+	
+		rc_s = bases[string(s[i])] + rc_s
+	}
+	fmt.Println(rc_s)
+
+	return rc_s
 }
 
 func ComputeAverageQueryTime(bacteria_map map[uint16]*Bacteria, num_bacteria int) time.Duration {
