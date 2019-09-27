@@ -28,7 +28,7 @@ func SaveSignatures(f *Filter, signatures []int64, idx uint16, bacteria_map map[
 	return bac_found
 }
 
-func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer []byte) {
+func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer []byte, bacteria_map map[uint16]*Bacteria) {
 
 	if strings.Contains(string(read_1), string(kmer)) || strings.Contains(string(RevComp(string(read_1))), string(kmer)) {
 		fmt.Println("Kmer is in Read 1")
@@ -41,8 +41,10 @@ func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer
 	}
 
 	fmt.Println("Kmer: ", string(kmer))
-	//fmt.Println("Strain: ", f.Gid[idx])
-	fmt.Println("-------------------------")	
+	fmt.Println("Strain: ", f.Gid[idx])
+	fmt.Println("Number of signature found: ", bacteria_map[idx].Signatures.Size()+1) 
+	fmt.Println("Threshold: ", bacteria_map[idx].UpperThreshold, bacteria_map[idx].LowerThreshold)
+	// fmt.Println("-------------------------")	
 }
 
 func RevComp(s string) (string){
