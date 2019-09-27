@@ -88,6 +88,7 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 		} else if f.N_phases == 1 {
 			num_bacteria += f.OnePhaseQuery([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time, strategy, analysis, analysis_fi)
 		}
+		fmt.Println("-------------------------")	
 
 		// break if all the bacteria in the filter are reported
 		//if num_bacteria == len(bacteria_map) {
