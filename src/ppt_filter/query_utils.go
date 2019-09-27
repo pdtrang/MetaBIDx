@@ -42,8 +42,8 @@ func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer
 
 	fmt.Println("Kmer: ", string(kmer))
 	fmt.Println("Strain: ", f.Gid[idx])
-	fmt.Println("Number of signature found: ", bacteria_map[idx].Signatures.Size()+1) 
-	fmt.Println("Threshold: ", bacteria_map[idx].UpperThreshold, bacteria_map[idx].LowerThreshold)
+	// fmt.Println("Number of signature found: ", bacteria_map[idx].Signatures.Size()+1) 
+	// fmt.Println("Threshold: ", bacteria_map[idx].UpperThreshold, bacteria_map[idx].LowerThreshold)
 	fmt.Println("-------------------------")	
 }
 
