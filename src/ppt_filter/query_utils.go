@@ -31,11 +31,9 @@ func SaveSignatures(f *Filter, signatures []int64, idx uint16, bacteria_map map[
 func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer []byte, bacteria_map map[uint16]*Bacteria, header_1 string, header_2 string) {
 	fmt.Println("-------------------------")	
 	if strings.Contains(string(read_1), string(kmer)) || strings.Contains(string(RevComp(string(read_1))), string(kmer)) {
-		fmt.Println("Kmer is in Read 1")
 		fmt.Println(header_1)
 		fmt.Println("Read 1: ", string(read_1))
 	} else if strings.Contains(string(read_2), string(kmer)) || strings.Contains(string(RevComp(string(read_2))), string(kmer)) {
-		fmt.Println("Kmer is in Read 2")
 		fmt.Println(header_2)
 		fmt.Println("Read 2: ", string(read_2))
 	} else {
