@@ -8,6 +8,7 @@ import (
 	"../utils"
 	"strings"
 	"encoding/csv"
+	"io"
 )
 
 func SaveSignatures(f *Filter, signatures []int64, idx uint16, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
