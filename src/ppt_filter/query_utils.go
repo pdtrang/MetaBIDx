@@ -33,22 +33,22 @@ func SaveSignatures(f *Filter, signatures []int64, idx uint16, bacteria_map map[
 func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer []byte, bacteria_map map[uint16]*Bacteria, header_1 string, header_2 string, genome_info map[string]string) {
 	// fmt.Println("-------------------------")	
 
-	// get reference ID from read header
-	header_1_parts := strings.Split(header_1, ":")
-	gid := strings.Replace(header_1_parts[0], ".fna","",-1)
-	gid = strings.Replace(header_1_parts[0], "@", "", -1)
-
-
+	var header_parts []string
 	if strings.Contains(string(read_1), string(kmer)) || strings.Contains(string(RevComp(string(read_1))), string(kmer)) {
 		fmt.Println(header_1)
 		fmt.Println("Read 1: ", string(read_1))
+		header_parts = strings.Split(header_1, ":")	
 	} else if strings.Contains(string(read_2), string(kmer)) || strings.Contains(string(RevComp(string(read_2))), string(kmer)) {
 		fmt.Println(header_2)
 		fmt.Println("Read 2: ", string(read_2))
+		header_parts = strings.Split(header_2, ":")
 	} else {
 		fmt.Println("Kmer is not in reads.")
 	}
 
+
+	gid := strings.Replace(header_parts[0], ".fna","",-1)
+	gid = strings.Replace(header_parts[0], "@", "", -1)
 	if val, ok := genome_info[gid]; ok {
 		if val != f.Gid[idx] {
 			fmt.Println("FP", val, f.Gid[idx])	
