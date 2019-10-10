@@ -7,6 +7,7 @@ import (
 	"os"
 	"../utils"
 	"strings"
+	"encoding/csv"
 )
 
 func SaveSignatures(f *Filter, signatures []int64, idx uint16, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
@@ -28,8 +29,16 @@ func SaveSignatures(f *Filter, signatures []int64, idx uint16, bacteria_map map[
 	return bac_found
 }
 
-func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer []byte, bacteria_map map[uint16]*Bacteria, header_1 string, header_2 string) {
+// analysis utils
+func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer []byte, bacteria_map map[uint16]*Bacteria, header_1 string, header_2 string, genome_info map[string]string) {
 	// fmt.Println("-------------------------")	
+
+	// get reference ID from read header
+	header_1_parts := strings.Split(header_1, ":")
+	gid := strings.Replace(header_1_parts[0], ".fna","",-1)
+	gid = strings.Replace(header_1_parts[0], "@", "", -1)
+
+
 	if strings.Contains(string(read_1), string(kmer)) || strings.Contains(string(RevComp(string(read_1))), string(kmer)) {
 		fmt.Println(header_1)
 		fmt.Println("Read 1: ", string(read_1))
@@ -40,23 +49,68 @@ func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer
 		fmt.Println("Kmer is not in reads.")
 	}
 
+	if val, ok := genome_info[gid]; ok {
+		if val != f.Gid[idx] {
+			fmt.Println("FP", val, f.Gid[idx])	
+		} else {
+			fmt.Println(val, f.Gid[idx])
+		}
+		
+	}
+	else {
+		fmt.Println("Can not find in genome_info.")
+	}
+
 	fmt.Println("Kmer: ", string(kmer))
-	fmt.Println("Strain: ", f.Gid[idx])
+	fmt.Println("Predicted strain: ", f.Gid[idx])
 	// fmt.Println("Number of signature found: ", bacteria_map[idx].Signatures.Size()+1) 
 	// fmt.Println("Threshold: ", bacteria_map[idx].UpperThreshold, bacteria_map[idx].LowerThreshold)
 	// fmt.Println("-------------------------")	
 }
 
+// analysis utils
 func RevComp(s string) (string){
 	bases := map[string]string{"A": "T", "T":"A", "C": "G", "G":"C"}
 	rc_s := ""
-	for i:=range(s) {
-	
+	for i := range(s) {
 		rc_s = bases[string(s[i])] + rc_s
 	}
 	// fmt.Println(rc_s)
 
 	return rc_s
+}
+
+func LoadGenomeInfo() map[string]string{
+	file := "/backup2/dpham2/mende_metagenomics_data/scripts/new_groupRef2_genome_reference.csv"
+
+	csvfile, err := os.Open(file)
+	if err != nil {
+		panic(err)
+	}
+
+	r := csv.NewReader(csvfile)
+
+	genome_info := make(map[string]string)
+	// Iterate through the record
+	for {
+		record, err := r.Read()
+		if err == io.EOF{
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		id := record[0]
+		id = strings.Replace(id, ".1", "", '-1)
+		id = strings.Replace(id, ".2", "", -1)
+		name := record[1]
+
+		genome_info[id] = name
+	}
+
+	return genome_info
+
 }
 
 func ComputeAverageQueryTime(bacteria_map map[uint16]*Bacteria, num_bacteria int) time.Duration {
