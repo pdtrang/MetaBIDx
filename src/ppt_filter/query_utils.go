@@ -56,8 +56,7 @@ func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer
 			fmt.Println(val, f.Gid[idx])
 		}
 		
-	}
-	else {
+	} else {
 		fmt.Println("Can not find in genome_info.")
 	}
 
@@ -102,7 +101,7 @@ func LoadGenomeInfo() map[string]string{
 		}
 
 		id := record[0]
-		id = strings.Replace(id, ".1", "", '-1)
+		id = strings.Replace(id, ".1", "", -1)
 		id = strings.Replace(id, ".2", "", -1)
 		name := record[1]
 
