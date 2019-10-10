@@ -58,7 +58,7 @@ func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer
 		}
 		
 	} else {
-		fmt.Println("Can not find in genome_info.")
+		fmt.Println("Can not find", idx, "in genome_info.")
 	}
 
 	fmt.Println("Kmer: ", string(kmer))
