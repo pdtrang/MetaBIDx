@@ -50,7 +50,7 @@ func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer
 	fmt.Println(header_parts)
 	gid := strings.Replace(header_parts[0], ".fna","",-1)
 	fmt.Println(gid)
-	gid = strings.Replace(header_parts[0], "@", "", -1)
+	gid = strings.Replace(gid, "@", "", -1)
 	fmt.Println(gid)
 	if val, ok := genome_info[gid]; ok {
 		if val != f.Gid[idx] {
