@@ -76,8 +76,8 @@ func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer
 	}
 
 	fmt.Println("Kmer: ", string(kmer))
-	fmt.Println("True: ", val)
-	true_fasta := "/backup2/dpham2/mende_metagenomics_data/new_groupRef_2/"+val+".fa"
+	fmt.Println("True: ", genome_info[gid])
+	true_fasta := "/backup2/dpham2/mende_metagenomics_data/new_groupRef_2/"+genome_info[gid]+".fa"
 	fmt.Println("Kmer in True genome:", IsExactSubstring(true_fasta, string(kmer)))
 	fmt.Println("Predicted", f.Gid[idx])
 	predicted_fasta := "/backup2/dpham2/mende_metagenomics_data/new_groupRef_2/"+f.Gid[idx]+".fa"
