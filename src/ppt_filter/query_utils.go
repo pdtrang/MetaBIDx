@@ -38,7 +38,7 @@ func IsExactSubstring(fasta_file string, substring string) bool {
     }
     fa_scanner := NewFastaScanner(fa)
     for fa_scanner.Scan() {
-    	if strings.Contains(string(fa_scanner.Seq), substring) {
+    	if strings.Contains(string(fa_scanner.Seq), substring) || strings.Contains(RevComp(string(fa_scanner.Seq)), substring) {
     		return true
     	} 
     }
@@ -51,11 +51,11 @@ func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer
 	// fmt.Println("-------------------------")	
 
 	var header_parts []string
-	if strings.Contains(string(read_1), string(kmer)) || strings.Contains(string(RevComp(string(read_1))), string(kmer)) {
+	if strings.Contains(string(read_1), string(kmer)) || strings.Contains(RevComp(string(read_1)), string(kmer)) {
 		fmt.Println(header_1)
 		fmt.Println("Read 1: ", string(read_1))
 		header_parts = strings.Split(header_1, ":")	
-	} else if strings.Contains(string(read_2), string(kmer)) || strings.Contains(string(RevComp(string(read_2))), string(kmer)) {
+	} else if strings.Contains(string(read_2), string(kmer)) || strings.Contains(RevComp(string(read_2)), string(kmer)) {
 		fmt.Println(header_2)
 		fmt.Println("Read 2: ", string(read_2))
 		header_parts = strings.Split(header_2, ":")
