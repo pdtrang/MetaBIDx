@@ -30,22 +30,20 @@ func SaveSignatures(f *Filter, signatures []int64, idx uint16, bacteria_map map[
 	return bac_found
 }
 
-func IsExactSubstring(fasta_file, substring) bool {
+func IsExactSubstring(fasta_file string, substring string) bool {
 
 	fa, err := os.Open(fasta_file)
     if err != nil {
         panic(err)
     }
-    fa_scanner := ppt_filter.NewFastaScanner(fa)
+    fa_scanner := NewFastaScanner(fa)
     for fa_scanner.Scan() {
     	if strings.Contains(string(fa_scanner.Seq), substring) {
     		return true
-    	} else {
-    		return false
-    	}
+    	} 
     }
 
-    return 
+    return false
 }
 
 // analysis utils
