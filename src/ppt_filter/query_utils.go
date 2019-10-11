@@ -37,8 +37,9 @@ func IsExactSubstring(fasta_file string, substring string) bool {
         panic(err)
     }
     fa_scanner := NewFastaScanner(fa)
+    rc_substring := RevComp(substring)
     for fa_scanner.Scan() {
-    	if strings.Contains(string(fa_scanner.Seq), substring) || strings.Contains(RevComp(string(fa_scanner.Seq)), substring) {
+    	if strings.Contains(string(fa_scanner.Seq), substring) || strings.Contains(string(fa_scanner.Seq), rc_substring) {
     		return true
     	} 
     }
