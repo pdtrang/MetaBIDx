@@ -73,7 +73,7 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 		// if count_read == 1000000 {
 		// 	break
 		// }
-		count_read += 1
+		// count_read += 1
 
 		c += 1
 		// fmt.Println(scanner.Seq)
