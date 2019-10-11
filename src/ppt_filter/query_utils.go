@@ -30,6 +30,24 @@ func SaveSignatures(f *Filter, signatures []int64, idx uint16, bacteria_map map[
 	return bac_found
 }
 
+func IsExactSubstring(fasta_file, substring) bool {
+
+	fa, err := os.Open(fasta_file)
+    if err != nil {
+        panic(err)
+    }
+    fa_scanner := ppt_filter.NewFastaScanner(fa)
+    for fa_scanner.Scan() {
+    	if strings.Contains(string(fa_scanner.Seq), substring) {
+    		return true
+    	} else {
+    		return false
+    	}
+    }
+
+    return 
+}
+
 // analysis utils
 func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer []byte, bacteria_map map[uint16]*Bacteria, header_1 string, header_2 string, genome_info map[string]string) {
 	// fmt.Println("-------------------------")	
@@ -47,24 +65,26 @@ func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer
 		fmt.Println("Kmer is not in reads.")
 	}
 
-	fmt.Println(header_parts)
 	gid := strings.Replace(header_parts[0], ".fna","",-1)
-	fmt.Println(gid)
 	gid = strings.Replace(gid, "@", "", -1)
-	fmt.Println(gid)
 	if val, ok := genome_info[gid]; ok {
 		if val != f.Gid[idx] {
-			fmt.Println("FP", val, f.Gid[idx])	
+			fmt.Println("False Positive")			
 		} else {
-			fmt.Println(val, f.Gid[idx])
+			fmt.Println("True Positive")
 		}
-		
 	} else {
 		fmt.Println("Can not find", idx, "in genome_info.")
 	}
 
 	fmt.Println("Kmer: ", string(kmer))
-	fmt.Println("Predicted strain: ", f.Gid[idx])
+	fmt.Println("True: ", val)
+	true_fasta := "/backup2/dpham2/mende_metagenomics_data/new_groupRef_2/"+val+".fa"
+	fmt.Println("Kmer in True genome:", IsExactSubstring(true_fasta, string(kmer)))
+	fmt.Println("Predicted", f.Gid[idx])
+	predicted_fasta := "/backup2/dpham2/mende_metagenomics_data/new_groupRef_2/"+f.Gid[idx]+".fa"
+	fmt.Println("Kmer in Predicted genome:", IsExactSubstring(predicted_fasta, string(kmer)))
+	// fmt.Println("Predicted strain: ", f.Gid[idx])
 	// fmt.Println("Number of signature found: ", bacteria_map[idx].Signatures.Size()+1) 
 	// fmt.Println("Threshold: ", bacteria_map[idx].UpperThreshold, bacteria_map[idx].LowerThreshold)
 	// fmt.Println("-------------------------")	
