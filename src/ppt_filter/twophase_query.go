@@ -213,7 +213,6 @@ func (f *Filter) TwoPhasesOONQueryRead(read []byte, kmers *[][]byte, idx uint16)
 		kmer_gid, is_unique_kmer := f.TwoPhasesQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer)  
 		
 		if is_unique_kmer {
-
 			// if it is the first gid queried, or
 			// if the current id is same as the queried gid
 			if (idx != uint16(0) && kmer_gid == idx) || (idx == uint16(0) && kmer_gid != uint16(0)) {

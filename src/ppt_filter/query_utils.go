@@ -77,6 +77,11 @@ func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer
 	}
 
 	fmt.Println("Kmer: ", string(kmer))
+	fmt.Print("hash values: ")
+	for i := 0; i < len(f.HashFunction); i++ {
+		fmt.Print(f.HashFunction[i].SlidingHashKmer(kmer,false), "\t")
+	}
+	fmt.Println()
 	fmt.Println("True: ", genome_info[gid])
 	true_fasta := "/backup2/dpham2/mende_metagenomics_data/new_groupRef_2/"+genome_info[gid]+".fa"
 	fmt.Println("Kmer in True genome:", IsExactSubstring(true_fasta, string(kmer)))
