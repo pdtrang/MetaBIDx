@@ -31,7 +31,7 @@ func (f *Filter) HashSignature(kmer []byte, is_first_kmer bool, gid uint16, ph i
 		fmt.Println("Phase = ", ph, ", kmer = ", string(kmer))
 		fmt.Print("Hash values = ")
 		for i := 0; i < len(idx); i++ {
-			fmt.Print(idx[i])
+			fmt.Print(idx[i], "\t")
 			f.table[idx[i]] = gid
 		}
 		fmt.Println()
