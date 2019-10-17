@@ -15,7 +15,7 @@ import (
 )
 
 //-----------------------------------------------------------------------------
-func VerifySignature(f *ppt_filter.Filter, refseq string, k int) {
+func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
     // Walk through refseq dir 
     fscaner := ppt_filter.NewFileScanner(refseq)
 
@@ -42,7 +42,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int) {
             kmer_scanner := ppt_filter.NewKmerScanner(fa_scanner.Seq, k)
             for kmer_scanner.ScanBothStrands() {
                 //fmt.Println(string(kmer_scanner.Kmer))
-                f.HashSignature(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, uint16(fidx+1))
+                f.HashSignature(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, uint16(fidx+1), ph)
             }
         }       
         // fmt.Printf("%d\n", count)
@@ -56,11 +56,11 @@ func BuildFilter(refseq string, k int, n_hf int, table_size int64, n_phases int)
     f := ppt_filter.NewFilter(table_size, k, n_hf, n_phases)
 
     // 1st walk
-    VerifySignature(f, refseq, k)
+    VerifySignature(f, refseq, k, 1)
 
     if n_phases == 2 {
         // 2nd walk
-        VerifySignature(f, refseq, k)
+        VerifySignature(f, refseq, k, 2)
     }
 
     return f
