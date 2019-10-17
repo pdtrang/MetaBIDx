@@ -15,7 +15,7 @@ const Dirty = uint16(65534)
 // If all slots have either 0 (clean) or gid, then kmer is unique.
 // If so, set these slots to gid.  If not, set them to Dirty.
 //-----------------------------------------------------------------------------
-func (f *Filter) HashSignature(kmer []byte, is_first_kmer bool, gid uint16, ph int) {
+func (f *Filter) HashSignature(kmer []byte, is_first_kmer bool, gid uint16, ph int, seq_name string) {
 	unique_to_genome := true
 	idx := make([]int64, 0)
 	for i := 0; i < len(f.HashFunction); i++ {
@@ -28,7 +28,7 @@ func (f *Filter) HashSignature(kmer []byte, is_first_kmer bool, gid uint16, ph i
 
 	// fmt.Println(len(idx))
 	if unique_to_genome {
-		fmt.Print("Phase = ", ph, ", kmer = ", string(kmer), ", hash values = ")
+		fmt.Print(seq_name, ", phase = ", ph, ", kmer = ", string(kmer), ", hash values = ")
 		for i := 0; i < len(idx); i++ {
 			fmt.Print(idx[i], "\t")
 			f.table[idx[i]] = gid
