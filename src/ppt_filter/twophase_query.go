@@ -248,9 +248,16 @@ func (f *Filter) TwoPhasesQueryHashKmer(kmer []byte, is_first_kmer bool) (uint16
 	for i := 0; i < len(f.HashFunction); i++ {
 		j := f.HashFunction[i].SlidingHashKmer(kmer, is_first_kmer)
 
+		// is either Dirty or Empty
 		if f.table[j] == Dirty || f.table[j] == Empty {
 			return uint16(0), false
 		}
+
+		// get different gid with the current gid
+		if idx != Empty && f.table[j] != idx {
+			return uint16(0), false
+		}
+
 		idx = f.table[j]
 
 	}
