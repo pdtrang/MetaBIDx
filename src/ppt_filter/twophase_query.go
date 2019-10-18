@@ -164,7 +164,7 @@ func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteri
 	
 	// if there is only one gid and that gid is not 0
 	if is_valid_gid && idx != uint16(0) {
-		PrintOnlineResult(f, idx, read_1, read_2, kmer)
+		// PrintOnlineResult(f, idx, read_1, read_2, kmer)
 		if analysis == true {
 			_, err := analysis_fi.WriteString(string(read_1)+ "," +string(read_2)+","+string(idx)+"\n")
 			if err != nil {
@@ -236,10 +236,28 @@ func (f *Filter) TwoPhasesOONQueryRead(read []byte, kmers *[][]byte, idx uint16)
 
 func (f *Filter) TwoPhasesQueryHashKmer(kmer []byte, is_first_kmer bool) (uint16, bool) {
 
-	j := f.HashFunction[0].SlidingHashKmer(kmer, is_first_kmer)
+	// j := f.HashFunction[0].SlidingHashKmer(kmer, is_first_kmer)
 
-	if f.table[j] == Dirty || f.table[j] == Empty {
-		return uint16(0), false
+	// if f.table[j] == Dirty || f.table[j] == Empty {
+	// 	return uint16(0), false
+	// }
+
+	idx := uint16(0)
+	for i := 0; i < len(f.HashFunction); i++ {
+		j := f.HashFunction[i].SlidingHashKmer(kmer, is_first_kmer)
+
+		// is either Dirty or Empty
+		if f.table[j] == Dirty || f.table[j] == Empty {
+			return uint16(0), false
+		}
+
+		// get different gid with the current gid
+		if idx != Empty && f.table[j] != idx {
+			return uint16(0), false
+		}
+
+		idx = f.table[j]
+
 	}
  
 	
