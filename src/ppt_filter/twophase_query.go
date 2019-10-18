@@ -261,6 +261,6 @@ func (f *Filter) TwoPhasesQueryHashKmer(kmer []byte, is_first_kmer bool) (uint16
 	}
  
 	
-	return f.table[j], true
+	return idx, true
 	
 }
