@@ -234,13 +234,27 @@ func (f *Filter) TwoPhasesOONQueryRead(read []byte, kmers *[][]byte, idx uint16)
 
 func (f *Filter) TwoPhasesQueryHashKmer(kmer []byte, is_first_kmer bool) (uint16, bool) {
 
-	j := f.HashFunction[0].SlidingHashKmer(kmer, is_first_kmer)
+	// j := f.HashFunction[0].SlidingHashKmer(kmer, is_first_kmer)
 
-	if f.table[j] == Dirty || f.table[j] == Empty {
-		return uint16(0), false
-	}
+	// if f.table[j] == Dirty || f.table[j] == Empty {
+	// 	return uint16(0), false
+	// }
  
 	
-	return f.table[j], true
+	// return f.table[j], true
+
+
+	idx := uint16(0)
+	for i := 0; i < len(f.HashFunction); i++ {
+		j := f.HashFunction[i].SlidingHashKmer(kmer, is_first_kmer)
+
+		if f.table[j] == Dirty || f.table[j] == Empty {
+			return uint16(0), false
+		}
+		idx = f.table[j]
+
+	}
+
+	return idx, true
 	
 }
