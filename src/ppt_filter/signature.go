@@ -27,17 +27,22 @@ func (f *Filter) HashSignature(kmer []byte, is_first_kmer bool, gid uint16, ph i
 	}
 
 	// fmt.Println(len(idx))
+	fmt.Print(seq_name, ", phase = ", ph, ", kmer = ", string(kmer), ", hash values = ")
 	if unique_to_genome {
-		fmt.Print(seq_name, ", phase = ", ph, ", kmer = ", string(kmer), ", hash values = ")
+		//fmt.Print(seq_name, ", phase = ", ph, ", kmer = ", string(kmer), ", hash values = ")
 		for i := 0; i < len(idx); i++ {
 			fmt.Print(idx[i], "\t")
 			f.table[idx[i]] = gid
 		}
+		fmt.Print(", Unique")
 		fmt.Println()
 	} else {
 		for i := 0; i < len(idx); i++ {
+			fmt.Print(idx[i], "\t")
 			f.table[idx[i]] = Dirty
 		}
+		fmt.Print(", Dirty")
+		fmt.Println()
 	}
 }
 
