@@ -79,7 +79,7 @@ func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer
 	fmt.Println("Kmer: ", string(kmer))
 	fmt.Print("hash values: ")
 	for i := 0; i < len(f.HashFunction); i++ {
-		fmt.Print(f.HashFunction[i].SlidingHashKmer(kmer,false), "\t")
+		fmt.Print(f.HashFunction[i].HashKmer(kmer), "\t")
 	}
 	fmt.Println()
 	fmt.Println("True: ", genome_info[gid])
