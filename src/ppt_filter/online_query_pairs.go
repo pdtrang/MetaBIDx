@@ -66,14 +66,14 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 
     }
 
-    //count_read := 0
+    count_read := 0
     genome_info := LoadGenomeInfo()
 	for scanner.Scan() && scanner2.Scan() {
 
-		// if count_read == 1000000 {
-		// 	break
-		// }
-		// count_read += 1
+		if count_read == 1000000 {
+			break
+		}
+		count_read += 1
 
 		c += 1
 		// fmt.Println(scanner.Seq)
