@@ -12,7 +12,7 @@ func main() {
 	filter_saved_file := flag.String("load", "", "filter saved file")
     read_1 := flag.String("r1", "", "fastq/fq file")
     read_2 := flag.String("r2", "", "fastq/fq file")
-    out := flag.String("out", "result.txt", "output filename")
+    out := flag.String("out", "", "output filename")
     strategy := flag.String("strategy", "majority", "querying strategy")
     ut := flag.Float64("ut", float64(0.5), "upper threshold")
     lt := flag.Float64("lt", float64(0.2), "lower threshold")
