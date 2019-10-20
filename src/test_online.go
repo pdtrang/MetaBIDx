@@ -16,18 +16,18 @@ func main() {
     strategy := flag.String("strategy", "majority", "querying strategy")
     ut := flag.Float64("ut", float64(0.5), "upper threshold")
     lt := flag.Float64("lt", float64(0.2), "lower threshold")
-    analysis := flag.Bool("analysis", false, "save read query to file")
+    //analysis := flag.Bool("analysis", false, "save read query to file")
     flag.Parse()
 	
     log.Printf(*out)
     log.Printf(*strategy)
-    log.Printf(*ut)
-    log.Printf(*lt)
+    log.Printf(string(*ut))
+    log.Printf(string(*lt))
     log.Printf(*filter_saved_file)
-    log.Printf(*read1)
-    log.Printf(*read2)
+    log.Printf(*read_1)
+    log.Printf(*read_2)
     log.Printf(*strategy)
-    log.Printf(*analysis)
+    //log.Printf(*analysis)
 
 
 	// // Load filter
