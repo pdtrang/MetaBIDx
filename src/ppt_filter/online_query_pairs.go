@@ -58,6 +58,10 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
     defer utils.TimeConsume(start_time, "\nQuery Time ")
     log.Printf("Start querying...")
 
+    fmt.Println("upper_threshold = ", upper_threshold)
+    fmt.Println("lower threshold = ", lower_threshold)
+    fmt.Println("out filename: ", out_filename)
+
     var analysis_fi *os.File
     if analysis == true {
     	analysis_filename := strings.Replace(out_filename, ".", "_analysis.", -1)
@@ -69,9 +73,6 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 
     }
 
-    fmt.Println("upper_threshold = ", upper_threshold)
-    fmt.Println("lower threshold = ", lower_threshold)
-    fmt.Println("out filename: ", out_filename)
     count_read := 0
 	for scanner.Scan() && scanner2.Scan() {
 

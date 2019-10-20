@@ -30,6 +30,9 @@ func main() {
     upper_threshold := *ut
     lower_threshold := *lt
 
+    log.Printf(out)
+    log.Printf(*out)
+
 	if *read_2 == "" {
 		f.OnlineSingleQuery(*read_1, *out, *strategy, upper_threshold, lower_threshold, *analysis)	
 	} else {
