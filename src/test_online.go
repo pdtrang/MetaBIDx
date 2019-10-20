@@ -23,6 +23,11 @@ func main() {
     log.Printf(*strategy)
     log.Printf(*ut)
     log.Printf(*lt)
+    log.Printf(*filter_saved_file)
+    log.Printf(*read1)
+    log.Printf(*read2)
+    log.Printf(*strategy)
+    log.Printf(*analysis)
 
 
 	// // Load filter
