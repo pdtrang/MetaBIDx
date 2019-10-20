@@ -19,6 +19,12 @@ func main() {
     analysis := flag.Bool("analysis", false, "save read query to file")
     flag.Parse()
 	
+    log.Printf(*out)
+    log.Printf(*strategy)
+    log.Printf(*ut)
+    log.Printf(*lt)
+
+
 	// Load filter
 	log.Printf("Load filter")
     f := ppt_filter.Load(*filter_saved_file)
@@ -29,8 +35,6 @@ func main() {
 
     upper_threshold := *ut
     lower_threshold := *lt
-
-    log.Printf(*out)
 
 	if *read_2 == "" {
 		f.OnlineSingleQuery(*read_1, *out, *strategy, upper_threshold, lower_threshold, *analysis)	
