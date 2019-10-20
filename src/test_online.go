@@ -30,7 +30,6 @@ func main() {
     upper_threshold := *ut
     lower_threshold := *lt
 
-    log.Printf(out)
     log.Printf(*out)
 
 	if *read_2 == "" {
