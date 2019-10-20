@@ -69,6 +69,7 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 
     }
 
+    fmt.Println("out filename: ", out_filename)
     count_read := 0
 	for scanner.Scan() && scanner2.Scan() {
 
