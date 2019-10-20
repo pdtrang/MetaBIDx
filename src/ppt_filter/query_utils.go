@@ -67,14 +67,17 @@ func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer
 
 	gid := strings.Replace(header_parts[0], ".fna","",-1)
 	gid = strings.Replace(gid, "@", "", -1)
+	genome_name := ""
 	if val, ok := genome_info[gid]; ok {
 		if val != f.Gid[idx] {
 			fmt.Println("False Positive")			
 		} else {
 			fmt.Println("True Positive")
 		}
+		genome_name = genome_info[gid]
 	} else {
 		fmt.Println("Can not find", idx, "in genome_info.")
+		genome_name = "Not found."
 	}
 
 	fmt.Println("Kmer: ", string(kmer))
@@ -83,8 +86,8 @@ func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer
 		fmt.Print(f.HashFunction[i].HashKmer(kmer), "\t")
 	}
 	fmt.Println()
-	fmt.Println("True: ", genome_info[gid])
-	true_fasta := "/backup2/dpham2/mende_metagenomics_data/new_groupRef_2/"+genome_info[gid]+".fa"
+	fmt.Println("True: ", genome_name)
+	true_fasta := "/backup2/dpham2/mende_metagenomics_data/new_groupRef_2/"+genome_name+".fa"
 	fmt.Println("Kmer in True genome:", IsExactSubstring(true_fasta, string(kmer)))
 	fmt.Println("Predicted: ", f.Gid[idx])
 	predicted_fasta := "/backup2/dpham2/mende_metagenomics_data/new_groupRef_2/"+f.Gid[idx]+".fa"
