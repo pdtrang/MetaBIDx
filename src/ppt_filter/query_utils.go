@@ -92,18 +92,18 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
     }
 
     // save all reported bacteria
-	for k, b := range bacteria_map {
-    	if b.Reported == true {
-    		s := f.Gid[k] +  "\n"
-    		_, err := fi.WriteString(s)
-		    if err != nil {
-		        fmt.Println(err)
-		        fi.Close()
-		        return
-		    }	
-    	}
+	// for k, b := range bacteria_map {
+ //    	if b.Reported == true {
+ //    		s := f.Gid[k] +  "\n"
+ //    		_, err := fi.WriteString(s)
+	// 	    if err != nil {
+	// 	        fmt.Println(err)
+	// 	        fi.Close()
+	// 	        return
+	// 	    }	
+ //    	}
         
-    }    
+ //    }    
 
 	if num_bacteria > 0 {
 
