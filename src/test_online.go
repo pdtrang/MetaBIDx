@@ -25,22 +25,22 @@ func main() {
     log.Printf(*lt)
 
 
-	// Load filter
-	log.Printf("Load filter")
-    f := ppt_filter.Load(*filter_saved_file)
-    // fmt.Println(f)
-    // fmt.Println(f.Gid)
-    // f.Summarize()	
-    log.Println("Finish loading filter.")
+	// // Load filter
+	// log.Printf("Load filter")
+ //    f := ppt_filter.Load(*filter_saved_file)
+ //    // fmt.Println(f)
+ //    // fmt.Println(f.Gid)
+ //    // f.Summarize()	
+ //    log.Println("Finish loading filter.")
 
-    upper_threshold := *ut
-    lower_threshold := *lt
+ //    upper_threshold := *ut
+ //    lower_threshold := *lt
 
-	if *read_2 == "" {
-		f.OnlineSingleQuery(*read_1, *out, *strategy, upper_threshold, lower_threshold, *analysis)	
-	} else {
-		f.OnlinePairQuery(*read_1, *read_2, *out, *strategy, upper_threshold, lower_threshold, *analysis)
-	}
+	// if *read_2 == "" {
+	// 	f.OnlineSingleQuery(*read_1, *out, *strategy, upper_threshold, lower_threshold, *analysis)	
+	// } else {
+	// 	f.OnlinePairQuery(*read_1, *read_2, *out, *strategy, upper_threshold, lower_threshold, *analysis)
+	// }
 
 }
 
