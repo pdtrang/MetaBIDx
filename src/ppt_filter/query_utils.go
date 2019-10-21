@@ -87,8 +87,12 @@ func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer
 	}
 	fmt.Println()
 	fmt.Println("True: ", genome_name)
-	true_fasta := "/backup2/dpham2/mende_metagenomics_data/new_groupRef_2/"+genome_name+".fa"
-	fmt.Println("Kmer in True genome:", IsExactSubstring(true_fasta, string(kmer)))
+	if genome_name != "Not found." {
+		true_fasta := "/backup2/dpham2/mende_metagenomics_data/new_groupRef_2/"+genome_name+".fa"
+		fmt.Println("Kmer in True genome:", IsExactSubstring(true_fasta, string(kmer)))
+	} else {
+		fmt.Println("Kmer in True genome: NA")
+	}
 	fmt.Println("Predicted: ", f.Gid[idx])
 	predicted_fasta := "/backup2/dpham2/mende_metagenomics_data/new_groupRef_2/"+f.Gid[idx]+".fa"
 	fmt.Println("Kmer in Predicted genome:", IsExactSubstring(predicted_fasta, string(kmer)))
@@ -129,6 +133,10 @@ func LoadGenomeInfo() map[string]string{
 		}
 		if err != nil {
 			log.Fatal(err)
+		}
+
+		if record[0] == "\n" {
+			break
 		}
 
 		id := record[0]
