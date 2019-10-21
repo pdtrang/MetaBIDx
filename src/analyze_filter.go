@@ -15,7 +15,10 @@ func main() {
 	f := ppt_filter.Load(*filter_saved_file)
 	log.Printf("Finish loading filter.")
 	// fmt.Println(f)
-    fmt.Println(f.Gid)
+    // fmt.Println(f.Gid)
+    for key, value := range f.Gid {
+	    fmt.Println(key,":",value)
+	}
     f.Summarize()	
 	//f.GetNumberOfUniqueKmers()
 	// fmt.Println(f.Gid)
