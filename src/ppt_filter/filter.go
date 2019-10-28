@@ -175,3 +175,19 @@ func Load(fn string) *Filter {
 	filter.table = _load_table_alone(fn+".table", filter.M)
 	return filter
 }
+
+//-----------------------------------------------------------------------------
+func LoadFilter(fn string, n_phases int) * Filter {
+	filter := LoadFilterGob(fn)
+	filter.N_phases = n_phases
+	filter.table = make([]uint16, filter.M)
+	return filter
+}
+
+//-----------------------------------------------------------------------------
+func (f *Filter) PrintHashFunction() {
+	for i := range f.HashFunction {
+		fmt.Println("Function ", i, ": ", f.HashFunction[i])
+	}
+}
+

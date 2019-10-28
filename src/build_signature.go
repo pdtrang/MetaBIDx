@@ -52,10 +52,11 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
 }
 
 //-----------------------------------------------------------------------------
-func BuildFilter(refseq string, k int, n_hf int, table_size int64, n_phases int) *ppt_filter.Filter {
+func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases int) *ppt_filter.Filter {
     // Create an empty filter
-    f := ppt_filter.NewFilter(table_size, k, n_hf, n_phases)
+    f := ppt_filter.NewFilter(table_size, k, n_hf, n_phases)    
 
+    
     // 1st walk
     VerifySignature(f, refseq, k, 1)
 
@@ -68,12 +69,28 @@ func BuildFilter(refseq string, k int, n_hf int, table_size int64, n_phases int)
 }
 
 //-----------------------------------------------------------------------------
+func BuildNewTable(f *ppt_filter.Filter, refseq string, k int, n_hf int, table_size int64, n_phases int) *ppt_filter.Filter {
+        
+    // 1st walk
+    VerifySignature(f, refseq, k, 1)
+
+    if n_phases == 2 {
+        // 2nd walk
+        VerifySignature(f, refseq, k, 2)
+    }
+
+    return f
+}
+
+
+//-----------------------------------------------------------------------------
 func main() {
     //
     // log.Printf("Start building Bloom filter from a directory of genomes")
     // 
     refseq_genomes := flag.String("refseq", "", "refseq genome dir")    
     K := flag.Int("k", 16, "kmer length")
+    filter := flag.String("load", "", "load existing filter file (without table)")
     filter_saved_file := flag.String("save", "", "filter saved file")
     power := flag.Int("p", 32, "power")
     N_HASH_FUNCTIONS := flag.Int("n", 2, "number of hash functions")
@@ -90,16 +107,33 @@ func main() {
     // Time On
     defer TimeConsume(time.Now(), "Run time: ")
     
-    fmt.Println("Build filter...")
     // Build
-    f := BuildFilter(*refseq_genomes, *K, *N_HASH_FUNCTIONS, FILTER_LEN, *N_PHASES)
+    if *filter == "" {
+        fmt.Println("Build filter...")
+        f := BuildNewFilter(*refseq_genomes, *K, *N_HASH_FUNCTIONS, FILTER_LEN, *N_PHASES)
+        
+
+        f.Summarize()
+        f.Save(*filter_saved_file)
+        fmt.Println(f.Gid)
+    } else {
+        fmt.Println("Load existing filter...")
+        f := ppt_filter.LoadFilter(*filter, *N_PHASES)
+        fmt.Println("Build new table...")
+        BuildNewTable(f, *refseq_genomes, f.K, len(f.HashFunction), f.M, f.N_phases)
+        
+
+        f.Summarize()
+        f.Save(*filter_saved_file)
+        fmt.Println(f.Gid)
+    }
 
     // Print Summary
     // fmt.Println("Summary")
-    f.Summarize()
+    // f.Summarize()
     // Save
-    f.Save(*filter_saved_file)
-    fmt.Println(f.Gid)
+    // f.Save(*filter_saved_file)
+    // fmt.Println(f.Gid)
     // log.Printf("Saved: %s.", *filter_saved_file)
 
     // print Memory Usage    
