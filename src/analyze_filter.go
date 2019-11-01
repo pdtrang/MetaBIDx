@@ -20,7 +20,7 @@ func main() {
 	    fmt.Println(key,":",value)
 	}
     f.Summarize()	
-    f.PrintHashFunction()
+    // f.PrintHashFunction()
 	//f.GetNumberOfUniqueKmers()
 	// fmt.Println(f.Gid)
 }
