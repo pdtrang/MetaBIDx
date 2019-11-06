@@ -69,7 +69,7 @@ func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases i
 }
 
 //-----------------------------------------------------------------------------
-func BuildNewTable(f *ppt_filter.Filter, refseq string, k int, n_hf int, table_size int64, n_phases int) *ppt_filter.Filter {
+func BuildNewTable(f *ppt_filter.Filter, refseq string, k int, n_hf int, table_size int64, n_phases int) {
         
     // 1st walk
     VerifySignature(f, refseq, k, 1)
@@ -79,7 +79,6 @@ func BuildNewTable(f *ppt_filter.Filter, refseq string, k int, n_hf int, table_s
         VerifySignature(f, refseq, k, 2)
     }
 
-    return f
 }
 
 
@@ -90,7 +89,7 @@ func main() {
     // 
     refseq_genomes := flag.String("refseq", "", "refseq genome dir")    
     K := flag.Int("k", 16, "kmer length")
-    filter := flag.String("load", "", "load existing filter file (without table)")
+    filter_name := flag.String("load", "", "load existing filter file (without table)")
     filter_saved_file := flag.String("save", "", "filter saved file")
     power := flag.Int("p", 32, "power")
     N_HASH_FUNCTIONS := flag.Int("n", 2, "number of hash functions")
@@ -118,7 +117,7 @@ func main() {
         fmt.Println(f.Gid)
     } else {
         fmt.Println("Load existing filter...")
-        f := ppt_filter.LoadFilter(*filter, *N_PHASES)
+        f := ppt_filter.LoadFilter(*filter_name)
         fmt.Println("Build new table...")
         BuildNewTable(f, *refseq_genomes, f.K, len(f.HashFunction), f.M, f.N_phases)
         
