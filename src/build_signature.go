@@ -107,7 +107,7 @@ func main() {
     defer TimeConsume(time.Now(), "Run time: ")
     
     // Build
-    if *filter == "" {
+    if *filter_name == "" {
         fmt.Println("Build filter...")
         f := BuildNewFilter(*refseq_genomes, *K, *N_HASH_FUNCTIONS, FILTER_LEN, *N_PHASES)
         
