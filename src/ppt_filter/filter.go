@@ -181,7 +181,7 @@ func LoadFilter(fn string) * Filter {
 	filter := LoadFilterGob(fn)
 	// filter.N_phases = n_phases
 	filter.table = make([]uint16, filter.M)
-
+	filter.Gid = make(map[uint16]string)
 	fmt.Println(filter)
 	return filter
 }
