@@ -115,7 +115,7 @@ func RevComp(s string) (string){
 }
 
 func LoadGenomeInfo() map[string]string{
-	file := "/backup2/dpham2/mende_metagenomics_data/scripts/new_groupRef2_genome_reference.csv"
+	file := "/home/dpham2/backup2/mende_data/scripts/new_groupRef2_genome_reference.csv"
 
 	csvfile, err := os.Open(file)
 	if err != nil {
