@@ -115,10 +115,10 @@ func RevComp(s string) (string){
 }
 
 func LoadGenomeInfo(level string) map[string]string{
-	if level == "strains" {
-		file := "/backup2/dpham2/mende_metagenomics_data/scripts/new_groupRef2_genome_reference.csv"	
-	} else if level == "species" {
-		file := "/backup2/dpham2/mende_metagenomics_data/scripts/gID_species.csv"
+	file := "/backup2/dpham2/mende_metagenomics_data/scripts/new_groupRef2_genome_reference.csv"
+	
+	if level == "species" {
+		file = "/backup2/dpham2/mende_metagenomics_data/scripts/gID_species.csv"
 	}
 	
 
