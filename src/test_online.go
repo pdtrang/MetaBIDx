@@ -16,6 +16,7 @@ func main() {
     strategy := flag.String("strategy", "majority", "querying strategy")
     ut := flag.Float64("ut", float64(0.5), "upper threshold")
     lt := flag.Float64("lt", float64(0.2), "lower threshold")
+    level := flag.String("level", "strains", "query level")
     analysis := flag.Bool("analysis", false, "save read query to file")
     flag.Parse()
 	
@@ -33,9 +34,9 @@ func main() {
     log.Printf(*out)
 
 	if *read_2 == "" {
-		f.OnlineSingleQuery(*read_1, *out, *strategy, upper_threshold, lower_threshold, *analysis)	
+		f.OnlineSingleQuery(*read_1, *out, *strategy, upper_threshold, lower_threshold, *analysis, *level)	
 	} else {
-		f.OnlinePairQuery(*read_1, *read_2, *out, *strategy, upper_threshold, lower_threshold, *analysis)
+		f.OnlinePairQuery(*read_1, *read_2, *out, *strategy, upper_threshold, lower_threshold, *analysis, *level)
 	}
 
 }

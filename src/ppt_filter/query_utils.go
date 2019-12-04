@@ -114,8 +114,13 @@ func RevComp(s string) (string){
 	return rc_s
 }
 
-func LoadGenomeInfo() map[string]string{
-	file := "/backup2/dpham2/mende_metagenomics_data/scripts/new_groupRef2_genome_reference.csv"
+func LoadGenomeInfo(level string) map[string]string{
+	if level == "strains" {
+		file := "/backup2/dpham2/mende_metagenomics_data/scripts/new_groupRef2_genome_reference.csv"	
+	} else if level == "species" {
+		file := "/backup2/dpham2/mende_metagenomics_data/scripts/gID_species.csv"
+	}
+	
 
 	csvfile, err := os.Open(file)
 	if err != nil {

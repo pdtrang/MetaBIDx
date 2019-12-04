@@ -12,7 +12,7 @@ import (
 //-----------------------------------------------------------------------------
 // Online Query for paired-end reads
 //-----------------------------------------------------------------------------
-func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_filename string, strategy string, upper_threshold float64, lower_threshold float64, analysis bool) {
+func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_filename string, strategy string, upper_threshold float64, lower_threshold float64, analysis bool, level string) {
 	
 	bacteria_map := make(map[uint16]*Bacteria)
 
@@ -67,7 +67,7 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
     }
 
     // count_read := 0
-    genome_info := LoadGenomeInfo()
+    genome_info := LoadGenomeInfo(level)
 	for scanner.Scan() && scanner2.Scan() {
 
 		// if count_read == 1000000 {
