@@ -30,7 +30,7 @@ func Traverse(refseq string, k int, swindow int) {
             // fmt.Printf("%s,",fa_scanner.Header)
             kmer_scanner := ppt_filter.NewKmerScannerSkip(fa_scanner.Seq, k, swindow)
             for kmer_scanner.ScanBothStrandsWithSkippingWindow() {
-                fmt.Println(string(kmer_scanner.Kmer))
+                fmt.Println(kmer_scanner.IsPrimary, string(kmer_scanner.Kmer))
                 // fmt.Println()
             }
         }       
@@ -46,8 +46,8 @@ func main() {
     
     flag.Parse()
     
-    K := 5
-    swindow := 4
+    K := 9
+    swindow := 5
     Traverse(*refseq_genomes, K, swindow)
     
 

@@ -43,10 +43,10 @@ func NewKmerScannerSkip(seq []byte, k int, swindow int) *KmerScanner {
 		K:           k,
 		I:           0,
 		SWindow: 	 swindow,
-		WindowPos: 			 0,
-		IsFirstKmer: false,
+		WindowPos: 	 0,
+		IsFirstKmer: true,
 		Restarted:   false,
-		IsPrimary:   false,
+		IsPrimary:   true,
 	}
 }
 
@@ -117,21 +117,20 @@ func (s *KmerScanner) ScanBothStrands() bool {
 func (s *KmerScanner) ScanBothStrandsWithSkippingWindow() bool {
 	if s.IsPrimary {
 		if s.I >= len(s.Seq) - s.K + 1 {
-			if s.WindowPos >= s.SWindow {
-				return false
-			}
-			// increase s.I at the next round
-			s.WindowPos++
-			s.I = s.WindowPos
-			s.IsFirstKmer = true
-			s.Restarted = true
-			return s.ScanOneStrandWithSkippingWindow()
+		if s.WindowPos >= s.SWindow {
+			return false
+		}
+		// increase s.I at the next round
+		s.WindowPos++
+		s.I = s.WindowPos
+		s.IsFirstKmer = true
+		s.Restarted = true
+		return s.ScanBothStrandsWithSkippingWindow()
 
 		} else {
 			// stop when s.I go back to the old window
 			if s.WindowPos >= s.SWindow {
-				s.IsPrimary = false
-				return true
+				return false
 			}
 
 			if s.I == 0 || s.Restarted || s.I == s.WindowPos {
@@ -144,7 +143,7 @@ func (s *KmerScanner) ScanBothStrandsWithSkippingWindow() bool {
 			for i := s.I; i < s.K+s.I; i++ {
 				if s.Seq[i] != 'A' && s.Seq[i] != 'C' && s.Seq[i] != 'G' && s.Seq[i] != 'T' {
 					s.Restarted = true
-					return s.ScanOneStrandWithSkippingWindow()
+					return s.ScanBothStrandsWithSkippingWindow()
 				}
 			}
 			s.Kmer = s.Seq[s.I : s.K+s.I]
