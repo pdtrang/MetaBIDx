@@ -46,8 +46,8 @@ func main() {
     
     flag.Parse()
     
-    K := 9
-    swindow := 5
+    K := 5
+    swindow := 4
     Traverse(*refseq_genomes, K, swindow)
     
 
