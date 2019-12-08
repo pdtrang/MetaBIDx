@@ -16,6 +16,8 @@ type KmerScanner struct {
 	Kmer        []byte
 	K           int
 	I           int
+	SWindow		int
+	CurrentW 	int
 	IsFirstKmer bool
 	Restarted   bool // when encountered non A,C,G,T character, must compute kmer
 	IsPrimary   bool
@@ -27,6 +29,21 @@ func NewKmerScanner(seq []byte, k int) *KmerScanner {
 		Seq:         seq,
 		K:           k,
 		I:           0,
+		CurrentW: 			 0,
+		IsFirstKmer: false,
+		Restarted:   false,
+		IsPrimary:   true,
+	}
+}
+
+//-----------------------------------------------------------------------------
+func NewKmerScannerSkip(seq []byte, k int, swindow int) *KmerScanner {
+	return &KmerScanner{
+		Seq:         seq,
+		K:           k,
+		I:           0,
+		SWindow: 	 swindow,
+		CurrentW: 			 0,
 		IsFirstKmer: false,
 		Restarted:   false,
 		IsPrimary:   true,
@@ -120,6 +137,41 @@ func (s *KmerScanner) ScanOneStrand() bool {
 		}
 		s.Kmer = s.Seq[s.I : s.K+s.I]
 		s.I++
+		return true
+	}
+}
+
+func (s *KmerScanner) ScanOneStrandWithSkippingWindow() bool {
+
+	if s.I >= len(s.Seq) - s.K + 1 {
+		// increase s.I at the next round
+		s.CurrentW++
+		s.I = s.CurrentW
+		s.IsFirstKmer = true
+		s.Restarted = true
+		return s.ScanOneStrandWithSkippingWindow()
+
+	} else {
+		// stop when s.I go back to the old window
+		if s.CurrentW >= s.SWindow {
+			return false
+		}
+
+		if s.I == 0 || s.Restarted || s.I == s.CurrentW {
+			s.IsFirstKmer = true
+			s.Restarted = false
+		} else {
+			s.IsFirstKmer = false
+		}
+
+		for i := s.I; i < s.K+s.I; i++ {
+			if s.Seq[i] != 'A' && s.Seq[i] != 'C' && s.Seq[i] != 'G' && s.Seq[i] != 'T' {
+				s.Restarted = true
+				return s.ScanOneStrandWithSkippingWindow()
+			}
+		}
+		s.Kmer = s.Seq[s.I : s.K+s.I]
+		s.I+=s.SWindow
 		return true
 	}
 }
