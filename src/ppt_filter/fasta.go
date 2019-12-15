@@ -10,17 +10,40 @@ import (
 )
 
 type FastaScanner struct {
-	Header     string
-	NextHeader string
-	Seq        []byte
-	Finished   bool
-	Scanner    *bufio.Scanner
+	Header          string
+	NextHeader      string
+	Seq             []byte
+	Finished        bool
+	Scanner         *bufio.Scanner
+	Max_num_kmers   int
+}
+
+type FastaSeq struct {
+	Header string
+	Seq    []byte
 }
 
 //-----------------------------------------------------------------------------
 func NewFastaScanner(r io.Reader) *FastaScanner {
 	scanner := &FastaScanner{Scanner: bufio.NewScanner(r), Finished: false}
 	return scanner
+}
+
+func NewFastaSeq(header string, seq []byte) *FastaSeq {
+	return &FastaSeq{
+		Header: header,
+		Seq:    seq,
+	}
+}
+
+//-----------------------------------------------------------------------------
+func (s *FastaScanner) GetCurrentNumKmers() int {
+	return s.Max_num_kmers
+}
+
+//-----------------------------------------------------------------------------
+func (s *FastaScanner) IncreaseCurrentNumKmers(c int){
+	s.Max_num_kmers += c
 }
 
 //-----------------------------------------------------------------------------

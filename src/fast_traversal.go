@@ -9,7 +9,7 @@ import (
 )
 
 //-----------------------------------------------------------------------------
-func Traverse(refseq string, k int, swindow int) {
+func Traverse(refseq string, k int, swindow int, max_num_kmers int) {
     // Walk through refseq dir 
     fscaner := ppt_filter.NewFileScanner(refseq)
 
@@ -20,20 +20,44 @@ func Traverse(refseq string, k int, swindow int) {
         if err != nil {
             panic(err)
         }
+        
         fa_scanner := ppt_filter.NewFastaScanner(fa)
-        // Scan through all sequences in the fasta file
+        var seq []ppt_filter.FastaSeq
         for fa_scanner.Scan() {
+            seq = append(seq, *ppt_filter.NewFastaSeq(fa_scanner.Header[1:], fa_scanner.Seq))
+        }
 
-            // Sequence header, and seq length            
-            fmt.Println(fa_scanner.Header[1:], len(fa_scanner.Seq))
-            fmt.Println(string(fa_scanner.Seq))
-            // fmt.Printf("%s,",fa_scanner.Header)
-            kmer_scanner := ppt_filter.NewKmerScannerSkip(fa_scanner.Seq, k, swindow)
-            for kmer_scanner.ScanBothStrandsWithSkippingWindow() {
-                fmt.Println(string(kmer_scanner.Kmer))
-                // fmt.Println()
-            }
-        }       
+        for index := 0; index < swindow; index++ {
+            // kmer_scanner := ppt_filter.NewKmerScannerNoSequence(k, swindow)
+            fmt.Println()
+            fmt.Println("curr pos", index)
+
+            // Scan through all sequences in the fasta file
+            for i:=0; i<len(seq); i++ {
+                fmt.Println("sequence :", fidx)
+                
+                // Sequence header, and seq length            
+                fmt.Println(seq[i].Header[1:], len(seq[i].Seq))
+                fmt.Println(string(seq[i].Seq))
+                // fmt.Printf("%s,",fa_scanner.Header)
+                kmer_scanner := ppt_filter.NewKmerScannerAtIndex(seq[i].Seq, k, swindow, index)
+                // kmer_scanner.SetSequence(fa_scanner.Seq)
+                // fmt.Println(string(kmer_scanner.Seq))
+
+                for kmer_scanner.ScanBothStrandsWithIndex() {
+                    fmt.Println(string(kmer_scanner.Kmer))
+                    // fmt.Println()
+                    // fa_scanner.IncreaseCurrentNumKmers(1)
+
+                    // if fa_scanner.GetCurrentNumKmers() >= max_num_kmers {
+                    //     fmt.Println("Reach max num kmers.")
+                    //     return
+                    // }
+                }
+
+            }    
+
+        }
     }
 
 }
@@ -48,7 +72,8 @@ func main() {
     
     K := 5
     swindow := 4
-    Traverse(*refseq_genomes, K, swindow)
+    max_num_kmers := 100
+    Traverse(*refseq_genomes, K, swindow, max_num_kmers)
     
 
 }

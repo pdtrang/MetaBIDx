@@ -50,6 +50,24 @@ func NewKmerScannerSkip(seq []byte, k int, swindow int) *KmerScanner {
 	}
 }
 
+//-----------------------------------------------------------------------------
+func NewKmerScannerAtIndex(seq []byte, k int, swindow int, index int) *KmerScanner {
+	return &KmerScanner{
+		Seq:         seq,
+		K:           k,
+		I:           index,
+		SWindow: 	 swindow,
+		WindowPos: 	 0,
+		IsFirstKmer: true,
+		Restarted:   false,
+		IsPrimary:   true,
+	}
+}
+
+
+func (s *KmerScanner) SetSequence(seq []byte) {
+	s.Seq = seq
+}
 
 func (s *KmerScanner) Scan() bool {
 	return s.ScanBothStrands()
@@ -132,6 +150,44 @@ func (s *KmerScanner) ScanBothStrandsWithSkippingWindow() bool {
 			if s.WindowPos >= s.SWindow {
 				return false
 			}
+
+			if s.I == 0 || s.Restarted || s.I == s.WindowPos {
+				s.IsFirstKmer = true
+				s.Restarted = false
+			} else {
+				s.IsFirstKmer = false
+			}
+
+			for i := s.I; i < s.K+s.I; i++ {
+				if s.Seq[i] != 'A' && s.Seq[i] != 'C' && s.Seq[i] != 'G' && s.Seq[i] != 'T' {
+					s.Restarted = true
+					return s.ScanBothStrandsWithSkippingWindow()
+				}
+			}
+			s.Kmer = s.Seq[s.I : s.K+s.I]
+			s.I += s.SWindow
+			s.IsPrimary = false
+			return true
+		}
+	}
+
+	s.Kmer = s.ReverseComplement(s.Kmer)
+	s.IsPrimary = true
+	return true
+}
+
+func (s *KmerScanner) ScanBothStrandsWithIndex() bool {
+	if s.IsPrimary {
+		if s.I >= len(s.Seq) - s.K + 1 {
+		
+		// increase s.I at the next round
+		
+		s.IsFirstKmer = false
+		s.Restarted = false
+		// return s.ScanBothStrandsWithSkippingWindow()
+		return false
+
+		} else {
 
 			if s.I == 0 || s.Restarted || s.I == s.WindowPos {
 				s.IsFirstKmer = true
