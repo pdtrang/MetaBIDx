@@ -31,7 +31,8 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int) {
         fa_scanner := ppt_filter.NewFastaScanner(fa)
         // Scan through all sequences in the fasta file
         for fa_scanner.Scan() {
-            f.Gid[uint16(fidx+1)] = fa_scanner.Header[1:]
+            name_parts := strings.Split(filename, "/")
+            f.Gid[uint16(fidx+1)] = strings.Replace(name_parts[len(name_parts)-1],".fa","",-1)
             // Sequence header, and seq length            
             // fmt.Println(fa_scanner.Header[1:], len(fa_scanner.Seq))
             // fmt.Printf("%s,",fa_scanner.Header)
@@ -99,44 +100,4 @@ func main() {
     // print Memory Usage    
     PrintMemUsage()
 
-}
-
-//-----------------------------------------------------------------------------
-func Init() {
-    println("Hello World")
-}
-
-//-----------------------------------------------------------------------------
-func TimeConsume(start time.Time, name string) {
-    elapsed := time.Since(start)
-    // log.Printf("%s run in %s", name, elapsed)
-    // fmt.Printf("%s run in %s \n\n", name, elapsed)
-    fmt.Printf("%s%s\n", name, elapsed)
-}
-
-//-----------------------------------------------------------------------------
-// PrintMemUsage outputs the current, total and OS memory being used. As well as the number 
-// of garage collection cycles completed.
-// Alloc is bytes of allocated heap objects.
-// TotalAlloc is cumulative bytes allocated for heap objects.
-// Sys is the total bytes of memory obtained from the OS.
-// NumGC is the number of completed GC cycles.
-func PrintMemUsage() {
-        var m runtime.MemStats
-        runtime.ReadMemStats(&m)
-        // For info on each, see: https://golang.org/pkg/runtime/#MemStats
-        fmt.Printf("\nMemory Usage\n")
-        fmt.Printf("Alloc = %v MiB", bToMb(m.Alloc))
-        fmt.Printf("\tTotalAlloc = %v MiB", bToMb(m.TotalAlloc))
-        fmt.Printf("\tSys = %v MiB", bToMb(m.Sys))
-        fmt.Printf("\tNumGC = %v\n", m.NumGC)
-}
-
-func bToMb(b uint64) uint64 {
-    return b / 1024 / 1024
-}
-
-//-----------------------------------------------------------------------------
-func DUMP() {
-    fmt.Println("Testing here!!!")
 }

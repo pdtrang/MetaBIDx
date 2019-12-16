@@ -53,6 +53,7 @@ func (f *Filter) HashSignatureWithWindow(kmer []byte, is_first_kmer bool, gid ui
 	if unique_to_genome {
 		for i := 0; i < len(idx); i++ {
 			f.table[idx[i]] = gid
+			// fmt.Println("hash value", idx[i],"unique ID: ", gid)
 		}
 	} else {
 		for i := 0; i < len(idx); i++ {

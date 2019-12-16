@@ -135,15 +135,15 @@ func (s *KmerScanner) ScanBothStrands() bool {
 func (s *KmerScanner) ScanBothStrandsWithSkippingWindow() bool {
 	if s.IsPrimary {
 		if s.I >= len(s.Seq) - s.K + 1 {
-		if s.WindowPos >= s.SWindow {
-			return false
-		}
-		// increase s.I at the next round
-		s.WindowPos++
-		s.I = s.WindowPos
-		s.IsFirstKmer = true
-		s.Restarted = true
-		return s.ScanBothStrandsWithSkippingWindow()
+			if s.WindowPos >= s.SWindow {
+				return false
+			}
+			// increase s.I at the next round
+			s.WindowPos++
+			s.I = s.WindowPos
+			s.IsFirstKmer = true
+			s.Restarted = true
+			return s.ScanBothStrandsWithSkippingWindow()
 
 		} else {
 			// stop when s.I go back to the old window
@@ -155,7 +155,7 @@ func (s *KmerScanner) ScanBothStrandsWithSkippingWindow() bool {
 				s.IsFirstKmer = true
 				s.Restarted = false
 			} else {
-				s.IsFirstKmer = false
+				s.IsFirstKmer = true
 			}
 
 			for i := s.I; i < s.K+s.I; i++ {
@@ -180,12 +180,12 @@ func (s *KmerScanner) ScanBothStrandsWithIndex() bool {
 	if s.IsPrimary {
 		if s.I >= len(s.Seq) - s.K + 1 {
 		
-		// increase s.I at the next round
-		
-		s.IsFirstKmer = false
-		s.Restarted = false
-		// return s.ScanBothStrandsWithSkippingWindow()
-		return false
+			// increase s.I at the next round
+			
+			s.IsFirstKmer = true
+			s.Restarted = false
+			// return s.ScanBothStrandsWithSkippingWindow()
+			return false
 
 		} else {
 
@@ -193,7 +193,7 @@ func (s *KmerScanner) ScanBothStrandsWithIndex() bool {
 				s.IsFirstKmer = true
 				s.Restarted = false
 			} else {
-				s.IsFirstKmer = false
+				s.IsFirstKmer = true
 			}
 
 			for i := s.I; i < s.K+s.I; i++ {
