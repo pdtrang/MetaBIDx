@@ -1,6 +1,3 @@
-//-----------------------------------------------------------------------------
-// Author: Vinhthuy Phan, 2018
-//-----------------------------------------------------------------------------
 package ppt_filter
 
 // import (
@@ -16,6 +13,8 @@ type KmerScanner struct {
 	Kmer        []byte
 	K           int
 	I           int
+	SWindow		int
+	WindowPos	int
 	IsFirstKmer bool
 	Restarted   bool // when encountered non A,C,G,T character, must compute kmer
 	IsPrimary   bool
@@ -27,12 +26,40 @@ func NewKmerScanner(seq []byte, k int) *KmerScanner {
 		Seq:         seq,
 		K:           k,
 		I:           0,
+		WindowPos:	 0,
 		IsFirstKmer: false,
 		Restarted:   false,
 		IsPrimary:   true,
 	}
 }
 
+//-----------------------------------------------------------------------------
+func NewKmerScannerSkip(seq []byte, k int, swindow int) *KmerScanner {
+	return &KmerScanner{
+		Seq:         seq,
+		K:           k,
+		I:           0,
+		SWindow: 	 swindow,
+		WindowPos: 	 0,
+		IsFirstKmer: true,
+		Restarted:   false,
+		IsPrimary:   true,
+	}
+}
+
+//-----------------------------------------------------------------------------
+func NewKmerScannerAtIndex(seq []byte, k int, swindow int, index int) *KmerScanner {
+	return &KmerScanner{
+		Seq:         seq,
+		K:           k,
+		I:           index,
+		SWindow: 	 swindow,
+		WindowPos: 	 0,
+		IsFirstKmer: true,
+		Restarted:   false,
+		IsPrimary:   true,
+	}
+}
 
 func (s *KmerScanner) Scan() bool {
 	return s.ScanBothStrands()
@@ -97,6 +124,89 @@ func (s *KmerScanner) ScanBothStrands() bool {
 	}
 }
 
+func (s *KmerScanner) ScanBothStrandsWithSkippingWindow() bool {
+	if s.IsPrimary {
+		if s.I >= len(s.Seq) - s.K + 1 {
+			if s.WindowPos >= s.SWindow {
+				return false
+			}
+			// increase s.I at the next round
+			s.WindowPos++
+			s.I = s.WindowPos
+			s.IsFirstKmer = true
+			s.Restarted = true
+			return s.ScanBothStrandsWithSkippingWindow()
+
+		} else {
+			// stop when s.I go back to the old window
+			if s.WindowPos >= s.SWindow {
+				return false
+			}
+
+			if s.I == 0 || s.Restarted || s.I == s.WindowPos {
+				s.IsFirstKmer = true
+				s.Restarted = false
+			} else {
+				s.IsFirstKmer = true
+			}
+
+			for i := s.I; i < s.K+s.I; i++ {
+				if s.Seq[i] != 'A' && s.Seq[i] != 'C' && s.Seq[i] != 'G' && s.Seq[i] != 'T' {
+					s.Restarted = true
+					return s.ScanBothStrandsWithSkippingWindow()
+				}
+			}
+			s.Kmer = s.Seq[s.I : s.K+s.I]
+			s.I += s.SWindow
+			s.IsPrimary = false
+			return true
+		}
+	}
+
+	s.Kmer = s.ReverseComplement(s.Kmer)
+	s.IsPrimary = true
+	return true
+}
+
+func (s *KmerScanner) ScanBothStrandsWithIndex() bool {
+	if s.IsPrimary {
+		if s.I >= len(s.Seq) - s.K + 1 {
+		
+			// increase s.I at the next round
+			
+			s.IsFirstKmer = true
+			s.Restarted = false
+			// return s.ScanBothStrandsWithSkippingWindow()
+			return false
+
+		} else {
+
+			if s.I == 0 || s.Restarted || s.I == s.WindowPos {
+				s.IsFirstKmer = true
+				s.Restarted = false
+			} else {
+				s.IsFirstKmer = true
+			}
+
+			for i := s.I; i < s.K+s.I; i++ {
+				if s.Seq[i] != 'A' && s.Seq[i] != 'C' && s.Seq[i] != 'G' && s.Seq[i] != 'T' {
+					s.Restarted = true
+					return s.ScanBothStrandsWithSkippingWindow()
+				}
+			}
+			s.Kmer = s.Seq[s.I : s.K+s.I]
+			s.I += s.SWindow
+			s.IsPrimary = false
+			return true
+		}
+	}
+
+	s.Kmer = s.ReverseComplement(s.Kmer)
+	s.IsPrimary = true
+	return true
+}
+
+
 func (s *KmerScanner) ScanOneStrand() bool {
 
 	if s.I >= len(s.Seq)-s.K+1 || s.K > len(s.Seq) {
@@ -120,6 +230,49 @@ func (s *KmerScanner) ScanOneStrand() bool {
 		}
 		s.Kmer = s.Seq[s.I : s.K+s.I]
 		s.I++
+		return true
+	}
+}
+
+func (s *KmerScanner) ScanOneStrandWithSkippingWindow() bool {
+
+	if s.K > len(s.Seq) {
+
+		return false
+	}
+
+	if s.I >= len(s.Seq) - s.K + 1 {
+		if s.WindowPos >= s.SWindow {
+			return false
+		}
+		// increase s.I at the next round
+		s.WindowPos++
+		s.I = s.WindowPos
+		s.IsFirstKmer = true
+		s.Restarted = true
+		return s.ScanOneStrandWithSkippingWindow()
+
+	} else {
+		// stop when s.I go back to the old window
+		if s.WindowPos >= s.SWindow {
+			return false
+		}
+
+		if s.I == 0 || s.Restarted || s.I == s.WindowPos {
+			s.IsFirstKmer = true
+			s.Restarted = false
+		} else {
+			s.IsFirstKmer = false
+		}
+
+		for i := s.I; i < s.K+s.I; i++ {
+			if s.Seq[i] != 'A' && s.Seq[i] != 'C' && s.Seq[i] != 'G' && s.Seq[i] != 'T' {
+				s.Restarted = true
+				return s.ScanOneStrandWithSkippingWindow()
+			}
+		}
+		s.Kmer = s.Seq[s.I : s.K+s.I]
+		s.I += s.SWindow
 		return true
 	}
 }

@@ -17,10 +17,22 @@ type FastaScanner struct {
 	Scanner    *bufio.Scanner
 }
 
+type FastaSeq struct {
+	Header string
+	Seq    []byte
+}
+
 //-----------------------------------------------------------------------------
 func NewFastaScanner(r io.Reader) *FastaScanner {
 	scanner := &FastaScanner{Scanner: bufio.NewScanner(r), Finished: false}
 	return scanner
+}
+
+func NewFastaSeq(header string, seq []byte) *FastaSeq {
+	return &FastaSeq{
+		Header: header,
+		Seq:    seq,
+	}
 }
 
 //-----------------------------------------------------------------------------
