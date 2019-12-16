@@ -41,7 +41,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int, swindow
         count_unique := 0
         for index := 0; index < swindow; index++ {
             for i := 0; i < len(seq); i++ {
-                //.Gid[uint16(fidx+1)] = seq[i].Header[1:]
+                // f.Gid[uint16(fidx+1)] = seq[i].Header[1:]
                 // fmt.Println(index, strings.Replace(name_parts[len(name_parts)-1],".fa","",-1), string(seq[i].Seq))
                 
                 kmer_scanner := ppt_filter.NewKmerScannerAtIndex(seq[i].Seq, k, swindow, index)
@@ -88,10 +88,12 @@ func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases i
 func BuildNewTable(f *ppt_filter.Filter, refseq string, k int, n_hf int, table_size int64, n_phases int, swindow int, max_num_kmers int) {
         
     // 1st walk
+    fmt.Println("first phase")
     VerifySignature(f, refseq, k, 1, swindow, max_num_kmers)
 
     if n_phases == 2 {
         // 2nd walk
+        fmt.Println("second phase")
         VerifySignature(f, refseq, k, 2, swindow, max_num_kmers)
     }
 

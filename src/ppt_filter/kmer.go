@@ -171,14 +171,9 @@ func (s *KmerScanner) ScanBothStrandsWithSkippingWindow() bool {
 func (s *KmerScanner) ScanBothStrandsWithIndex() bool {
 	if s.IsPrimary {
 		if s.I >= len(s.Seq) - s.K + 1 {
-		
-			// increase s.I at the next round
-			
 			s.IsFirstKmer = true
 			s.Restarted = false
-			// return s.ScanBothStrandsWithSkippingWindow()
 			return false
-
 		} else {
 
 			if s.I == 0 || s.Restarted || s.I == s.WindowPos {
@@ -191,7 +186,9 @@ func (s *KmerScanner) ScanBothStrandsWithIndex() bool {
 			for i := s.I; i < s.K+s.I; i++ {
 				if s.Seq[i] != 'A' && s.Seq[i] != 'C' && s.Seq[i] != 'G' && s.Seq[i] != 'T' {
 					s.Restarted = true
-					return s.ScanBothStrandsWithSkippingWindow()
+					s.IsFirstKmer = true
+					// return s.ScanBothStrandsWithIndex()
+					return false
 				}
 			}
 			s.Kmer = s.Seq[s.I : s.K+s.I]
