@@ -46,7 +46,7 @@ func (f *Filter) HashSignature(kmer []byte, is_first_kmer bool, gid uint16) {
 	}
 }
 
-func (f *Filter) HashSignatureWithWindow(kmer []byte, is_first_kmer bool, gid uint16) bool {
+func (f *Filter) HashSignatureWithWindow(kmer []byte, is_first_kmer bool, gid uint16, is_max_num_kmers bool) bool {
 	unique_to_genome := true
 	idx := make([]int64, 0)
 	for i := 0; i < len(f.HashFunction); i++ {
@@ -57,11 +57,13 @@ func (f *Filter) HashSignatureWithWindow(kmer []byte, is_first_kmer bool, gid ui
 		}
 	}
 
-	// fmt.Println(len(idx))
 	if unique_to_genome {
 		for i := 0; i < len(idx); i++ {
-			f.table[idx[i]] = gid
-			// fmt.Println("hash value", idx[i],"unique ID: ", gid)
+			if is_max_num_kmers {
+				f.table[idx[i]] = Dirty
+			} else {
+				f.table[idx[i]] = gid	
+			}
 		}
 	} else {
 		for i := 0; i < len(idx); i++ {

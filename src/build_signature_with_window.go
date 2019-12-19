@@ -39,6 +39,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int, swindow
 
         count := 0
         count_unique := 0
+        is_max_num_kmers := false
         for index := 0; index < swindow; index++ {
             for i := 0; i < len(seq); i++ {
                 // f.Gid[uint16(fidx+1)] = seq[i].Header[1:]
@@ -48,18 +49,19 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int, swindow
                 for kmer_scanner.ScanBothStrandsWithIndex() {
                     count += 1
                     // fmt.Println(string(kmer_scanner.Kmer))
-                    unique_to_genome := f.HashSignatureWithWindow(kmer_scanner.Kmer, true, uint16(fidx+1))
+                    unique_to_genome := f.HashSignatureWithWindow(kmer_scanner.Kmer, true, uint16(fidx+1), is_max_num_kmers)
                     
                     if unique_to_genome {
                         // fmt.Println("\tunique", string(kmer_scanner.Kmer))
                         count_unique += 1
+                        if count_unique >= max_num_kmers {
+                            is_max_num_kmers = true
+                        }
                     }
                 }
             }      
 
-            if count_unique >= max_num_kmers {
-                break
-            }
+            
         }
         fmt.Printf("%d, %d\n", count, count_unique)
          
