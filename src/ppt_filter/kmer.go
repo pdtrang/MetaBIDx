@@ -10,6 +10,7 @@ package ppt_filter
 
 type KmerScanner struct {
 	Seq         []byte
+	Kmer_loc      int // current location of Kmer
 	Kmer        []byte
 	K           int
 	I           int
@@ -24,8 +25,10 @@ type KmerScanner struct {
 func NewKmerScanner(seq []byte, k int) *KmerScanner {
 	return &KmerScanner{
 		Seq:         seq,
+		Kmer_loc:      0,
 		K:           k,
 		I:           0,
+		SWindow: 	 1,
 		WindowPos:	 0,
 		IsFirstKmer: false,
 		Restarted:   false,
@@ -94,6 +97,8 @@ func (s *KmerScanner) ScanBothStrands() bool {
 				}
 			}
 			s.Kmer = s.Seq[s.I : s.K+s.I]
+			// fmt.Println("Primary", string(s.Kmer), s.I)
+			s.Kmer_loc = s.I
 			s.I++
 			return true
 		}
@@ -119,6 +124,8 @@ func (s *KmerScanner) ScanBothStrands() bool {
 			}
 		}
 		s.Kmer = s.ReverseComplement(s.Seq[s.I : s.K+s.I])
+		// fmt.Println("Reverse", string(s.Kmer), s.I)
+		s.Kmer_loc = s.I
 		s.I--
 		return true
 	}
@@ -157,6 +164,7 @@ func (s *KmerScanner) ScanBothStrandsWithSkippingWindow() bool {
 				}
 			}
 			s.Kmer = s.Seq[s.I : s.K+s.I]
+			s.Kmer_loc = s.I
 			s.I += s.SWindow
 			s.IsPrimary = false
 			return true
@@ -165,6 +173,7 @@ func (s *KmerScanner) ScanBothStrandsWithSkippingWindow() bool {
 
 	s.Kmer = s.ReverseComplement(s.Kmer)
 	s.IsPrimary = true
+	
 	return true
 }
 
