@@ -88,9 +88,9 @@ func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer
 	fmt.Println()
 	fmt.Println("True: ", genome_name)
 
-	fasta_folder := "/backup2/dpham2/mende_metagenomics_data/new_groupRef_2/"
+	fasta_folder := "/media/dpham2/0367988c-be76-43c0-a243-48aafc97ffd4/dpham2/mende_metagenomics_data/new_groupRef_2/"
 	if level == "species" {
-		fasta_folder = "/backup2/dpham2/mende_metagenomics_data/species_revised/"
+		fasta_folder = "/media/dpham2/0367988c-be76-43c0-a243-48aafc97ffd4/dpham2/mende_metagenomics_data/species_revised/"
 	}
 
 	if genome_name != "Not found." {
@@ -121,10 +121,10 @@ func RevComp(s string) (string){
 }
 
 func LoadGenomeInfo(level string) map[string]string{
-	file := "/backup2/dpham2/mende_metagenomics_data/scripts/new_groupRef2_genome_reference.csv"
+	file := "/media/dpham2/0367988c-be76-43c0-a243-48aafc97ffd4/dpham2/mende_metagenomics_data/scripts/new_groupRef2_genome_reference.csv"
 	
 	if level == "species" {
-		file = "/backup2/dpham2/mende_metagenomics_data/scripts/gID_species.csv"
+		file = "/media/dpham2/0367988c-be76-43c0-a243-48aafc97ffd4/dpham2/mende_metagenomics_data/scripts/gID_species.csv"
 	}
 	
 
