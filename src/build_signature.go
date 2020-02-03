@@ -149,7 +149,7 @@ func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases i
         VerifySignature(f, refseq, k, 2)
     }
 
-    f.Summarize()
+    // f.Summarize()
 
     Select_Kmers(f, refseq, max_num_kmers)
 
