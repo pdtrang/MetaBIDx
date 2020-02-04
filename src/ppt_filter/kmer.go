@@ -220,18 +220,6 @@ func (s *KmerScanner) ScanBothStrandsWithIndex() bool {
 }
 
 func (s *KmerScanner) ScanBothStrandsModified() bool {
-
-	// if s.IsPrimary {
-	// 	s.IsPrimary = false
-	// 	s.Kmer_loc = s.I
-	// 	return s.ScanOneStrand()	
-	// } else {
-	// 	s.IsPrimary = true
-	// 	s.Kmer_loc = s.I - 1 
-	// 	s.Kmer = s.ReverseComplement(s.Kmer)
-	// 	return true
-	// }
-
 	if s.I >= len(s.Seq)-s.K+1 || s.K > len(s.Seq) {
 		s.I = len(s.Seq) - s.K
 		s.IsFirstKmer = true
@@ -250,7 +238,7 @@ func (s *KmerScanner) ScanBothStrandsModified() bool {
 			if s.Seq[i] != 'A' && s.Seq[i] != 'C' && s.Seq[i] != 'G' && s.Seq[i] != 'T' {
 				s.I = i + 1
 				s.Restarted = true
-				return s.ScanBothStrands()
+				return s.ScanBothStrandsModified()
 			}
 		}
 		s.Kmer = s.Seq[s.I : s.K+s.I]
