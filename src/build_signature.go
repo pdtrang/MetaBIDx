@@ -46,7 +46,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
                 // fmt.Println(string(kmer_scanner.Kmer), kmer_scanner.IsPrimary, kmer_scanner.Kmer_loc)
                 f.HashSignature(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, uint16(fidx+1), ph, f.Gid[uint16(fidx+1)], fa_scanner.Header[1:], kmer_scanner.Kmer_loc)
                 
-                f.HashSignature(kmer_scanner.Kmer_rc, false, uint16(fidx+1), ph, f.Gid[uint16(fidx+1)], fa_scanner.Header[1:], kmer_scanner.Kmer_loc)
+                // f.HashSignature(kmer_scanner.Kmer_rc, false, uint16(fidx+1), ph, f.Gid[uint16(fidx+1)], fa_scanner.Header[1:], kmer_scanner.Kmer_loc)
             }
         }       
         // fmt.Printf("%d\n", count)
