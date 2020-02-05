@@ -1,8 +1,8 @@
 package ppt_filter
 
-// import (
-// 	"fmt"
-// )
+import (
+	"fmt"
+)
 
 //-----------------------------------------------------------------------------
 // This scanner is designed to work with the hash functions.
@@ -12,6 +12,7 @@ type KmerScanner struct {
 	Seq         []byte
 	Kmer_loc      int // current location of Kmer
 	Kmer        []byte
+	Kmer_rc 	[]byte
 	K           int
 	I           int
 	SWindow		int
@@ -133,6 +134,7 @@ func (s *KmerScanner) ScanBothStrands() bool {
 
 func (s *KmerScanner) ScanBothStrandsWithSkippingWindow() bool {
 	if s.IsPrimary {
+		fmt.Println("call in primary")
 		if s.I >= len(s.Seq) - s.K + 1 {
 			if s.WindowPos >= s.SWindow {
 				return false
@@ -172,9 +174,14 @@ func (s *KmerScanner) ScanBothStrandsWithSkippingWindow() bool {
 		}
 	}
 
-	s.Kmer = s.ReverseComplement(s.Kmer)
-	s.IsPrimary = true
+	if s.I < len(s.Seq) - s.K + 1 {
+		s.Kmer = s.ReverseComplement(s.Kmer)
+		s.IsPrimary = true
+	} else {
+		return false
+	}
 	
+
 	return true
 }
 
@@ -211,6 +218,40 @@ func (s *KmerScanner) ScanBothStrandsWithIndex() bool {
 	s.Kmer = s.ReverseComplement(s.Kmer)
 	s.IsPrimary = true
 	return true
+}
+
+func (s *KmerScanner) ScanBothStrandsModified() bool {
+	if s.I >= len(s.Seq)-s.K+1 || s.K > len(s.Seq) {
+		s.I = len(s.Seq) - s.K
+		s.IsFirstKmer = true
+		s.Restarted = false
+		s.IsPrimary = false
+		// do not return false because we need to go to complementary strand.
+		return false
+	} else {
+		if s.I == 0 || s.Restarted {
+			s.IsFirstKmer = true
+			s.Restarted = false
+		} else {
+			s.IsFirstKmer = false
+		}
+		for i := s.I; i < s.K+s.I; i++ {
+			if s.Seq[i] != 'A' && s.Seq[i] != 'C' && s.Seq[i] != 'G' && s.Seq[i] != 'T' {
+				s.I = i + 1
+				s.Restarted = true
+				return s.ScanBothStrandsModified()
+			}
+		}
+		s.Kmer = s.Seq[s.I : s.K+s.I]
+		s.Kmer_rc = s.ReverseComplement(s.Kmer)
+		// fmt.Println("Primary", string(s.Kmer), s.I)
+		s.Kmer_loc = s.I
+		s.I++
+		return true
+	}
+	
+	
+
 }
 
 

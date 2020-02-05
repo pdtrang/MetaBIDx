@@ -67,9 +67,9 @@ func (f *Filter) Summarize() {
 		fmt.Printf("%d\t%d\n", k, v)
 	}
 
-	for header, pos := range f.Kmer_pos {
-		fmt.Println(header, pos)
-	}
+	// for header, pos := range f.Kmer_pos {
+	// 	fmt.Println(header, pos)
+	// }
 }
 
 //-----------------------------------------------------------------------------

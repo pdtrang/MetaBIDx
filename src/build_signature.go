@@ -41,9 +41,12 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
             count = count + len(fa_scanner.Seq)
             kmer_scanner := ppt_filter.NewKmerScanner(fa_scanner.Seq, k)
             // fmt.Println(string(fa_scanner.Seq))
+
             for kmer_scanner.ScanBothStrands() {
                 // fmt.Println(string(kmer_scanner.Kmer), kmer_scanner.IsPrimary, kmer_scanner.Kmer_loc)
                 f.HashSignature(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, uint16(fidx+1), ph, f.Gid[uint16(fidx+1)], fa_scanner.Header[1:], kmer_scanner.Kmer_loc)
+                
+                f.HashSignature(kmer_scanner.Kmer_rc, false, uint16(fidx+1), ph, f.Gid[uint16(fidx+1)], fa_scanner.Header[1:], kmer_scanner.Kmer_loc)
             }
         }       
         // fmt.Printf("%d\n", count)
@@ -142,14 +145,16 @@ func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases i
 
     
     // 1st walk
+    // fmt.Println("Phase 1")
     VerifySignature(f, refseq, k, 1)
 
     if n_phases == 2 {
         // 2nd walk
+        // fmt.Println("Phase 2")
         VerifySignature(f, refseq, k, 2)
     }
 
-    f.Summarize()
+    // f.Summarize()
 
     Select_Kmers(f, refseq, max_num_kmers)
 
