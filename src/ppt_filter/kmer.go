@@ -142,7 +142,8 @@ func (s *KmerScanner) ScanBothStrandsWithSkippingWindow() bool {
 			s.I = s.WindowPos
 			s.IsFirstKmer = true
 			s.Restarted = true
-			return s.ScanBothStrandsWithSkippingWindow()
+			// return s.ScanBothStrandsWithSkippingWindow()
+			return false
 
 		} else {
 			// stop when s.I go back to the old window
