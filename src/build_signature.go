@@ -10,6 +10,7 @@ import (
     "runtime"
     "math"
     "strings"
+    "sort"
     // "path/filepath"
     // "strconv"
 )
@@ -37,7 +38,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
             f.Gid[uint16(fidx+1)] = strings.Replace(name_parts[len(name_parts)-1],".fa","",-1)
             // fmt.Println(f.Gid[uint16(fidx+1)])
             // Sequence header, and seq length            
-            // fmt.Println(uint16(fidx+1), fa_scanner.Header[1:], len(fa_scanner.Seq))
+            fmt.Println(uint16(fidx+1), fa_scanner.Header[1:], len(fa_scanner.Seq))
             count = count + len(fa_scanner.Seq)
             kmer_scanner := ppt_filter.NewKmerScanner(fa_scanner.Seq, k)
             // fmt.Println(string(fa_scanner.Seq))
@@ -95,6 +96,9 @@ func Select_Kmers(f * ppt_filter.Filter, refseq string, max_num_kmers int) {
         for fa_scanner.Scan() {
             header := fa_scanner.Header[1:]
             if len(f.Kmer_pos[header]) > max_num_kmers {
+                // sort all the positions
+                sort.Ints(f.Kmer_pos[header])
+
                 // take max_num_kmers of kmers if there are more than max_num_kmers
                 // mark other kmers as Unused
                 window := len(fa_scanner.Seq) / max_num_kmers
@@ -154,7 +158,7 @@ func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases i
         VerifySignature(f, refseq, k, 2)
     }
 
-    // f.Summarize()
+    f.Summarize()
 
     Select_Kmers(f, refseq, max_num_kmers)
 

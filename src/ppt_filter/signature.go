@@ -7,7 +7,7 @@ package ppt_filter
 
 import (
 	// "fmt"
-	"sort"
+	// "sort"
 )
 
 const Dirty = uint16(65534)
@@ -41,7 +41,7 @@ func (f *Filter) HashSignature(kmer []byte, is_first_kmer bool, gid uint16, ph i
 		    
 			if !found {
 				f.Kmer_pos[header] = append(f.Kmer_pos[header], kmer_pos)
-				sort.Ints(f.Kmer_pos[header])	
+				// sort.Ints(f.Kmer_pos[header])	
 			}			
 		}
 		
