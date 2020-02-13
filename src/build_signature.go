@@ -10,7 +10,7 @@ import (
     "runtime"
     "math"
     "strings"
-    "sort"
+    // "sort"
     // "path/filepath"
     // "strconv"
 )
@@ -38,17 +38,15 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
             f.Gid[uint16(fidx+1)] = strings.Replace(name_parts[len(name_parts)-1],".fa","",-1)
             // fmt.Println(f.Gid[uint16(fidx+1)])
             // Sequence header, and seq length            
-            fmt.Println(uint16(fidx+1), fa_scanner.Header[1:], len(fa_scanner.Seq))
+            // fmt.Println(uint16(fidx+1), fa_scanner.Header[1:], len(fa_scanner.Seq))
             count = count + len(fa_scanner.Seq)
             kmer_scanner := ppt_filter.NewKmerScanner(fa_scanner.Seq, k)
             // fmt.Println(string(fa_scanner.Seq))
 
-            for kmer_scanner.ScanBothStrands() {
+            for kmer_scanner.ScanBothStrandsModified() {
                 // fmt.Println(string(kmer_scanner.Kmer), kmer_scanner.IsPrimary, kmer_scanner.Kmer_loc)
                 f.HashSignature(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, uint16(fidx+1), ph, f.Gid[uint16(fidx+1)], fa_scanner.Header[1:], kmer_scanner.Kmer_loc)
-                
-                // f.HashSignature(kmer_scanner.Kmer_rc, false, uint16(fidx+1), ph, f.Gid[uint16(fidx+1)], fa_scanner.Header[1:], kmer_scanner.Kmer_loc)
-            }
+                            }
         }       
         // fmt.Printf("%d\n", count)
     }
@@ -69,8 +67,6 @@ func GetPositions(start int, end int, step int, pos_array []int) ([]int, int, in
         }
     }
 
-    // fmt.Println("selected_pos = ", selected_pos)
-    // fmt.Println("start = ", start, "end = ", end)
     return selected_pos, start, end
 
 }
@@ -97,23 +93,18 @@ func Select_Kmers(f * ppt_filter.Filter, refseq string, max_num_kmers int) {
             header := fa_scanner.Header[1:]
             if len(f.Kmer_pos[header]) > max_num_kmers {
                 // sort all the positions
-                sort.Ints(f.Kmer_pos[header])
+                // sort.Ints(f.Kmer_pos[header])
 
                 // take max_num_kmers of kmers if there are more than max_num_kmers
                 // mark other kmers as Unused
                 window := len(fa_scanner.Seq) / max_num_kmers
-                // fmt.Println("window", window)
                 start := 0
                 end := window
                 selected_pos := []int{}
 
                 if window >= 2 {
                     for i := 0; i < max_num_kmers; i++ {
-                        // fmt.Println("start", start, "end", end)
                         selected_pos, start, end = GetPositions(start, end, window, f.Kmer_pos[header])
-
-                        // fmt.Println("selected_pos", selected_pos)
-                        // fmt.Println("start", start, "end", end)
 
                         f.RemoveUnusedKmers(uint16(fidx+1), fa_scanner.Seq, selected_pos)
                         if len(selected_pos) > 0 {
@@ -149,17 +140,18 @@ func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases i
 
     
     // 1st walk
-    // fmt.Println("Phase 1")
+    fmt.Println("Phase 1...")
     VerifySignature(f, refseq, k, 1)
 
     if n_phases == 2 {
         // 2nd walk
-        // fmt.Println("Phase 2")
+        fmt.Println("Phase 2...")
         VerifySignature(f, refseq, k, 2)
     }
 
-    f.Summarize()
+    // f.Summarize()
 
+    fmt.Println("Phase 3...")
     Select_Kmers(f, refseq, max_num_kmers)
 
     return f
