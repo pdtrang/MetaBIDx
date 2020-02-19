@@ -7,7 +7,6 @@ package ppt_filter
 
 import (
 	// "fmt" 
-	// "sort"
 )
 
 const Dirty = uint16(65534)
@@ -16,11 +15,11 @@ const Dirty = uint16(65534)
 // If all slots have either 0 (clean) or gid, then kmer is unique.
 // If so, set these slots to gid.  If not, set them to Dirty.
 //-----------------------------------------------------------------------------
-func (f *Filter) HashSignature(kmer []byte, is_first_kmer bool, gid uint16, ph int, gname string, header string, kmer_pos int) {
+func (f *Filter) HashSignature(kmer []byte, is_first_kmer bool, isPrimary bool, gid uint16, ph int, gname string, header string, kmer_pos int) {
 	unique_to_genome := true
 	idx := make([]int64, 0)
 	for i := 0; i < len(f.HashFunction); i++ {
-		j := f.HashFunction[i].HashKmer(kmer)
+		j := f.HashFunction[i].SlidingHashKmerModified(kmer, is_first_kmer, isPrimary)
 		idx = append(idx, j)
 		if f.table[j] != 0 && f.table[j] != gid {
 			unique_to_genome = false
@@ -29,7 +28,8 @@ func (f *Filter) HashSignature(kmer []byte, is_first_kmer bool, gid uint16, ph i
 
 	if unique_to_genome {
 
-		// fmt.Println(string(kmer), is_first_kmer, idx)
+		
+		
 
 		for i := 0; i < len(idx); i++ {
 			f.table[idx[i]] = gid
@@ -38,6 +38,7 @@ func (f *Filter) HashSignature(kmer []byte, is_first_kmer bool, gid uint16, ph i
 		// store all positions of unique kmers in phase 2
 		// if the position is already stored, skip it
 		if ph == 2 {
+			// fmt.Println(string(kmer), isPrimary, is_first_kmer, idx)
 			// fmt.Println("Unique kmers", string(kmer), idx, gid)
 			_, found := Find(f.Kmer_pos[header], kmer_pos)
 		    

@@ -45,8 +45,15 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
 
             for kmer_scanner.ScanBothStrandsModified() {
                 // fmt.Println(string(kmer_scanner.Kmer), kmer_scanner.IsPrimary, kmer_scanner.Kmer_loc)
-                f.HashSignature(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, uint16(fidx+1), ph, f.Gid[uint16(fidx+1)], fa_scanner.Header[1:], kmer_scanner.Kmer_loc)
-                            }
+                if kmer_scanner.IsPrimary {
+                    f.HashSignature(kmer_scanner.Kmer_rc, kmer_scanner.IsFirstKmer, !kmer_scanner.IsPrimary, uint16(fidx+1), ph, f.Gid[uint16(fidx+1)], fa_scanner.Header[1:], kmer_scanner.Kmer_loc)
+                } else {
+                    f.HashSignature(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, !kmer_scanner.IsPrimary, uint16(fidx+1), ph, f.Gid[uint16(fidx+1)], fa_scanner.Header[1:], kmer_scanner.Kmer_loc)
+                }
+                // f.HashSignature(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, !kmer_scanner.IsPrimary, uint16(fidx+1), ph, f.Gid[uint16(fidx+1)], fa_scanner.Header[1:], kmer_scanner.Kmer_loc)
+                
+                
+            }
         }       
         // fmt.Printf("%d\n", count)
     }
@@ -82,12 +89,14 @@ func Select_Kmers(f * ppt_filter.Filter, refseq string, max_num_kmers int) {
     selected_unique_pos := make(map[string][]int)
     count := 0
     count_rc := 0
+    f.RemoveAllKmers()
     for fidx, filename := range fscaner.Scan() {
         fa, err := os.Open(filename)
         if err != nil {
             panic(err)
         }
         fa_scanner := ppt_filter.NewFastaScanner(fa)
+
         // Scan through all sequences in the fasta file
         for fa_scanner.Scan() {
             header := fa_scanner.Header[1:]
@@ -106,7 +115,8 @@ func Select_Kmers(f * ppt_filter.Filter, refseq string, max_num_kmers int) {
                     for i := 0; i < max_num_kmers; i++ {
                         selected_pos, start, end = GetPositions(start, end, window, f.Kmer_pos[header])
 
-                        f.RemoveUnusedKmers(uint16(fidx+1), fa_scanner.Seq, selected_pos)
+                        // f.RemoveUnusedKmers(uint16(fidx+1), fa_scanner.Seq, selected_pos)
+                        
                         if len(selected_pos) > 0 {
                             _, found := ppt_filter.Find(selected_unique_pos[header], selected_pos[0])
                             if !found {

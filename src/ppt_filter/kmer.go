@@ -31,7 +31,7 @@ func NewKmerScanner(seq []byte, k int) *KmerScanner {
 		I:           0,
 		SWindow: 	 1,
 		WindowPos:	 0,
-		IsFirstKmer: false,
+		IsFirstKmer: true,
 		Restarted:   false,
 		IsPrimary:   true,
 	}

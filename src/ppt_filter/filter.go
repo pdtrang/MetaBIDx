@@ -103,14 +103,14 @@ func (f *Filter) RemoveUnusedKmers(gid uint16, seq []byte, pos_array []int) {
 		}
 
 		if unique_to_genome {
-			// fmt.Println("remove unique on main", string(kmer), idx)
+			fmt.Println("remove unique on main", string(kmer), idx)
 			for i := 0; i < len(idx); i++ {
 				f.table[idx[i]] = Unused	
 			} 
 		} 
 
 		if unique_to_genome_rc {
-			// fmt.Println("remove unique on rc", string(kmer_rc), idx_rc)
+			fmt.Println("remove unique on rc", string(kmer_rc), idx_rc)
 			for i := 0; i < len(idx_rc); i++ {
 				f.table[idx_rc[i]] = Unused	
 			} 
@@ -120,19 +120,29 @@ func (f *Filter) RemoveUnusedKmers(gid uint16, seq []byte, pos_array []int) {
 
 	
 }
+
+//-----------------------------------------------------------------------------
+func (f *Filter) RemoveAllKmers() {
+	for i := int64(0); i < f.M; i++ {
+		f.table[i] = Empty
+	}
+}
+
 //-----------------------------------------------------------------------------
 func (f *Filter) SetGid(gid uint16, seq []byte, pos_array []int) (int, int) {
+	// fmt.Println("Set GID")
 	count := 0
 	count_rc := 0
 	for p := 0; p < len(pos_array); p++ {
+		// fmt.Println(gid, pos_array[p])
 		kmer := seq[pos_array[p] : f.K+pos_array[p]]
 
 		unique_to_genome := true
 		idx := make([]int64, 0)
 		for i := 0; i < len(f.HashFunction); i++ {
-			j := f.HashFunction[i].SlidingHashKmer(kmer, false)
+			j := f.HashFunction[i].HashKmer(kmer)
 			idx = append(idx, j)
-			if f.table[j] != 65535 && f.table[j] != gid {
+			if f.table[j] != 0 && f.table[j] != gid {
 				unique_to_genome = false
 				break
 			}
@@ -143,15 +153,16 @@ func (f *Filter) SetGid(gid uint16, seq []byte, pos_array []int) (int, int) {
 			for i := 0; i < len(idx); i++ {
 				f.table[idx[i]] = gid	
 			}
+			// fmt.Println(string(kmer), idx)
 		}
 
 		unique_to_genome_rc := true
 		kmer_rc := []byte(ReverseComplement(string(kmer)))
 		idx_rc := make([]int64, 0)
 		for i := 0; i < len(f.HashFunction); i++ {
-			j := f.HashFunction[i].SlidingHashKmer(kmer_rc, false)
+			j := f.HashFunction[i].HashKmer(kmer_rc)
 			idx_rc = append(idx_rc, j)
-			if f.table[j] != 65535 && f.table[j] != gid {
+			if f.table[j] != 0 && f.table[j] != gid {
 				unique_to_genome_rc = false
 				break
 			}
@@ -162,6 +173,7 @@ func (f *Filter) SetGid(gid uint16, seq []byte, pos_array []int) (int, int) {
 			for i := 0; i < len(idx_rc); i++ {
 				f.table[idx_rc[i]] = gid	
 			}
+			// fmt.Println(string(kmer_rc), idx_rc)
 		}
 
 	}
