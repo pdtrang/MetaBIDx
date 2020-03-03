@@ -38,7 +38,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
             f.Gid[uint16(fidx+1)] = strings.Replace(name_parts[len(name_parts)-1],".fa","",-1)
             // fmt.Println(f.Gid[uint16(fidx+1)])
             // Sequence header, and seq length            
-            fmt.Println(uint16(fidx+1), fa_scanner.Header[1:], len(fa_scanner.Seq))
+            // fmt.Println(uint16(fidx+1), fa_scanner.Header[1:], len(fa_scanner.Seq))
             count = count + len(fa_scanner.Seq)
             kmer_scanner := ppt_filter.NewKmerScanner(fa_scanner.Seq, k)
             // fmt.Println(string(fa_scanner.Seq))
