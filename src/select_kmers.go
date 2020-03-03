@@ -85,6 +85,7 @@ func Select_Kmers(f * ppt_filter.Filter, refseq string, max_num_kmers int) {
                 }
             } else {
                 fmt.Println("Skip", header)
+                selected_unique_pos[header] = f.Kmer_pos[header]
             }
             c, c_rc := f.SetGid(uint16(fidx+1), fa_scanner.Seq, selected_unique_pos[header])
             count += c
