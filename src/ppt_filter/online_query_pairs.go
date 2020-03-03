@@ -68,6 +68,7 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 
     // count_read := 0
     genome_info := LoadGenomeInfo(level)
+    // genome_info := make(map[string]string)
 	for scanner.Scan() && scanner2.Scan() {
 
 		// if count_read == 1000000 {
@@ -83,17 +84,17 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
 		if f.N_phases == 2 {
 			num_bacteria += f.TwoPhaseQuery([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time, strategy, analysis, analysis_fi, scanner.Header, scanner2.Header, genome_info, level)						
 			// num_bacteria += f.TwoPhaseQuery([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time, strategy, analysis, analysis_fi, scanner.Header, scanner2.Header)						
-			
+
 		} else if f.N_phases == 1 {
 			num_bacteria += f.OnePhaseQuery([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time, strategy, analysis, analysis_fi)
 		}
 
 		// break if all the bacteria in the filter are reported
 		//if num_bacteria == len(bacteria_map) {
-		if num_bacteria == real_num_bacteria {
-			log.Printf("Query %d pairs, found %d bacteria.", c, num_bacteria)
-			break
-		}
+		// if num_bacteria == real_num_bacteria {
+		// 	log.Printf("Query %d pairs, found %d bacteria.", c, num_bacteria)
+		// 	break
+		// }
 	}
 
 	fmt.Printf("\n%s and %s have %d pairs.\n", read_file_1, read_file_2, c)

@@ -168,7 +168,7 @@ func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteri
 	// if there is only one gid and that gid is not 0
 	if is_valid_gid && idx != uint16(0) {
 		fmt.Println(kmer)
-		PrintOnlineResult(f, idx, read_1, read_2, kmer, bacteria_map, header_1, header_2, genome_info, level)
+		// PrintOnlineResult(f, idx, read_1, read_2, kmer, bacteria_map, header_1, header_2, genome_info, level)
 		if analysis == true {
 			_, err := analysis_fi.WriteString(string(read_1)+ "," +string(read_2)+","+string(idx)+"\n")
 			if err != nil {

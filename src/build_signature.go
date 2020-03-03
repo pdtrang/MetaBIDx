@@ -38,7 +38,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
             f.Gid[uint16(fidx+1)] = strings.Replace(name_parts[len(name_parts)-1],".fa","",-1)
             // fmt.Println(f.Gid[uint16(fidx+1)])
             // Sequence header, and seq length            
-            // fmt.Println(uint16(fidx+1), fa_scanner.Header[1:], len(fa_scanner.Seq))
+            fmt.Println(uint16(fidx+1), fa_scanner.Header[1:], len(fa_scanner.Seq))
             count = count + len(fa_scanner.Seq)
             kmer_scanner := ppt_filter.NewKmerScanner(fa_scanner.Seq, k)
             // fmt.Println(string(fa_scanner.Seq))
@@ -60,91 +60,9 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
 
 }
 
-//-----------------------------------------------------------------------------
-func GetPositions(start int, end int, step int, pos_array []int) ([]int, int, int) {
-
-    selected_pos := []int{}
-    for i := 0; i < len(pos_array); i++ {
-        if pos_array[i] >= start && pos_array[i] <= end {
-            selected_pos = append(selected_pos, pos_array[i])
-        } else if pos_array[i] > end {
-            start = end + 1
-            end = end + step + 1
-            break
-        }
-    }
-
-    return selected_pos, start, end
-
-}
 
 //-----------------------------------------------------------------------------
-func Select_Kmers(f * ppt_filter.Filter, refseq string, max_num_kmers int) {
-    fmt.Println("Selecting kmers.")
-
-    // Walk through refseq dir 
-    fscaner := ppt_filter.NewFileScanner(refseq)
-
-    // Scan reference genomes
-    selected_unique_pos := make(map[string][]int)
-    count := 0
-    count_rc := 0
-    f.RemoveAllKmers()
-    for fidx, filename := range fscaner.Scan() {
-        fa, err := os.Open(filename)
-        if err != nil {
-            panic(err)
-        }
-        fa_scanner := ppt_filter.NewFastaScanner(fa)
-
-        // Scan through all sequences in the fasta file
-        for fa_scanner.Scan() {
-            header := fa_scanner.Header[1:]
-            if len(f.Kmer_pos[header]) > max_num_kmers {
-                // sort all the positions
-                // sort.Ints(f.Kmer_pos[header])
-
-                // take max_num_kmers of kmers if there are more than max_num_kmers
-                // mark other kmers as Unused
-                window := len(fa_scanner.Seq) / max_num_kmers
-                start := 0
-                end := window
-                selected_pos := []int{}
-
-                if window >= 2 {
-                    for i := 0; i < max_num_kmers; i++ {
-                        selected_pos, start, end = GetPositions(start, end, window, f.Kmer_pos[header])
-
-                        // f.RemoveUnusedKmers(uint16(fidx+1), fa_scanner.Seq, selected_pos)
-                        
-                        if len(selected_pos) > 0 {
-                            _, found := ppt_filter.Find(selected_unique_pos[header], selected_pos[0])
-                            if !found {
-                                selected_unique_pos[header] = append(selected_unique_pos[header], selected_pos[0])
-                            } 
-
-                        }                         
-                    }
-                        
-                }
-            } else {
-                fmt.Println("Skip", header)
-            }
-            c, c_rc := f.SetGid(uint16(fidx+1), fa_scanner.Seq, selected_unique_pos[header])
-            count += c
-            count_rc += c_rc
-        }
-           
-
-    }
-    fmt.Println("Selected pos", selected_unique_pos)
-    fmt.Println("Total unique on main strand:", count)
-    fmt.Println("Total unique on rc strand:", count_rc)
-}
-
-
-//-----------------------------------------------------------------------------
-func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases int, max_num_kmers int) *ppt_filter.Filter {
+func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases int) *ppt_filter.Filter {
     // Create an empty filter
     f := ppt_filter.NewFilter(table_size, k, n_hf, n_phases)    
 
@@ -159,16 +77,11 @@ func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases i
         VerifySignature(f, refseq, k, 2)
     }
 
-    // f.Summarize()
-
-    fmt.Println("Phase 3...")
-    Select_Kmers(f, refseq, max_num_kmers)
-
     return f
 }
 
 //-----------------------------------------------------------------------------
-func BuildNewTable(f *ppt_filter.Filter, refseq string, k int, n_hf int, table_size int64, n_phases int, max_num_kmers int) {
+func BuildNewTable(f *ppt_filter.Filter, refseq string, k int, n_hf int, table_size int64, n_phases int) {
         
     // 1st walk
     VerifySignature(f, refseq, k, 1)
@@ -177,8 +90,6 @@ func BuildNewTable(f *ppt_filter.Filter, refseq string, k int, n_hf int, table_s
         // 2nd walk
         VerifySignature(f, refseq, k, 2)
     }
-
-    Select_Kmers(f, refseq, max_num_kmers)
 
 }
 
@@ -195,7 +106,6 @@ func main() {
     power := flag.Int("p", 32, "power")
     N_HASH_FUNCTIONS := flag.Int("n", 2, "number of hash functions")
     N_PHASES := flag.Int("ph", 2, "number of phases")
-    MAX_NUM_KMERS := flag.Int("max-kmers", 1000, "maximum numbers of kmers")
 
     //
     flag.Parse()
@@ -211,7 +121,7 @@ func main() {
     // Build
     if *filter_name == "" {
         fmt.Println("Build filter...")
-        f := BuildNewFilter(*refseq_genomes, *K, *N_HASH_FUNCTIONS, FILTER_LEN, *N_PHASES, *MAX_NUM_KMERS)
+        f := BuildNewFilter(*refseq_genomes, *K, *N_HASH_FUNCTIONS, FILTER_LEN, *N_PHASES)
         
 
         f.Summarize()
@@ -221,7 +131,7 @@ func main() {
         fmt.Println("Load existing filter...")
         f := ppt_filter.LoadFilter(*filter_name)
         fmt.Println("Build new table...")
-        BuildNewTable(f, *refseq_genomes, f.K, len(f.HashFunction), f.M, f.N_phases, *MAX_NUM_KMERS)
+        BuildNewTable(f, *refseq_genomes, f.K, len(f.HashFunction), f.M, f.N_phases)
         
 
         f.Summarize()
