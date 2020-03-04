@@ -67,22 +67,22 @@ func Select_Kmers(f * ppt_filter.Filter, refseq string, max_num_kmers int) {
                 end := window
                 selected_pos := []int{}
 
-                if window >= 2 {
-                    for i := 0; i < max_num_kmers; i++ {
-                        selected_pos, start, end = GetPositions(start, end, window, f.Kmer_pos[header])
+                // if window >= 2 {
+                for i := 0; i < max_num_kmers; i++ {
+                    selected_pos, start, end = GetPositions(start, end, window, f.Kmer_pos[header])
 
-                        // f.RemoveUnusedKmers(uint16(fidx+1), fa_scanner.Seq, selected_pos)
-                        
-                        if len(selected_pos) > 0 {
-                            _, found := ppt_filter.Find(selected_unique_pos[header], selected_pos[0])
-                            if !found {
-                                selected_unique_pos[header] = append(selected_unique_pos[header], selected_pos[0])
-                            } 
+                    // f.RemoveUnusedKmers(uint16(fidx+1), fa_scanner.Seq, selected_pos)
+                    
+                    if len(selected_pos) > 0 {
+                        _, found := ppt_filter.Find(selected_unique_pos[header], selected_pos[0])
+                        if !found {
+                            selected_unique_pos[header] = append(selected_unique_pos[header], selected_pos[0])
+                        } 
 
-                        }                         
-                    }
-                        
+                    }                         
                 }
+                        
+                // }
             } else {
                 fmt.Println("Skip", header)
                 selected_unique_pos[header] = f.Kmer_pos[header]
