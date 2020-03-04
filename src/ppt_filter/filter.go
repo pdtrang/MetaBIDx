@@ -1,17 +1,16 @@
-//-----------------------------------------------------------------------------
-// Author: Vinhthuy Phan, 2018
-//-----------------------------------------------------------------------------
 package ppt_filter
 
 import (
 	"bufio"
 	"encoding/binary"
 	"encoding/gob"
+	"encoding/json" // Encoding and Decoding Package
 	"fmt"
 	"log"
 	"os"
 	"path"
 	"unsafe"
+	"io/ioutil"
 )
 
 const Unused = uint16(65535)
@@ -242,6 +241,24 @@ func _load_table_alone(filename string, length int64) []uint16 {
 }
 
 //-----------------------------------------------------------------------------
+func _load_kmerpos(fn string) map[string][]int {
+    // read file
+    f, err := ioutil.ReadFile(fn)
+    if err != nil {
+      fmt.Print(err)
+    }
+
+    var data map[string][]int
+    err = json.Unmarshal(f, &data)
+    if err != nil {
+        fmt.Println("error:", err)
+    }
+    
+
+    return data
+}
+
+//-----------------------------------------------------------------------------
 func _save_table_alone(s []uint16, filename string) {
 	f, err := os.Create(filename)
 	if err != nil {
@@ -254,6 +271,26 @@ func _save_table_alone(s []uint16, filename string) {
 		log.Fatal(err)
 	}
 	w.Flush()
+}
+
+//-----------------------------------------------------------------------------
+func _save_kmerpos_to_json(data map[string][]int, fn string) {
+
+    // Marshal the map into a JSON string.
+    // saveData, err := json.Marshal(data)   
+    // if err != nil {
+    //     fmt.Println(err.Error())
+    //     return
+    // }
+     
+    // jsonStr := string(saveData)
+    // fmt.Println("The JSON data is:")
+    // fmt.Println(jsonStr)
+
+    file, _ := json.MarshalIndent(data, "", " ")
+ 
+    _ = ioutil.WriteFile(fn, file, 0644)
+
 }
 
 //-----------------------------------------------------------------------------
@@ -284,6 +321,7 @@ func LoadFilterGob(fn string) *Filter {
 func (f *Filter) Save(fn string) {
 	f.SaveFilterGob(fn)
 	_save_table_alone(f.table, path.Join(fn+".table"))
+	_save_kmerpos_to_json(f.Kmer_pos, path.Join(fn+".json"))
 }
 
 //-----------------------------------------------------------------------------
@@ -295,6 +333,17 @@ func Load(fn string) *Filter {
 
 //-----------------------------------------------------------------------------
 func LoadFilter(fn string) * Filter {
+	filter := LoadFilterGob(fn)
+	// filter.N_phases = n_phases
+	filter.table = make([]uint16, filter.M)
+	filter.Gid = make(map[uint16]string)
+	filter.Kmer_pos = _load_kmerpos(fn+".json")
+	// fmt.Println(filter)
+	return filter
+}
+
+//-----------------------------------------------------------------------------
+func LoadFilterWithoutPos(fn string) * Filter {
 	filter := LoadFilterGob(fn)
 	// filter.N_phases = n_phases
 	filter.table = make([]uint16, filter.M)

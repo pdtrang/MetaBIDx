@@ -45,7 +45,7 @@ func Select_Kmers(f * ppt_filter.Filter, refseq string, max_num_kmers int) {
     selected_unique_pos := make(map[string][]int)
     count := 0
     count_rc := 0
-    f.RemoveAllKmers()
+    // f.RemoveAllKmers()
     for fidx, filename := range fscaner.Scan() {
         fa, err := os.Open(filename)
         if err != nil {
@@ -135,6 +135,7 @@ func main() {
     // Build
     fmt.Println("Load existing filter...")
     f := ppt_filter.LoadFilter(*filter_name)
+    f.Summarize()
     fmt.Println("Build new table...")
     BuildNewTable(f, *refseq_genomes, *MAX_NUM_KMERS)
     
