@@ -321,7 +321,6 @@ func LoadFilterGob(fn string) *Filter {
 func (f *Filter) Save(fn string) {
 	f.SaveFilterGob(fn)
 	_save_table_alone(f.table, path.Join(fn+".table"))
-	_save_gid_to_json(f.Gid, path.Join(fn+".gid"))
 	_save_kmerpos_to_json(f.Kmer_pos, path.Join(fn+".json"))
 }
 
