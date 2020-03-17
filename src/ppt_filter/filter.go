@@ -321,6 +321,7 @@ func LoadFilterGob(fn string) *Filter {
 func (f *Filter) Save(fn string) {
 	f.SaveFilterGob(fn)
 	_save_table_alone(f.table, path.Join(fn+".table"))
+	_save_gid_to_json(f.Gid, path.Join(fn+".gid"))
 	_save_kmerpos_to_json(f.Kmer_pos, path.Join(fn+".json"))
 }
 
@@ -328,6 +329,7 @@ func (f *Filter) Save(fn string) {
 func Load(fn string) *Filter {
 	filter := LoadFilterGob(fn)
 	filter.table = _load_table_alone(fn+".table", filter.M)
+	// filter.Gid = _load_gid(fn+".gid")
 	return filter
 }
 
@@ -336,7 +338,7 @@ func LoadFilter(fn string) * Filter {
 	filter := LoadFilterGob(fn)
 	// filter.N_phases = n_phases
 	filter.table = make([]uint16, filter.M)
-	filter.Gid = make(map[uint16]string)
+	// filter.Gid = _load_gid(fn+".gid")
 	filter.Kmer_pos = _load_kmerpos(fn+".json")
 	// fmt.Println(filter)
 	return filter
@@ -347,7 +349,7 @@ func LoadFilterWithoutPos(fn string) * Filter {
 	filter := LoadFilterGob(fn)
 	// filter.N_phases = n_phases
 	filter.table = make([]uint16, filter.M)
-	filter.Gid = make(map[uint16]string)
+	// filter.Gid = make(map[uint16]string)
 	filter.Kmer_pos = make(map[string][]int)
 	// fmt.Println(filter)
 	return filter
