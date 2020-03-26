@@ -22,5 +22,6 @@ func main() {
     f.Summarize()	
     // f.PrintHashFunction()
 	//f.GetNumberOfUniqueKmers()
-	fmt.Println(f.Gid)
+	f.PrintHashFunction()
+	fmt.Println(f.SeqLength)
 }

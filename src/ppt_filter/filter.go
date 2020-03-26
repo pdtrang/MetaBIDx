@@ -21,6 +21,7 @@ type Filter struct {
 	HashFunction []*LinearHash
 	table        []uint16
 	Gid			 map[uint16]string
+	SeqLength    map[string]int
 	Kmer_pos     map[string][]int
 	N_phases	 int
 }
@@ -37,6 +38,7 @@ func NewFilter(m int64, k int, num_hashes int, n_phases int) *Filter {
 		K:     k,
 		table: make([]uint16, m),
 		Gid: make(map[uint16]string),
+		SeqLength: make(map[string]int),
 		Kmer_pos: make(map[string][]int),
 		N_phases: n_phases,
 	}
@@ -328,30 +330,21 @@ func (f *Filter) Save(fn string) {
 func Load(fn string) *Filter {
 	filter := LoadFilterGob(fn)
 	filter.table = _load_table_alone(fn+".table", filter.M)
-	// filter.Gid = _load_gid(fn+".gid")
+	fmt.Println(filter.Kmer_pos)
 	return filter
 }
 
 //-----------------------------------------------------------------------------
 func LoadFilter(fn string) * Filter {
 	filter := LoadFilterGob(fn)
-	// filter.N_phases = n_phases
 	filter.table = make([]uint16, filter.M)
-	// filter.Gid = _load_gid(fn+".gid")
 	filter.Kmer_pos = _load_kmerpos(fn+".json")
-	// fmt.Println(filter)
 	return filter
 }
 
 //-----------------------------------------------------------------------------
-func LoadFilterWithoutPos(fn string) * Filter {
-	filter := LoadFilterGob(fn)
-	// filter.N_phases = n_phases
-	filter.table = make([]uint16, filter.M)
-	// filter.Gid = make(map[uint16]string)
-	filter.Kmer_pos = make(map[string][]int)
-	// fmt.Println(filter)
-	return filter
+func (f *Filter) AddLengthInfo(data map[string]int) {
+	f.SeqLength = data
 }
 
 //-----------------------------------------------------------------------------
