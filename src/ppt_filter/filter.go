@@ -67,6 +67,9 @@ func (f *Filter) Summarize() {
 	for k, v := range count {
 		fmt.Printf("%d\t%d\n", k, v)
 	}
+	for key, value := range f.Gid {
+	    fmt.Println(key,":",value)
+	}
 
 	// for header, pos := range f.Kmer_pos {
 	// 	fmt.Println(header, pos)
@@ -327,6 +330,7 @@ func (f *Filter) Save(fn string) {
 }
 
 //-----------------------------------------------------------------------------
+// load the table
 func Load(fn string) *Filter {
 	filter := LoadFilterGob(fn)
 	filter.table = _load_table_alone(fn+".table", filter.M)
@@ -334,6 +338,7 @@ func Load(fn string) *Filter {
 }
 
 //-----------------------------------------------------------------------------
+// no need to load the table, just initialize it
 func LoadFilter(fn string) * Filter {
 	filter := LoadFilterGob(fn)
 	filter.table = make([]uint16, filter.M)
