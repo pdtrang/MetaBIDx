@@ -129,7 +129,7 @@ func main() {
         fmt.Println(f.Gid)
     } else {
         fmt.Println("Load existing filter...")
-        f := ppt_filter.LoadFilterWithoutPos(*filter_name)
+        f := ppt_filter.LoadFilter(*filter_name)
         fmt.Println("Build new table...")
         BuildNewTable(f, *refseq_genomes, f.K, len(f.HashFunction), f.M, f.N_phases)
         
