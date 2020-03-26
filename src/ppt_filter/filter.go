@@ -330,7 +330,6 @@ func (f *Filter) Save(fn string) {
 func Load(fn string) *Filter {
 	filter := LoadFilterGob(fn)
 	filter.table = _load_table_alone(fn+".table", filter.M)
-	fmt.Println(filter.Kmer_pos)
 	return filter
 }
 
