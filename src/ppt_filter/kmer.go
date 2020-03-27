@@ -255,7 +255,6 @@ func (s *KmerScanner) ScanBothStrandsModified() bool {
 	return true
 }
 
-
 func (s *KmerScanner) ScanOneStrand() bool {
 
 	if s.I >= len(s.Seq)-s.K+1 || s.K > len(s.Seq) {

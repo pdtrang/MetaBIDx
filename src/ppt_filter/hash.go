@@ -56,6 +56,27 @@ func NewLinearHash(m int64) *LinearHash {
 }
 
 //-----------------------------------------------------------------------------
+func ResetLinearHash(linear_hash *LinearHash, k int) *LinearHash {
+
+    return &LinearHash{
+        // A: big.NewInt(23),
+        // B: big.NewInt(17),
+        // P: big.NewInt(97),
+        A:              linear_hash.A,
+        B:              linear_hash.B,
+        P:              linear_hash.P,
+        M:              linear_hash.M,
+        K:              k,
+        Base:           linear_hash.Base,
+        Term0:          big.NewInt(0),
+        Term0_rc:       big.NewInt(0),
+        PrevValue:      big.NewInt(0),
+        PrevValue_rc:   big.NewInt(0),
+        Exponents:      linear_hash.Exponents,
+    }
+}
+
+//-----------------------------------------------------------------------------
 func NewLinearHashSetK(m int64, k int) *LinearHash {
     rand.Seed(time.Now().UTC().UnixNano())
 
@@ -337,7 +358,7 @@ func (h *LinearHash) SlidingHashKmerModified(kmer []byte, is_first_kmer bool, is
     if len(kmer) != h.K {
         panic("Unmatched k-mer length")
     }
-    // fmt.Println("\t", string(kmer), is_first_kmer)
+    // fmt.Println("\thashing", string(kmer), is_first_kmer)
     if is_first_kmer {
         return h.HashKmerModified(kmer, isPrimary)
     }

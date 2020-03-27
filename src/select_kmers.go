@@ -46,6 +46,7 @@ func Select_Kmers_byNumbers(f * ppt_filter.Filter, refseq string, max_num_kmers 
     count := 0
     count_rc := 0
     // f.RemoveAllKmers()
+    temp_table := make([]uint16, f.M)
     for fidx, filename := range fscaner.Scan() {
         fa, err := os.Open(filename)
         if err != nil {
@@ -70,8 +71,6 @@ func Select_Kmers_byNumbers(f * ppt_filter.Filter, refseq string, max_num_kmers 
                 // if window >= 2 {
                 for i := 0; i < max_num_kmers; i++ {
                     selected_pos, start, end = GetPositions(start, end, window, f.Kmer_pos[header])
-
-                    // f.RemoveUnusedKmers(uint16(fidx+1), fa_scanner.Seq, selected_pos)
                     
                     if len(selected_pos) > 0 {
                         _, found := ppt_filter.Find(selected_unique_pos[header], selected_pos[0])
@@ -87,13 +86,14 @@ func Select_Kmers_byNumbers(f * ppt_filter.Filter, refseq string, max_num_kmers 
                 fmt.Println("Skip", header)
                 selected_unique_pos[header] = f.Kmer_pos[header]
             }
-            c, c_rc := f.SetGid(uint16(fidx+1), fa_scanner.Seq, selected_unique_pos[header])
+            c, c_rc := f.SetGid(uint16(fidx+1), fa_scanner.Seq, selected_unique_pos[header], temp_table)
             count += c
             count_rc += c_rc
         }
            
 
     }
+    f.SetTable(temp_table)
     fmt.Println("Selected pos", selected_unique_pos)
     fmt.Println("Total unique on main strand:", count)
     fmt.Println("Total unique on rc strand:", count_rc)
@@ -110,7 +110,8 @@ func Select_Kmers_byThreshold(f * ppt_filter.Filter, refseq string, threshold fl
     selected_unique_pos := make(map[string][]int)
     count := 0
     count_rc := 0
-    // f.RemoveAllKmers()
+    f.RemoveAllKmers()
+    temp_table := make([]uint16, f.M)
     for fidx, filename := range fscaner.Scan() {
         fa, err := os.Open(filename)
         if err != nil {
@@ -154,16 +155,17 @@ func Select_Kmers_byThreshold(f * ppt_filter.Filter, refseq string, threshold fl
                         
                 // }
             } else {
-                fmt.Println("Skip", header)
+                fmt.Println("Skip", header, len(f.Kmer_pos[header]), num_kmers)
                 selected_unique_pos[header] = f.Kmer_pos[header]
             }
-            c, c_rc := f.SetGid(uint16(fidx+1), fa_scanner.Seq, selected_unique_pos[header])
+            c, c_rc := f.SetGid(uint16(fidx+1), fa_scanner.Seq, selected_unique_pos[header], temp_table)
             count += c
             count_rc += c_rc
         }
            
 
     }
+    f.SetTable(temp_table)
     // fmt.Println("Selected pos", selected_unique_pos)
     fmt.Println("Total unique on main strand:", count)
     fmt.Println("Total unique on rc strand:", count_rc)

@@ -76,6 +76,10 @@ func (f *Filter) Summarize() {
 	// }
 }
 
+func (f *Filter) SetTable(table []uint16) {
+	f.table = table
+}
+
 //-----------------------------------------------------------------------------
 func (f *Filter) RemoveUnusedKmers(gid uint16, seq []byte, pos_array []int) {
 
@@ -133,8 +137,9 @@ func (f *Filter) RemoveAllKmers() {
 }
 
 //-----------------------------------------------------------------------------
-func (f *Filter) SetGid(gid uint16, seq []byte, pos_array []int) (int, int) {
+func (f *Filter) SetGid(gid uint16, seq []byte, pos_array []int, temp_table []uint16) (int, int) {
 	// fmt.Println("Set GID")
+	fmt.Println("SetGid", len(pos_array))
 	count := 0
 	count_rc := 0
 	for p := 0; p < len(pos_array); p++ {
@@ -146,7 +151,7 @@ func (f *Filter) SetGid(gid uint16, seq []byte, pos_array []int) (int, int) {
 		for i := 0; i < len(f.HashFunction); i++ {
 			j := f.HashFunction[i].HashKmer(kmer)
 			idx = append(idx, j)
-			if f.table[j] != 0 && f.table[j] != gid {
+			if f.table[j] != Empty && f.table[j] != gid {
 				unique_to_genome = false
 				break
 			}
@@ -155,9 +160,9 @@ func (f *Filter) SetGid(gid uint16, seq []byte, pos_array []int) (int, int) {
 		if unique_to_genome {
 			count += 1
 			for i := 0; i < len(idx); i++ {
-				f.table[idx[i]] = gid	
+				temp_table[idx[i]] = gid	
 			}
-			// fmt.Println(string(kmer), idx)
+			// fmt.Println("main", string(kmer), idx)
 		}
 
 		unique_to_genome_rc := true
@@ -166,7 +171,7 @@ func (f *Filter) SetGid(gid uint16, seq []byte, pos_array []int) (int, int) {
 		for i := 0; i < len(f.HashFunction); i++ {
 			j := f.HashFunction[i].HashKmer(kmer_rc)
 			idx_rc = append(idx_rc, j)
-			if f.table[j] != 0 && f.table[j] != gid {
+			if f.table[j] != Empty && f.table[j] != gid {
 				unique_to_genome_rc = false
 				break
 			}
@@ -175,9 +180,9 @@ func (f *Filter) SetGid(gid uint16, seq []byte, pos_array []int) (int, int) {
 		if unique_to_genome_rc {
 			count_rc += 1
 			for i := 0; i < len(idx_rc); i++ {
-				f.table[idx_rc[i]] = gid	
+				temp_table[idx_rc[i]] = gid	
 			}
-			// fmt.Println(string(kmer_rc), idx_rc)
+			// fmt.Println("rc", string(kmer_rc), idx_rc)
 		}
 
 	}
@@ -264,6 +269,24 @@ func _load_kmerpos(fn string) map[string][]int {
 }
 
 //-----------------------------------------------------------------------------
+func _load_hashfunction(fn string) []*LinearHash {
+    // read file
+    f, err := ioutil.ReadFile(fn)
+    if err != nil {
+      fmt.Print(err)
+    }
+
+    var data []*LinearHash
+    err = json.Unmarshal(f, &data)
+    if err != nil {
+        fmt.Println("error:", err)
+    }
+    
+
+    return data
+}
+
+//-----------------------------------------------------------------------------
 func _save_table_alone(s []uint16, filename string) {
 	f, err := os.Create(filename)
 	if err != nil {
@@ -299,7 +322,31 @@ func _save_kmerpos_to_json(data map[string][]int, fn string) {
 }
 
 //-----------------------------------------------------------------------------
+func _save_hashfunction_to_json(data []*LinearHash, fn string) {
+
+    // Marshal the map into a JSON string.
+    // saveData, err := json.Marshal(data)   
+    // if err != nil {
+    //     fmt.Println(err.Error())
+    //     return
+    // }
+     
+    // jsonStr := string(saveData)
+    // fmt.Println("The JSON data is:")
+    // fmt.Println(jsonStr)
+
+    file, _ := json.MarshalIndent(data, "", " ")
+ 
+    _ = ioutil.WriteFile(fn, file, 0644)
+
+}
+
+//-----------------------------------------------------------------------------
 func (f *Filter) SaveFilterGob(fn string) {
+	for i := range f.HashFunction {
+		f.HashFunction[i] = ResetLinearHash(f.HashFunction[i], f.K)
+	}
+
 	file, err := os.Create(fn)
 	if err != nil {
 		log.Fatal(err)
@@ -327,6 +374,7 @@ func (f *Filter) Save(fn string) {
 	f.SaveFilterGob(fn)
 	_save_table_alone(f.table, path.Join(fn+".table"))
 	_save_kmerpos_to_json(f.Kmer_pos, path.Join(fn+".json"))
+	_save_hashfunction_to_json(f.HashFunction, path.Join(fn+"_hf.json"))
 }
 
 //-----------------------------------------------------------------------------
@@ -341,8 +389,10 @@ func Load(fn string) *Filter {
 // no need to load the table, just initialize it
 func LoadFilter(fn string) * Filter {
 	filter := LoadFilterGob(fn)
-	filter.table = make([]uint16, filter.M)
+	// filter.table = make([]uint16, filter.M)
+	filter.table = _load_table_alone(fn+".table", filter.M)
 	filter.Kmer_pos = _load_kmerpos(fn+".json")
+	// filter.HashFunction = _load_hashfunction(fn+"_hf.json")
 	return filter
 }
 

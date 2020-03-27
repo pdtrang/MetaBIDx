@@ -19,9 +19,10 @@ func (f *Filter) HashSignature(kmer []byte, is_first_kmer bool, isPrimary bool, 
 	unique_to_genome := true
 	idx := make([]int64, 0)
 	for i := 0; i < len(f.HashFunction); i++ {
-		j := f.HashFunction[i].SlidingHashKmerModified(kmer, is_first_kmer, isPrimary)
+		// j := f.HashFunction[i].SlidingHashKmerModified(kmer, is_first_kmer, isPrimary)
+		j := f.HashFunction[i].HashKmer(kmer)
 		idx = append(idx, j)
-		if f.table[j] != 0 && f.table[j] != gid {
+		if f.table[j] != Empty && f.table[j] != gid {
 			unique_to_genome = false
 		}
 	}
@@ -29,7 +30,7 @@ func (f *Filter) HashSignature(kmer []byte, is_first_kmer bool, isPrimary bool, 
 	if unique_to_genome {
 
 		
-		
+		// fmt.Println("unique", gid, string(kmer), isPrimary, idx)
 
 		for i := 0; i < len(idx); i++ {
 			f.table[idx[i]] = gid
@@ -49,6 +50,7 @@ func (f *Filter) HashSignature(kmer []byte, is_first_kmer bool, isPrimary bool, 
 		}
 		
 	} else {
+		// fmt.Println("Dirty", gid, string(kmer), idx)
 		for i := 0; i < len(idx); i++ {
 			f.table[idx[i]] = Dirty
 		}

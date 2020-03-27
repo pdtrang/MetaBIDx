@@ -39,18 +39,22 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
             // fmt.Println(f.Gid[uint16(fidx+1)])
             // Sequence header, and seq length            
             // fmt.Println(uint16(fidx+1), fa_scanner.Header[1:], len(fa_scanner.Seq))
+            header := fa_scanner.Header[1:]
+            f.SeqLength[header] = len(fa_scanner.Seq)
             count = count + len(fa_scanner.Seq)
             kmer_scanner := ppt_filter.NewKmerScanner(fa_scanner.Seq, k)
-            // fmt.Println(string(fa_scanner.Seq))
+            // fmt.Println(uint16(fidx+1), string(fa_scanner.Seq))
 
-            for kmer_scanner.ScanBothStrandsModified() {
+            for kmer_scanner.ScanBothStrands() {
                 // fmt.Println(string(kmer_scanner.Kmer), kmer_scanner.IsPrimary, kmer_scanner.Kmer_loc)
-                if kmer_scanner.IsPrimary {
-                    f.HashSignature(kmer_scanner.Kmer_rc, kmer_scanner.IsFirstKmer, !kmer_scanner.IsPrimary, uint16(fidx+1), ph, f.Gid[uint16(fidx+1)], fa_scanner.Header[1:], kmer_scanner.Kmer_loc)
-                } else {
-                    f.HashSignature(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, !kmer_scanner.IsPrimary, uint16(fidx+1), ph, f.Gid[uint16(fidx+1)], fa_scanner.Header[1:], kmer_scanner.Kmer_loc)
-                }
-                // f.HashSignature(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, !kmer_scanner.IsPrimary, uint16(fidx+1), ph, f.Gid[uint16(fidx+1)], fa_scanner.Header[1:], kmer_scanner.Kmer_loc)
+                // if kmer_scanner.IsPrimary {
+                //     fmt.Println(string(kmer_scanner.Kmer_rc), !kmer_scanner.IsPrimary, kmer_scanner.Kmer_loc)
+                //     f.HashSignature(kmer_scanner.Kmer_rc, kmer_scanner.IsFirstKmer, !kmer_scanner.IsPrimary, uint16(fidx+1), ph, f.Gid[uint16(fidx+1)], fa_scanner.Header[1:], kmer_scanner.Kmer_loc)
+                // } else {
+                //     fmt.Println(string(kmer_scanner.Kmer), !kmer_scanner.IsPrimary, kmer_scanner.Kmer_loc)
+                //     f.HashSignature(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, !kmer_scanner.IsPrimary, uint16(fidx+1), ph, f.Gid[uint16(fidx+1)], fa_scanner.Header[1:], kmer_scanner.Kmer_loc)
+                // }
+                f.HashSignature(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, kmer_scanner.IsPrimary, uint16(fidx+1), ph, f.Gid[uint16(fidx+1)], fa_scanner.Header[1:], kmer_scanner.Kmer_loc)
                 
                 
             }
@@ -73,7 +77,7 @@ func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases i
 
     if n_phases == 2 {
         // 2nd walk
-        fmt.Println("Phase 2...")
+        fmt.Println("\n\nPhase 2...")
         VerifySignature(f, refseq, k, 2)
     }
 
