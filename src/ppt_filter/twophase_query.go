@@ -74,7 +74,7 @@ func (f *Filter) TwoPhaseOneHitQueryRead(read []byte) (uint16, bool, []byte) {
 	kmer_scanner := NewKmerScanner(read, f.K)
 
 	for kmer_scanner.ScanOneStrand() {
-		kmer_gid, is_unique_kmer := f.TwoPhasesQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer)  
+		kmer_gid, is_unique_kmer := f.TwoPhasesQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, kmer_scanner.Base_before, kmer_scanner.Base_after)  
 		
 		if is_unique_kmer {
 			return kmer_gid, true, kmer_scanner.Kmer
@@ -141,7 +141,7 @@ func (f *Filter) TwoPhasesMajorityQueryRead(read []byte, gidx map[uint16][][]byt
 	kmer_scanner := NewKmerScanner(read, f.K)
 
 	for kmer_scanner.ScanOneStrand() {
-		kmer_gid, is_unique_kmer := f.TwoPhasesQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer)  
+		kmer_gid, is_unique_kmer := f.TwoPhasesQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, kmer_scanner.Base_before, kmer_scanner.Base_after)  
 		
 		if is_unique_kmer {
 			gidx[kmer_gid] = append(gidx[kmer_gid], kmer_scanner.Kmer)
@@ -215,7 +215,7 @@ func (f *Filter) TwoPhasesOONQueryRead(read []byte, kmers *[][]byte, idx uint16)
 	kmer_scanner := NewKmerScanner(read, f.K)
 
 	for kmer_scanner.ScanOneStrand() {
-		kmer_gid, is_unique_kmer := f.TwoPhasesQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer)  
+		kmer_gid, is_unique_kmer := f.TwoPhasesQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, kmer_scanner.Base_before, kmer_scanner.Base_after)  
 		
 		if is_unique_kmer {
 			// if it is the first gid queried, or
@@ -237,17 +237,7 @@ func (f *Filter) TwoPhasesOONQueryRead(read []byte, kmers *[][]byte, idx uint16)
 }
 
 
-func (f *Filter) TwoPhasesQueryHashKmer(kmer []byte, is_first_kmer bool) (uint16, bool) {
-
-	// j := f.HashFunction[0].SlidingHashKmer(kmer, is_first_kmer)
-
-	// if f.table[j] == Dirty || f.table[j] == Empty {
-	// 	return uint16(0), false
-	// }
- 
-	
-	// return f.table[j], true
-
+func (f *Filter) TwoPhasesQueryHashKmer(kmer []byte, is_first_kmer bool, query_base_before string, query_base_after string) (uint16, bool) {
 
 	idx := uint16(0)
 	for i := 0; i < len(f.HashFunction); i++ {
@@ -266,7 +256,56 @@ func (f *Filter) TwoPhasesQueryHashKmer(kmer []byte, is_first_kmer bool) (uint16
 		idx = f.table[j]
 
 	}
+	
+	for _, header := range f.Gid_header[idx] {
+		// fmt.Println("\nLooking in", header)
+		if _, ok := f.Kmers_bases[header][string(kmer)]; ok {
 
-	return idx, true
+	    	base_before := f.Kmers_bases[header][string(kmer)][0]
+	    	base_after := f.Kmers_bases[header][string(kmer)][1]
+
+	    	if query_base_after == "B" && base_before == "B" && query_base_after == "P" && base_after == "P" { // bad case
+	    		// fmt.Println("Can not decide.")
+	    		return uint16(0), false
+	    	}
+
+
+	    	if query_base_before == string(base_before) && query_base_after == string(base_after) { // good hit
+	    		// fmt.Println("Hit", query_base_before, base_before, query_base_after, base_after)
+	    		return idx, true
+	    	} else {
+	    		
+	    		if query_base_before == "B" || base_before == "B" {
+	    			if query_base_after != "P" && base_after != "P" && query_base_after != base_after {
+	    				// fmt.Println("No hit", query_base_before, base_before, query_base_after, base_after)
+	    				return uint16(0), false
+	    			} else if query_base_after == "P" || base_after == "P" {
+	    				// fmt.Println("No hit", query_base_before, base_before, query_base_after, base_after)
+	    				return uint16(0), false
+	    			} else {
+	    				// fmt.Println("Partially Hit", query_base_before, base_before, query_base_after, base_after)
+	    				return idx, true
+	    			}
+	    		} else if query_base_after == "P" || base_after == "P" {
+	    			if query_base_before != "B" && base_before != "B" && query_base_before != base_before {
+	    				// fmt.Println("No hit", query_base_before, base_before, query_base_after, base_after)
+	    				return uint16(0), false	
+	    			} else if query_base_before == "B" && base_before == "B" {
+	    				// fmt.Println("No hit", query_base_before, base_before, query_base_after, base_after)
+	    				return uint16(0), false
+	    			} else {
+	    				// fmt.Println("Partially Hit", query_base_before, base_before, query_base_after, base_after)
+	    				return idx, true
+	    			}
+	    		}
+	    	}
+
+
+	    } else {
+	    	fmt.Println("Kmer not found.")
+	    }
+	}
+
+	return uint16(0), false
 	
 }

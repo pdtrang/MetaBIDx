@@ -88,7 +88,7 @@ func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer
 	fmt.Println()
 	fmt.Println("True: ", genome_name)
 
-	fasta_folder := "/media/admin1/0367988c-be76-43c0-a243-48aafc97ffd4/dpham2/mende_metagenomics_data/new_groupRef_2/"
+	fasta_folder := "/media/admin1/0367988c-be76-43c0-a243-48aafc97ffd4/dpham2/mende_metagenomics_data/strains_genomes/"
 	if level == "species" {
 		fasta_folder = "/media/admin1/0367988c-be76-43c0-a243-48aafc97ffd4/dpham2/mende_metagenomics_data/species_revised/"
 	}

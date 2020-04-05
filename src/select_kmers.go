@@ -57,6 +57,7 @@ func Select_Kmers_byNumbers(f * ppt_filter.Filter, refseq string, max_num_kmers 
         // Scan through all sequences in the fasta file
         for fa_scanner.Scan() {
             header := fa_scanner.Header[1:]
+            f.Gid_header[uint16(fidx+1)] = append(f.Gid_header[uint16(fidx+1)], header)
             if len(f.Kmer_pos[header]) > max_num_kmers {
                 // sort all the positions
                 // sort.Ints(f.Kmer_pos[header])
@@ -122,6 +123,7 @@ func Select_Kmers_byThreshold(f * ppt_filter.Filter, refseq string, threshold fl
         // Scan through all sequences in the fasta file
         for fa_scanner.Scan() {
             header := fa_scanner.Header[1:]
+            f.Gid_header[uint16(fidx+1)] = append(f.Gid_header[uint16(fidx+1)], header)
             num_kmers := int(math.Round(threshold * float64(f.SeqLength[header]) / 100.0))
             // fmt.Println("Number of unique kmers", header, len(f.Kmer_pos[header]))
             // fmt.Println("Seq Length", f.SeqLength[header])
@@ -158,7 +160,7 @@ func Select_Kmers_byThreshold(f * ppt_filter.Filter, refseq string, threshold fl
                 fmt.Println("Skip", header, len(f.Kmer_pos[header]), num_kmers)
                 selected_unique_pos[header] = f.Kmer_pos[header]
             }
-            c, c_rc := f.SetGid(uint16(fidx+1), fa_scanner.Seq, selected_unique_pos[header], temp_table)
+            c, c_rc := f.SetGidAndKeepBases(uint16(fidx+1), fa_scanner.Seq, selected_unique_pos[header], temp_table, header)
             count += c
             count_rc += c_rc
         }

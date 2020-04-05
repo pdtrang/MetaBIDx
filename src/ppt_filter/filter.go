@@ -20,9 +20,11 @@ type Filter struct {
 	K            int
 	HashFunction []*LinearHash
 	table        []uint16
-	Gid			 map[uint16]string
-	SeqLength    map[string]int
-	Kmer_pos     map[string][]int
+	Gid			 map[uint16]string // map gids and strains/species names
+	Gid_header   map[uint16][]string // map gids and sequence headers (for query)
+	SeqLength    map[string]int // map of sequence length
+	Kmer_pos     map[string][]int // map of position of unique kmers in each sequence
+	Kmers_bases   map[string]map[string][]string // map of Kmer to base before and after in each sequence.
 	N_phases	 int
 }
 
@@ -38,8 +40,10 @@ func NewFilter(m int64, k int, num_hashes int, n_phases int) *Filter {
 		K:     k,
 		table: make([]uint16, m),
 		Gid: make(map[uint16]string),
+		Gid_header: make(map[uint16][]string),
 		SeqLength: make(map[string]int),
 		Kmer_pos: make(map[string][]int),
+		Kmers_bases: make(map[string]map[string][]string),
 		N_phases: n_phases,
 	}
 	f.HashFunction = make([]*LinearHash, num_hashes)
@@ -67,9 +71,20 @@ func (f *Filter) Summarize() {
 	for k, v := range count {
 		fmt.Printf("%d\t%d\n", k, v)
 	}
+	fmt.Println("Gid")
 	for key, value := range f.Gid {
 	    fmt.Println(key,":",value)
 	}
+	// fmt.Println("Kmers_bases")
+	// for key, value := range f.Kmers_bases {
+	// 	fmt.Println(key, ":", value)
+	// }
+
+	// fmt.Println("Gid_header")
+	// for key, value := range f.Gid_header {
+	// 	fmt.Println(key, ":", value)
+	// }
+	
 
 	// for header, pos := range f.Kmer_pos {
 	// 	fmt.Println(header, pos)
@@ -139,7 +154,7 @@ func (f *Filter) RemoveAllKmers() {
 //-----------------------------------------------------------------------------
 func (f *Filter) SetGid(gid uint16, seq []byte, pos_array []int, temp_table []uint16) (int, int) {
 	// fmt.Println("Set GID")
-	fmt.Println("SetGid", len(pos_array))
+	// fmt.Println("SetGid", len(pos_array))
 	count := 0
 	count_rc := 0
 	for p := 0; p < len(pos_array); p++ {
@@ -183,6 +198,90 @@ func (f *Filter) SetGid(gid uint16, seq []byte, pos_array []int, temp_table []ui
 				temp_table[idx_rc[i]] = gid	
 			}
 			// fmt.Println("rc", string(kmer_rc), idx_rc)
+		}
+
+	}
+	return count, count_rc
+}
+
+//-----------------------------------------------------------------------------
+func (f *Filter) SetGidAndKeepBases(gid uint16, seq []byte, pos_array []int, temp_table []uint16, header string) (int, int) {
+	// fmt.Println("Set GID")
+	// fmt.Println("SetGid", len(pos_array))
+	count := 0
+	count_rc := 0
+	f.Kmers_bases[header] = make(map[string][]string)
+	for p := 0; p < len(pos_array); p++ {
+		// fmt.Println(gid, pos_array[p])
+		kmer := seq[pos_array[p] : f.K+pos_array[p]]
+
+		unique_to_genome := true
+		idx := make([]int64, 0)
+		for i := 0; i < len(f.HashFunction); i++ {
+			j := f.HashFunction[i].HashKmer(kmer)
+			idx = append(idx, j)
+			if f.table[j] != Empty && f.table[j] != gid {
+				unique_to_genome = false
+				break
+			}
+		}
+
+		if unique_to_genome {
+			count += 1
+			for i := 0; i < len(idx); i++ {
+				temp_table[idx[i]] = gid	
+			}
+
+			// append the base before
+			if pos_array[p] > 0 {
+				f.Kmers_bases[header][string(kmer)] = append(f.Kmers_bases[header][string(kmer)], string( seq[pos_array[p]-1 : pos_array[p]] ))	
+			} else {
+				f.Kmers_bases[header][string(kmer)] = append(f.Kmers_bases[header][string(kmer)], "B")
+			}
+
+			// append the base after
+			if pos_array[p] + f.K < len(seq) {
+				f.Kmers_bases[header][string(kmer)] = append(f.Kmers_bases[header][string(kmer)], string( seq[pos_array[p] + f.K : pos_array[p] + f.K +1 ] ))
+			} else {
+				f.Kmers_bases[header][string(kmer)] = append(f.Kmers_bases[header][string(kmer)], "P")
+			}
+			
+			// fmt.Println("main", string(kmer), idx)
+
+		}
+
+		unique_to_genome_rc := true
+		kmer_rc := []byte(ReverseComplement(string(kmer)))
+		idx_rc := make([]int64, 0)
+		for i := 0; i < len(f.HashFunction); i++ {
+			j := f.HashFunction[i].HashKmer(kmer_rc)
+			idx_rc = append(idx_rc, j)
+			if f.table[j] != Empty && f.table[j] != gid {
+				unique_to_genome_rc = false
+				break
+			}
+		}
+
+		if unique_to_genome_rc {
+			count_rc += 1
+			for i := 0; i < len(idx_rc); i++ {
+				temp_table[idx_rc[i]] = gid	
+			}
+			// fmt.Println("rc", string(kmer_rc), idx_rc)
+
+			// append the base before
+			if pos_array[p] > 0 {
+				f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], ReverseComplement(string( seq[pos_array[p]-1 : pos_array[p]] )))	
+			} else {
+				f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], "B")
+			}
+
+			// append the base after
+			if pos_array[p] + f.K < len(seq) {
+				f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], ReverseComplement(string( seq[pos_array[p] + f.K : pos_array[p] + f.K +1 ] )))
+			} else {
+				f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], "P")
+			}
 		}
 
 	}
@@ -391,6 +490,7 @@ func LoadFilter(fn string) * Filter {
 	filter := LoadFilterGob(fn)
 	// filter.table = make([]uint16, filter.M)
 	filter.table = _load_table_alone(fn+".table", filter.M)
+	filter.Gid_header = make(map[uint16][]string)
 	filter.Kmer_pos = _load_kmerpos(fn+".json")
 	// filter.HashFunction = _load_hashfunction(fn+"_hf.json")
 	return filter
