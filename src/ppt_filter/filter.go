@@ -234,14 +234,24 @@ func (f *Filter) SetGidAndKeepBases(gid uint16, seq []byte, pos_array []int, tem
 
 			// append the base before
 			if pos_array[p] > 0 {
-				f.Kmers_bases[header][string(kmer)] = append(f.Kmers_bases[header][string(kmer)], string( seq[pos_array[p]-1 : pos_array[p]] ))	
+				base := string( seq[pos_array[p]-1 : pos_array[p]] )
+				if base != "A" && base != "T" && base != "G" && base != "C" {
+					f.Kmers_bases[header][string(kmer)] = append(f.Kmers_bases[header][string(kmer)], "B")
+				} else {
+					f.Kmers_bases[header][string(kmer)] = append(f.Kmers_bases[header][string(kmer)], base)	
+				}
 			} else {
 				f.Kmers_bases[header][string(kmer)] = append(f.Kmers_bases[header][string(kmer)], "B")
 			}
 
 			// append the base after
 			if pos_array[p] + f.K < len(seq) {
-				f.Kmers_bases[header][string(kmer)] = append(f.Kmers_bases[header][string(kmer)], string( seq[pos_array[p] + f.K : pos_array[p] + f.K +1 ] ))
+				base := string( seq[pos_array[p] + f.K : pos_array[p] + f.K +1 ] )
+				if base != "A" && base != "T" && base != "G" && base != "C" {
+					f.Kmers_bases[header][string(kmer)] = append(f.Kmers_bases[header][string(kmer)], "P")
+				} else {
+					f.Kmers_bases[header][string(kmer)] = append(f.Kmers_bases[header][string(kmer)], base)
+				}
 			} else {
 				f.Kmers_bases[header][string(kmer)] = append(f.Kmers_bases[header][string(kmer)], "P")
 			}
@@ -271,14 +281,25 @@ func (f *Filter) SetGidAndKeepBases(gid uint16, seq []byte, pos_array []int, tem
 
 			// append the base before
 			if pos_array[p] > 0 {
-				f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], ReverseComplement(string( seq[pos_array[p]-1 : pos_array[p]] )))	
+				base := ReverseComplement(string( seq[pos_array[p]-1 : pos_array[p]] ))
+				if base != "A" && base != "T" && base != "G" && base != "C" {
+					f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], "B")
+				} else {
+					f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], base)	
+				}
+					
 			} else {
 				f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], "B")
 			}
 
 			// append the base after
 			if pos_array[p] + f.K < len(seq) {
-				f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], ReverseComplement(string( seq[pos_array[p] + f.K : pos_array[p] + f.K +1 ] )))
+				base := ReverseComplement(string( seq[pos_array[p] + f.K : pos_array[p] + f.K +1 ] ))
+				if base != "A" && base != "T" && base != "G" && base != "C" {
+					f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], "P")
+				} else {
+					f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], base)	
+				}
 			} else {
 				f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], "P")
 			}
