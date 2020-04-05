@@ -18,6 +18,7 @@ func main() {
     lt := flag.Float64("lt", float64(0.2), "lower threshold")
     level := flag.String("level", "strains", "query level")
     analysis := flag.Bool("analysis", false, "save read query to file")
+    filter_to_query := flag.String("filter-type", "base", "select filter type to query")
     flag.Parse()
 	
 	// Load filter
@@ -36,7 +37,7 @@ func main() {
 	if *read_2 == "" {
 		f.OnlineSingleQuery(*read_1, *out, *strategy, upper_threshold, lower_threshold, *analysis)	
 	} else {
-		f.OnlinePairQuery(*read_1, *read_2, *out, *strategy, upper_threshold, lower_threshold, *analysis, *level)
+		f.OnlinePairQuery(*read_1, *read_2, *out, *strategy, upper_threshold, lower_threshold, *analysis, *level, *filter_to_query)
 	}
 
 }

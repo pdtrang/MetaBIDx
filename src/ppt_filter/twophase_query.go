@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, strategy string, analysis bool, analysis_fi *os.File, header_1 string, header_2 string, genome_info map[string]string, level string) int {
+func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, strategy string, analysis bool, analysis_fi *os.File, header_1 string, header_2 string, genome_info map[string]string, level string, filter_type string) int {
 // func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, strategy string, analysis bool, analysis_fi *os.File, header_1 string, header_2 string) int {
 
 	if strategy == "majority" {
@@ -14,7 +14,7 @@ func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[ui
 	} else if strategy == "one_hit" {
 		return f.TwoPhaseOneHitQuery(read_1, read_2, bacteria_map, start_time, analysis, analysis_fi)
 	} else {
-		return f.TwoPhaseOneOrNothingQuery(read_1, read_2, bacteria_map, start_time, analysis, analysis_fi, header_1, header_2, genome_info, level)
+		return f.TwoPhaseOneOrNothingQuery(read_1, read_2, bacteria_map, start_time, analysis, analysis_fi, header_1, header_2, genome_info, level, filter_type)
 		// return f.TwoPhaseOneOrNothingQuery(read_1, read_2, bacteria_map, start_time, analysis, analysis_fi, header_1, header_2)
 
 	}
@@ -153,14 +153,14 @@ func (f *Filter) TwoPhasesMajorityQueryRead(read []byte, gidx map[uint16][][]byt
 //////////////////////////////////////////////////////////////
 // One Or Nothing
 //////////////////////////////////////////////////////////////
-func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, analysis bool, analysis_fi *os.File, header_1 string, header_2 string, genome_info map[string]string, level string) int {
+func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, analysis bool, analysis_fi *os.File, header_1 string, header_2 string, genome_info map[string]string, level string, filter_type string) int {
 // func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, analysis bool, analysis_fi *os.File, header_1 string, header_2 string) int {
 	kmers := make([][]byte, 0)
 	idx := uint16(0)
 
-	idx, is_valid_gid, kmer := f.TwoPhasesOONQueryRead(read_1, &kmers, idx)
+	idx, is_valid_gid, kmer := f.TwoPhasesOONQueryRead(read_1, &kmers, idx, filter_type)
 	if is_valid_gid {
-		idx, is_valid_gid, kmer = f.TwoPhasesOONQueryRead(read_2, &kmers, idx)	
+		idx, is_valid_gid, kmer = f.TwoPhasesOONQueryRead(read_2, &kmers, idx, filter_type)	
 	} else {
 		return 0
 	}
@@ -211,12 +211,17 @@ func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteri
 }
 
 
-func (f *Filter) TwoPhasesOONQueryRead(read []byte, kmers *[][]byte, idx uint16) (uint16, bool, []byte) {
+func (f *Filter) TwoPhasesOONQueryRead(read []byte, kmers *[][]byte, idx uint16, filter_type string) (uint16, bool, []byte) {
 	kmer_scanner := NewKmerScanner(read, f.K)
 
 	for kmer_scanner.ScanOneStrand() {
-		kmer_gid, is_unique_kmer := f.TwoPhasesQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, kmer_scanner.Base_before, kmer_scanner.Base_after)  
-		
+
+		if filter_type == "base" {
+			kmer_gid, is_unique_kmer := f.TwoPhasesQueryHashKmerFullFilter(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, kmer_scanner.Base_before, kmer_scanner.Base_after)	
+		} else {
+			kmer_gid, is_unique_kmer := f.TwoPhasesQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, kmer_scanner.Base_before, kmer_scanner.Base_after)	
+		}
+		  
 		if is_unique_kmer {
 			// if it is the first gid queried, or
 			// if the current id is same as the queried gid
@@ -234,6 +239,30 @@ func (f *Filter) TwoPhasesOONQueryRead(read []byte, kmers *[][]byte, idx uint16)
 
 	// no kmers get hit in the query
 	return uint16(0), true, kmer_scanner.Kmer
+}
+
+func (f *Filter) TwoPhasesQueryHashKmerFullFilter(kmer []byte, is_first_kmer bool) (uint16, bool) {
+
+	idx := uint16(0)
+	for i := 0; i < len(f.HashFunction); i++ {
+		j := f.HashFunction[i].SlidingHashKmer(kmer, is_first_kmer)
+
+		// is either Dirty or Empty
+		if f.table[j] == Dirty || f.table[j] == Empty {
+			return uint16(0), false
+		}
+
+		// get different gid with the current gid
+		if idx != Empty && f.table[j] != idx {
+			return uint16(0), false
+		}
+
+		idx = f.table[j]
+
+	}
+
+	return idx, true
+	
 }
 
 
@@ -256,7 +285,7 @@ func (f *Filter) TwoPhasesQueryHashKmer(kmer []byte, is_first_kmer bool, query_b
 		idx = f.table[j]
 
 	}
-	
+
 	for _, header := range f.Gid_header[idx] {
 		// fmt.Println("\nLooking in", header)
 		if _, ok := f.Kmers_bases[header][string(kmer)]; ok {
