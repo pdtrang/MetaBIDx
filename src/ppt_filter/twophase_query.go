@@ -215,11 +215,13 @@ func (f *Filter) TwoPhasesOONQueryRead(read []byte, kmers *[][]byte, idx uint16,
 	kmer_scanner := NewKmerScanner(read, f.K)
 
 	for kmer_scanner.ScanOneStrand() {
+		is_unique_kmer := true
+		kmer_gid := uint16(0)
 
 		if filter_type == "base" {
-			kmer_gid, is_unique_kmer := f.TwoPhasesQueryHashKmerFullFilter(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer)	
+			kmer_gid, is_unique_kmer = f.TwoPhasesQueryHashKmerFullFilter(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer)	
 		} else {
-			kmer_gid, is_unique_kmer := f.TwoPhasesQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, kmer_scanner.Base_before, kmer_scanner.Base_after)	
+			kmer_gid, is_unique_kmer = f.TwoPhasesQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, kmer_scanner.Base_before, kmer_scanner.Base_after)	
 		}
 		  
 		if is_unique_kmer {
