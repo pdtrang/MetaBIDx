@@ -84,7 +84,7 @@ func (f *Filter) Summarize() {
 	// for key, value := range f.Gid_header {
 	// 	fmt.Println(key, ":", value)
 	// }
-	
+
 
 	// for header, pos := range f.Kmer_pos {
 	// 	fmt.Println(header, pos)
@@ -492,6 +492,7 @@ func LoadFilter(fn string) * Filter {
 	filter.table = _load_table_alone(fn+".table", filter.M)
 	filter.Gid_header = make(map[uint16][]string)
 	filter.Kmer_pos = _load_kmerpos(fn+".json")
+	filter.Kmers_bases = make(map[string]map[string][]string)
 	// filter.HashFunction = _load_hashfunction(fn+"_hf.json")
 	return filter
 }
