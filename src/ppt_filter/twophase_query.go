@@ -247,7 +247,7 @@ func (f *Filter) TwoPhasesQueryHashKmerFullFilter(kmer []byte, is_first_kmer boo
 
 	idx := uint16(0)
 	for i := 0; i < len(f.HashFunction); i++ {
-		j := f.HashFunction[i].SlidingHashKmer(kmer, is_first_kmer)
+		j := f.HashFunction[i].HashKmer(kmer)
 
 		// is either Dirty or Empty
 		if f.table[j] == Dirty || f.table[j] == Empty {
@@ -272,7 +272,7 @@ func (f *Filter) TwoPhasesQueryHashKmer(kmer []byte, is_first_kmer bool, query_b
 
 	idx := uint16(0)
 	for i := 0; i < len(f.HashFunction); i++ {
-		j := f.HashFunction[i].SlidingHashKmer(kmer, is_first_kmer)
+		j := f.HashFunction[i].HashKmer(kmer)
 
 		// is either Dirty or Empty
 		if f.table[j] == Dirty || f.table[j] == Empty {
