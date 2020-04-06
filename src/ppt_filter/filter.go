@@ -277,31 +277,19 @@ func (f *Filter) SetGidAndKeepBases(gid uint16, seq []byte, pos_array []int, tem
 			for i := 0; i < len(idx_rc); i++ {
 				temp_table[idx_rc[i]] = gid	
 			}
-			fmt.Println("rc", string(kmer_rc), idx_rc)
 
 			// append the base before
 			if pos_array[p] + f.K < len(seq) {
-				fmt.Println("rc base before", string( seq[pos_array[p] + f.K : pos_array[p] + f.K +1 ] ))
-				base := ReverseComplement(string( seq[pos_array[p] + f.K : pos_array[p] + f.K +1 ] ))
-				if base != "A" && base != "T" && base != "G" && base != "C" {
-					f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], "B")
-				} else {
-					f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], base)	
-				}
-					
+				base := ReverseComplementForOneBase(string( seq[pos_array[p] + f.K : pos_array[p] + f.K +1 ] ), true)
+				f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], base)	
 			} else {
 				f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], "B")
 			}
 
 			// append the base after
 			if  pos_array[p] > 0 {
-				fmt.Println("rc base after", string( seq[pos_array[p]-1 : pos_array[p]] ))
-				base := ReverseComplement(string( seq[pos_array[p]-1 : pos_array[p]] ))
-				if base != "A" && base != "T" && base != "G" && base != "C" {
-					f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], "P")
-				} else {
-					f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], base)	
-				}
+				base := ReverseComplementForOneBase(string( seq[pos_array[p]-1 : pos_array[p]] ), false)
+				f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], base)	
 			} else {
 				f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], "P")
 			}

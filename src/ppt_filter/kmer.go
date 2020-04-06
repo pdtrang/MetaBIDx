@@ -463,6 +463,36 @@ func ReverseComplement(s string) string {
 }
 
 //-----------------------------------------------------------------------------
+func ReverseComplementForOneBase(s string, is_base_before bool) string {
+	cc := s
+	if cc != "A" && cc != "T" && cc != "G" && cc != "C" {
+		if is_base_before {
+			return "B"
+		} else {
+			return "P"
+		}
+	}
+
+	r := make([]byte, len(s))
+	var c byte
+	for i := 0; i < len(s); i++ {
+		c = s[len(s)-i-1]
+		if c == 'A' {
+			r[i] = 'T'
+		} else if c == 'C' {
+			r[i] = 'G'
+		} else if c == 'G' {
+			r[i] = 'C'
+		} else if c == 'T' {
+			r[i] = 'A'
+		} else {
+			panic("Unknown character: " + string(c))
+		}
+	}
+	return string(r)
+}
+
+//-----------------------------------------------------------------------------
 func DecToKmer(x int, K int) string {
 	y := make([]byte, K)
 	for i := K - 1; i >= 0; i-- {
