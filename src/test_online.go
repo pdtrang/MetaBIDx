@@ -2,7 +2,7 @@ package main
 
 import (
 	"./ppt_filter"
-	//"fmt"
+	// "fmt"
 	"flag"
 	"log"
 )
@@ -13,7 +13,7 @@ func main() {
     read_1 := flag.String("r1", "", "fastq/fq file")
     read_2 := flag.String("r2", "", "fastq/fq file")
     out := flag.String("out", "result.txt", "output filename")
-    strategy := flag.String("strategy", "majority", "querying strategy")
+    strategy := flag.String("strategy", "oon", "querying strategy")
     ut := flag.Float64("ut", float64(0.5), "upper threshold")
     lt := flag.Float64("lt", float64(0.2), "lower threshold")
     level := flag.String("level", "strains", "query level")
@@ -33,7 +33,6 @@ func main() {
     lower_threshold := *lt
 
     log.Printf(*out)
-
 	if *read_2 == "" {
 		f.OnlineSingleQuery(*read_1, *out, *strategy, upper_threshold, lower_threshold, *analysis)	
 	} else {
