@@ -397,6 +397,24 @@ func _load_hashfunction(fn string) []*LinearHash {
 }
 
 //-----------------------------------------------------------------------------
+func _load_kmers_bases(fn string) map[string]map[string][]string {
+    // read file
+    f, err := ioutil.ReadFile(fn)
+    if err != nil {
+      fmt.Print(err)
+    }
+
+    var data map[string]map[string][]string
+    err = json.Unmarshal(f, &data)
+    if err != nil {
+        fmt.Println("error:", err)
+    }
+    
+
+    return data
+}
+
+//-----------------------------------------------------------------------------
 func _save_table_alone(s []uint16, filename string) {
 	f, err := os.Create(filename)
 	if err != nil {
@@ -452,6 +470,26 @@ func _save_hashfunction_to_json(data []*LinearHash, fn string) {
 }
 
 //-----------------------------------------------------------------------------
+func _save_kmers_bases_to_json(data map[string]map[string][]string, fn string) {
+
+    // Marshal the map into a JSON string.
+    // saveData, err := json.Marshal(data)   
+    // if err != nil {
+    //     fmt.Println(err.Error())
+    //     return
+    // }
+     
+    // jsonStr := string(saveData)
+    // fmt.Println("The JSON data is:")
+    // fmt.Println(jsonStr)
+
+    file, _ := json.MarshalIndent(data, "", " ")
+ 
+    _ = ioutil.WriteFile(fn, file, 0644)
+
+}
+
+//-----------------------------------------------------------------------------
 func (f *Filter) SaveFilterGob(fn string) {
 	for i := range f.HashFunction {
 		f.HashFunction[i] = ResetLinearHash(f.HashFunction[i], f.K)
@@ -486,6 +524,21 @@ func (f *Filter) Save(fn string) {
 	_save_kmerpos_to_json(f.Kmer_pos, path.Join(fn+".json"))
 	_save_hashfunction_to_json(f.HashFunction, path.Join(fn+"_hf.json"))
 }
+
+//-----------------------------------------------------------------------------
+func (f *Filter) SaveReducedFilter(fn string) {
+	f.SaveFilterGob(fn)
+	_save_table_alone(f.table, path.Join(fn+".table"))
+	_save_kmers_bases_to_json(f.Kmers_bases, path.Join(fn+"_bases.json"))
+}
+
+func LoadReducedFilter(fn string) * Filter {
+	filter := LoadFilterGob(fn)
+	filter.table = _load_table_alone(fn+".table", filter.M)
+	filter.Kmers_bases = _load_kmers_bases(fn+"_bases.json")
+	return filter
+}
+
 
 //-----------------------------------------------------------------------------
 // load the table

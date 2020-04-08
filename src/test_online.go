@@ -21,9 +21,14 @@ func main() {
     filter_to_query := flag.String("filter-type", "base", "select filter type to query")
     flag.Parse()
 	
+    var f *ppt_filter.Filter
 	// Load filter
 	log.Printf("Load filter")
-    f := ppt_filter.Load(*filter_saved_file)
+    if *filter_to_query == "base"{
+        f = ppt_filter.Load(*filter_saved_file)
+    } else {
+        f = ppt_filter.LoadReducedFilter(*filter_saved_file)
+    }
     // fmt.Println(f)
     // fmt.Println(f.Gid)
     // f.Summarize()	

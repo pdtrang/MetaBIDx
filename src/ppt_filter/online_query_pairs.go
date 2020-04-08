@@ -67,8 +67,8 @@ func (f *Filter) OnlinePairQuery(read_file_1 string, read_file_2 string, out_fil
     }
 
     // count_read := 0
-    genome_info := LoadGenomeInfo(level)
-    // genome_info := make(map[string]string)
+    // genome_info := LoadGenomeInfo(level)
+    genome_info := make(map[string]string)
 	for scanner.Scan() && scanner2.Scan() {
 
 		// if count_read == 1000000 {

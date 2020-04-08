@@ -223,7 +223,7 @@ func main() {
     BuildNewTable_Threshold(f, *refseq_genomes, *THRESHOLD)    
 
     f.Summarize()
-    f.Save(*filter_saved_file)
+    f.SaveReducedFilter(*filter_saved_file)
     // fmt.Println(f.Gid)
     
 
