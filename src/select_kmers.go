@@ -160,7 +160,7 @@ func Select_Kmers_byThreshold(f * ppt_filter.Filter, refseq string, threshold fl
                 fmt.Println("Skip", header, len(f.Kmer_pos[header]), num_kmers)
                 selected_unique_pos[header] = f.Kmer_pos[header]
             }
-            c, c_rc := f.SetGidAndKeepBases(uint16(fidx+1), fa_scanner.Seq, selected_unique_pos[header], temp_table, header)
+            c, c_rc := f.SetGid(uint16(fidx+1), fa_scanner.Seq, selected_unique_pos[header], temp_table)
             count += c
             count_rc += c_rc
         }
