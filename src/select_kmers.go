@@ -190,26 +190,13 @@ func BuildNewTable_Threshold(f *ppt_filter.Filter, refseq string, threshold floa
 
 //-----------------------------------------------------------------------------
 func main() {
-    //
-    // log.Printf("Start building Bloom filter from a directory of genomes")
-    // 
     refseq_genomes := flag.String("refseq", "", "refseq genome dir")    
-    // K := flag.Int("k", 16, "kmer length")
     filter_name := flag.String("load", "", "load existing filter file (without table)")
-    filter_saved_file := flag.String("save", "", "filter saved file")
-    // power := flag.Int("p", 32, "power")
-    // N_HASH_FUNCTIONS := flag.Int("n", 2, "number of hash functions")
-    // N_PHASES := flag.Int("ph", 2, "number of phases")
+    filter_saved_file := flag.String("save", "", "filter saved file")    
     // MAX_NUM_KMERS := flag.Int("max-kmers", 1000, "maximum numbers of kmers")
     THRESHOLD := flag.Float64("threshold", 5.0, "percentage of number of kmers to keep")
 
-    //
     flag.Parse()
-    // var FILTER_LEN int64
-
-    // FILTER_LEN = int64(math.Pow(float64(2), float64(24)))
-    // FILTER_LEN = int64(math.Pow(float64(2), float64(*power)))
-    // FILTER_LEN = int64(*power)
 
     // Time On
     defer TimeConsume(time.Now(), "Run time: ")
