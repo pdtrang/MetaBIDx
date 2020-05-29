@@ -10,9 +10,9 @@ func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[ui
 // func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, strategy string, analysis bool, analysis_fi *os.File, header_1 string, header_2 string) int {
 
 	if strategy == "majority" {
-		return f.TwoPhaseMajorityQuery(read_1, read_2, bacteria_map, start_time, analysis, analysis_fi)
+		return f.TwoPhaseMajorityQuery(read_1, read_2, bacteria_map, start_time, analysis, analysis_fi, filter_type)
 	} else if strategy == "one_hit" {
-		return f.TwoPhaseOneHitQuery(read_1, read_2, bacteria_map, start_time, analysis, analysis_fi)
+		return f.TwoPhaseOneHitQuery(read_1, read_2, bacteria_map, start_time, analysis, analysis_fi, filter_type)
 	} else {
 		return f.TwoPhaseOneOrNothingQuery(read_1, read_2, bacteria_map, start_time, analysis, analysis_fi, header_1, header_2, genome_info, level, filter_type)
 		// return f.TwoPhaseOneOrNothingQuery(read_1, read_2, bacteria_map, start_time, analysis, analysis_fi, header_1, header_2)
@@ -24,12 +24,12 @@ func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[ui
 //////////////////////////////////////////////////////////////
 // One Hit
 //////////////////////////////////////////////////////////////
-func (f *Filter) TwoPhaseOneHitQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, analysis bool, analysis_fi *os.File) int {
+func (f *Filter) TwoPhaseOneHitQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, analysis bool, analysis_fi *os.File, filter_type string) int {
 
-	idx, is_valid_gid, kmer := f.TwoPhaseOneHitQueryRead(read_1)
+	idx, is_valid_gid, kmer := f.TwoPhaseOneHitQueryRead(read_1, filter_type)
 
 	if !is_valid_gid && idx == uint16(0) {
-		idx, is_valid_gid, kmer = f.TwoPhaseOneHitQueryRead(read_2)
+		idx, is_valid_gid, kmer = f.TwoPhaseOneHitQueryRead(read_2, filter_type)
 	} 
 
 	if is_valid_gid {
@@ -70,12 +70,19 @@ func (f *Filter) TwoPhaseOneHitQuery(read_1 []byte, read_2 []byte, bacteria_map 
 	
 }
 
-func (f *Filter) TwoPhaseOneHitQueryRead(read []byte) (uint16, bool, []byte) {
+func (f *Filter) TwoPhaseOneHitQueryRead(read []byte, filter_type string) (uint16, bool, []byte) {
 	kmer_scanner := NewKmerScanner(read, f.K)
 
+	kmer_gid := uint16(0)
+	is_unique_kmer := false
 	for kmer_scanner.ScanOneStrand() {
-		kmer_gid, is_unique_kmer := f.TwoPhasesQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, kmer_scanner.Base_before, kmer_scanner.Base_after)  
 		
+		if filter_type == "base" {
+			kmer_gid, is_unique_kmer = f.TwoPhasesQueryHashKmerFullFilter(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer)	
+		} else {
+			kmer_gid, is_unique_kmer = f.TwoPhasesQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, kmer_scanner.Base_before, kmer_scanner.Base_after)  
+		}
+
 		if is_unique_kmer {
 			return kmer_gid, true, kmer_scanner.Kmer
 		}
@@ -87,11 +94,31 @@ func (f *Filter) TwoPhaseOneHitQueryRead(read []byte) (uint16, bool, []byte) {
 //////////////////////////////////////////////////////////////
 // Majority
 //////////////////////////////////////////////////////////////
-func (f *Filter) TwoPhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, analysis bool, analysis_fi *os.File) int {
+// func FindMajority(gidx map[uint16][][]byte) uint16 {
+// 	maxCount := 0
+// 	index := uint16(0)
+// 	total_count := 0 
+// 	for key, element := range gidx {
+// 		if len(element) > maxCount {
+// 			maxCount = len(element)
+// 			index = key
+// 		}	
+// 		total_count += len(element)
+// 	}
+	
+// 	if maxCount > total_count/2 {
+// 		fmt.Println(maxCount, total_count)
+// 		return index
+// 	}
+	
+// 	return uint16(0)
+// }
+
+func (f *Filter) TwoPhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, analysis bool, analysis_fi *os.File, filter_type string) int {
 	gidx := make(map[uint16][][]byte) // map to keep all the hit kmers for each genome
 
-	f.TwoPhasesMajorityQueryRead(read_1, gidx)
-	f.TwoPhasesMajorityQueryRead(read_2, gidx)
+	f.TwoPhasesMajorityQueryRead(read_1, gidx, filter_type)
+	f.TwoPhasesMajorityQueryRead(read_2, gidx, filter_type)
 
 	idx := FindMajority(gidx)	
 
@@ -137,12 +164,18 @@ func (f *Filter) TwoPhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_ma
 }
 
 
-func (f *Filter) TwoPhasesMajorityQueryRead(read []byte, gidx map[uint16][][]byte) {
+func (f *Filter) TwoPhasesMajorityQueryRead(read []byte, gidx map[uint16][][]byte, filter_type string) {
 	kmer_scanner := NewKmerScanner(read, f.K)
 
+	kmer_gid := uint16(0)
+	is_unique_kmer := false
 	for kmer_scanner.ScanOneStrand() {
-		kmer_gid, is_unique_kmer := f.TwoPhasesQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, kmer_scanner.Base_before, kmer_scanner.Base_after)  
-		
+		if filter_type == "base" {
+			kmer_gid, is_unique_kmer = f.TwoPhasesQueryHashKmerFullFilter(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer)	
+		} else {
+			kmer_gid, is_unique_kmer = f.TwoPhasesQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, kmer_scanner.Base_before, kmer_scanner.Base_after)  
+		}
+
 		if is_unique_kmer {
 			gidx[kmer_gid] = append(gidx[kmer_gid], kmer_scanner.Kmer)
 		}
