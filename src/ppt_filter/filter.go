@@ -522,20 +522,20 @@ func (f *Filter) Save(fn string) {
 	f.SaveFilterGob(fn)
 	_save_table_alone(f.table, path.Join(fn+".table"))
 	_save_kmerpos_to_json(f.Kmer_pos, path.Join(fn+".json"))
-	_save_hashfunction_to_json(f.HashFunction, path.Join(fn+"_hf.json"))
+	// _save_hashfunction_to_json(f.HashFunction, path.Join(fn+"_hf.json"))
 }
 
 //-----------------------------------------------------------------------------
 func (f *Filter) SaveReducedFilter(fn string) {
 	f.SaveFilterGob(fn)
 	_save_table_alone(f.table, path.Join(fn+".table"))
-	_save_kmers_bases_to_json(f.Kmers_bases, path.Join(fn+"_bases.json"))
+	// _save_kmers_bases_to_json(f.Kmers_bases, path.Join(fn+"_bases.json"))
 }
 
 func LoadReducedFilter(fn string) * Filter {
 	filter := LoadFilterGob(fn)
 	filter.table = _load_table_alone(fn+".table", filter.M)
-	filter.Kmers_bases = _load_kmers_bases(fn+"_bases.json")
+	// filter.Kmers_bases = _load_kmers_bases(fn+"_bases.json")
 	return filter
 }
 
