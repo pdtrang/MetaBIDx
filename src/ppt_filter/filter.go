@@ -278,6 +278,23 @@ func _load_kmerpos(fn string) map[string][]int {
 }
 
 //-----------------------------------------------------------------------------
+func _load_binary_kmerpos(fn string) map[string][]int {
+    
+    file, err := os.Open(fn)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer file.Close()
+    decoder := gob.NewDecoder(file)
+    var data map[string][]int
+    err = decoder.Decode(&data)
+
+    fmt.Println("kmer pos: ", data)
+
+    return data
+}
+
+//-----------------------------------------------------------------------------
 func _load_hashfunction(fn string) []*LinearHash {
     // read file
     f, err := ioutil.ReadFile(fn)
@@ -327,6 +344,19 @@ func _save_kmerpos_to_json(data map[string][]int, fn string) {
     file, _ := json.MarshalIndent(data, "", " ")
  
     _ = ioutil.WriteFile(fn, file, 0644)
+
+}
+
+//-----------------------------------------------------------------------------
+func _save_kmerpos_to_binary(data map[string][]int, fn string) {
+
+    file, err := os.Create(fn)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer file.Close()
+    encoder := gob.NewEncoder(file)
+    encoder.Encode(data)
 
 }
 
@@ -382,7 +412,8 @@ func LoadFilterGob(fn string) *Filter {
 func (f *Filter) Save(fn string) {
 	f.SaveFilterGob(fn)
 	_save_table_alone(f.table, path.Join(fn+".table"))
-	_save_kmerpos_to_json(f.Kmer_pos, path.Join(fn+".json"))
+	// _save_kmerpos_to_json(f.Kmer_pos, path.Join(fn+".json"))
+	_save_kmerpos_to_binary(f.Kmer_pos, path.Join(fn+"_kmerpos.bin"))
 	// _save_hashfunction_to_json(f.HashFunction, path.Join(fn+"_hf.json"))
 }
 
@@ -416,7 +447,8 @@ func LoadFilter(fn string) * Filter {
 	// filter.table = make([]uint16, filter.M)
 	filter.table = _load_table_alone(fn+".table", filter.M)
 	filter.Gid_header = make(map[uint16][]string)
-	filter.Kmer_pos = _load_kmerpos(fn+".json")
+	// filter.Kmer_pos = _load_kmerpos(fn+".json")
+	filter.Kmer_pos = _load_binary_kmerpos(fn+"_kmerpos.bin")
 	// filter.HashFunction = _load_hashfunction(fn+"_hf.json")
 	return filter
 }
