@@ -101,7 +101,7 @@ func Select_Kmers_byNumbers(f * ppt_filter.Filter, refseq string, max_num_kmers 
 }
 
 //-----------------------------------------------------------------------------
-func Select_Kmers_byThreshold(f * ppt_filter.Filter, refseq string, threshold float64) {
+func Select_Kmers(f * ppt_filter.Filter, refseq string, threshold float64) {
     fmt.Println("Selecting kmers.")
 
     // Walk through refseq dir 
@@ -129,13 +129,96 @@ func Select_Kmers_byThreshold(f * ppt_filter.Filter, refseq string, threshold fl
             // fmt.Println("Seq Length", f.SeqLength[header])
             // fmt.Println("Number kmers to select", num_kmers)
             // fmt.Println()
-            if len(f.Kmer_pos[header]) > num_kmers {
+            if len(f.Kmer_pos[header]) > num_kmers && num_kmers > 0 {
                 // sort all the positions
                 // sort.Ints(f.Kmer_pos[header])
 
                 // take num_kmers of kmers if there are less than num_kmers
                 // mark other kmers as Unused
                 window := f.SeqLength[header] / num_kmers
+                selected_unique_pos[header] = append(selected_unique_pos[header],f.Kmer_pos[header][0])
+                for i := 1; i < len(f.Kmer_pos[header]); i++ {
+                    if selected_unique_pos[header][len(selected_unique_pos[header])-1] + window < f.Kmer_pos[header][i] {
+                        selected_unique_pos[header] = append(selected_unique_pos[header], f.Kmer_pos[header][i])
+                    } 
+
+                } 
+
+
+                // start := 0
+                // end := window
+                // selected_pos := []int{}
+
+                // // if window >= 2 {
+                // for i := 0; i < num_kmers; i++ {
+                //     selected_pos, start, end = GetPositions(start, end, window, f.Kmer_pos[header])
+
+                //     // f.RemoveUnusedKmers(uint16(fidx+1), fa_scanner.Seq, selected_pos)
+                    
+                //     if len(selected_pos) > 0 {
+                //         _, found := ppt_filter.Find(selected_unique_pos[header], selected_pos[0])
+                //         if !found {
+                //             selected_unique_pos[header] = append(selected_unique_pos[header], selected_pos[0])
+                //         } 
+
+                //     }                         
+                // }
+                        
+                // }
+            } else {
+                fmt.Println("Skip", header, len(f.Kmer_pos[header]), num_kmers)
+                selected_unique_pos[header] = f.Kmer_pos[header]
+            }
+            c, c_rc := f.SetGid(uint16(fidx+1), fa_scanner.Seq, selected_unique_pos[header], temp_table)
+            count += c
+            count_rc += c_rc
+        }
+           
+
+    }
+    f.SetTable(temp_table)
+    // fmt.Println("Selected pos", selected_unique_pos)
+    fmt.Println("Total unique on main strand:", count)
+    fmt.Println("Total unique on rc strand:", count_rc)
+}
+
+//-----------------------------------------------------------------------------
+func Select_Kmers_byThreshold(f * ppt_filter.Filter, refseq string, threshold float64) {
+    fmt.Println("Selecting kmers.")
+
+    // Walk through refseq dir 
+    fscaner := ppt_filter.NewFileScanner(refseq)
+
+    // Scan reference genomes
+    selected_unique_pos := make(map[string][]int)
+    count := 0
+    count_rc := 0
+    f.RemoveAllKmers()
+    temp_table := make([]uint16, f.M)
+    for fidx, filename := range fscaner.Scan() {
+        fa, err := os.Open(filename)
+        if err != nil {
+            panic(err)
+        }
+        fa_scanner := ppt_filter.NewFastaScanner(fa)
+
+        // Scan through all sequences in the fasta file
+        for fa_scanner.Scan() {
+            header := fa_scanner.Header[1:]
+            f.Gid_header[uint16(fidx+1)] = append(f.Gid_header[uint16(fidx+1)], header)
+            num_kmers := int(math.Round(threshold * float64(f.SeqLength[header]) / 100.0))
+            fmt.Println("Number of unique kmers", header, len(f.Kmer_pos[header]))
+            fmt.Println("Seq Length", f.SeqLength[header])
+            fmt.Println("Number kmers to select", num_kmers)
+            // fmt.Println()
+            if len(f.Kmer_pos[header]) > num_kmers && num_kmers > 0 {
+                // sort all the positions
+                // sort.Ints(f.Kmer_pos[header])
+
+                // take num_kmers of kmers if there are less than num_kmers
+                // mark other kmers as Unused
+                window := f.SeqLength[header] / num_kmers
+
                 start := 0
                 end := window
                 selected_pos := []int{}
@@ -155,7 +238,6 @@ func Select_Kmers_byThreshold(f * ppt_filter.Filter, refseq string, threshold fl
                     }                         
                 }
                         
-                // }
             } else {
                 fmt.Println("Skip", header, len(f.Kmer_pos[header]), num_kmers)
                 selected_unique_pos[header] = f.Kmer_pos[header]
@@ -187,6 +269,12 @@ func BuildNewTable_Threshold(f *ppt_filter.Filter, refseq string, threshold floa
 
 }
 
+func BuildNewTable_KmerThreshold(f *ppt_filter.Filter, refseq string, threshold float64) {
+
+    Select_Kmers(f, refseq, threshold)
+
+}
+
 
 //-----------------------------------------------------------------------------
 func main() {
@@ -207,7 +295,8 @@ func main() {
     // f.Summarize()
     fmt.Println("Build new table...")
     // BuildNewTable_MaxNumKmers(f, *refseq_genomes, *MAX_NUM_KMERS)
-    BuildNewTable_Threshold(f, *refseq_genomes, *THRESHOLD)    
+    // BuildNewTable_Threshold(f, *refseq_genomes, *THRESHOLD)
+    BuildNewTable_KmerThreshold(f, *refseq_genomes, *THRESHOLD)    
 
     f.Summarize()
     f.Save(*filter_saved_file)
