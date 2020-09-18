@@ -13,8 +13,6 @@ type KmerScanner struct {
 	Kmer_loc      int // current location of Kmer
 	Kmer        []byte
 	Kmer_rc 	[]byte
-	Base_before string
-	Base_after  string
 	K           int
 	I           int
 	SWindow		int
@@ -279,17 +277,6 @@ func (s *KmerScanner) ScanOneStrand() bool {
 			}
 		}
 		s.Kmer = s.Seq[s.I : s.K+s.I]
-		if s.I > 0 {
-			s.Base_before = string(s.Seq[s.I-1:s.I])
-		} else {
-			s.Base_before = "B"
-		}
-
-		if s.I + s.K < len(s.Seq) {
-			s.Base_after = string(s.Seq[ s.K+s.I : s.K+s.I+1])
-		} else {
-			s.Base_after = "P"
-		}
 		
 		s.I++
 		return true

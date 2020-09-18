@@ -24,7 +24,6 @@ type Filter struct {
 	Gid_header   map[uint16][]string // map gids and sequence headers (for query)
 	SeqLength    map[string]int // map of sequence length
 	Kmer_pos     map[string][]int // map of position of unique kmers in each sequence
-	Kmers_bases   map[string]map[string][]string // map of Kmer to base before and after in each sequence.
 	N_phases	 int
 }
 
@@ -43,7 +42,6 @@ func NewFilter(m int64, k int, num_hashes int, n_phases int) *Filter {
 		Gid_header: make(map[uint16][]string),
 		SeqLength: make(map[string]int),
 		Kmer_pos: make(map[string][]int),
-		Kmers_bases: make(map[string]map[string][]string),
 		N_phases: n_phases,
 	}
 	f.HashFunction = make([]*LinearHash, num_hashes)
@@ -75,10 +73,6 @@ func (f *Filter) Summarize() {
 	for key, value := range f.Gid {
 	    fmt.Println(key,":",value)
 	}
-	// fmt.Println("Kmers_bases")
-	// for key, value := range f.Kmers_bases {
-	// 	fmt.Println(key, ":", value)
-	// }
 
 	// fmt.Println("Gid_header")
 	// for key, value := range f.Gid_header {
@@ -204,101 +198,6 @@ func (f *Filter) SetGid(gid uint16, seq []byte, pos_array []int, temp_table []ui
 	return count, count_rc
 }
 
-//-----------------------------------------------------------------------------
-func (f *Filter) SetGidAndKeepBases(gid uint16, seq []byte, pos_array []int, temp_table []uint16, header string) (int, int) {
-	// fmt.Println("Set GID")
-	// fmt.Println("SetGid", len(pos_array))
-	count := 0
-	count_rc := 0
-	f.Kmers_bases[header] = make(map[string][]string)
-	for p := 0; p < len(pos_array); p++ {
-		// fmt.Println(gid, pos_array[p])
-		kmer := seq[pos_array[p] : f.K+pos_array[p]]
-
-		unique_to_genome := true
-		idx := make([]int64, 0)
-		for i := 0; i < len(f.HashFunction); i++ {
-			j := f.HashFunction[i].HashKmer(kmer)
-			idx = append(idx, j)
-			if f.table[j] != Empty && f.table[j] != gid {
-				unique_to_genome = false
-				break
-			}
-		}
-
-		if unique_to_genome {
-			count += 1
-			for i := 0; i < len(idx); i++ {
-				temp_table[idx[i]] = gid	
-			}
-
-			// append the base before
-			if pos_array[p] > 0 {
-				base := string( seq[pos_array[p]-1 : pos_array[p]] )
-				if base != "A" && base != "T" && base != "G" && base != "C" {
-					f.Kmers_bases[header][string(kmer)] = append(f.Kmers_bases[header][string(kmer)], "B")
-				} else {
-					f.Kmers_bases[header][string(kmer)] = append(f.Kmers_bases[header][string(kmer)], base)	
-				}
-			} else {
-				f.Kmers_bases[header][string(kmer)] = append(f.Kmers_bases[header][string(kmer)], "B")
-			}
-
-			// append the base after
-			if pos_array[p] + f.K < len(seq) {
-				base := string( seq[pos_array[p] + f.K : pos_array[p] + f.K +1 ] )
-				if base != "A" && base != "T" && base != "G" && base != "C" {
-					f.Kmers_bases[header][string(kmer)] = append(f.Kmers_bases[header][string(kmer)], "P")
-				} else {
-					f.Kmers_bases[header][string(kmer)] = append(f.Kmers_bases[header][string(kmer)], base)
-				}
-			} else {
-				f.Kmers_bases[header][string(kmer)] = append(f.Kmers_bases[header][string(kmer)], "P")
-			}
-			
-			// fmt.Println("main", string(kmer), idx)
-
-		}
-
-		unique_to_genome_rc := true
-		kmer_rc := []byte(ReverseComplement(string(kmer)))
-		idx_rc := make([]int64, 0)
-		for i := 0; i < len(f.HashFunction); i++ {
-			j := f.HashFunction[i].HashKmer(kmer_rc)
-			idx_rc = append(idx_rc, j)
-			if f.table[j] != Empty && f.table[j] != gid {
-				unique_to_genome_rc = false
-				break
-			}
-		}
-
-		if unique_to_genome_rc {
-			count_rc += 1
-			for i := 0; i < len(idx_rc); i++ {
-				temp_table[idx_rc[i]] = gid	
-			}
-
-			// append the base before
-			if pos_array[p] + f.K < len(seq) {
-				base := ReverseComplementForOneBase(string( seq[pos_array[p] + f.K : pos_array[p] + f.K +1 ] ), true)
-				f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], base)	
-			} else {
-				f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], "B")
-			}
-
-			// append the base after
-			if  pos_array[p] > 0 {
-				base := ReverseComplementForOneBase(string( seq[pos_array[p]-1 : pos_array[p]] ), false)
-				f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], base)	
-			} else {
-				f.Kmers_bases[header][string(kmer_rc)] = append(f.Kmers_bases[header][string(kmer_rc)], "P")
-			}
-		}
-
-	}
-	return count, count_rc
-}
-
 
 //-----------------------------------------------------------------------------
 func (f *Filter) GetNumberOfUniqueKmers() {
@@ -397,24 +296,6 @@ func _load_hashfunction(fn string) []*LinearHash {
 }
 
 //-----------------------------------------------------------------------------
-func _load_kmers_bases(fn string) map[string]map[string][]string {
-    // read file
-    f, err := ioutil.ReadFile(fn)
-    if err != nil {
-      fmt.Print(err)
-    }
-
-    var data map[string]map[string][]string
-    err = json.Unmarshal(f, &data)
-    if err != nil {
-        fmt.Println("error:", err)
-    }
-    
-
-    return data
-}
-
-//-----------------------------------------------------------------------------
 func _save_table_alone(s []uint16, filename string) {
 	f, err := os.Create(filename)
 	if err != nil {
@@ -451,26 +332,6 @@ func _save_kmerpos_to_json(data map[string][]int, fn string) {
 
 //-----------------------------------------------------------------------------
 func _save_hashfunction_to_json(data []*LinearHash, fn string) {
-
-    // Marshal the map into a JSON string.
-    // saveData, err := json.Marshal(data)   
-    // if err != nil {
-    //     fmt.Println(err.Error())
-    //     return
-    // }
-     
-    // jsonStr := string(saveData)
-    // fmt.Println("The JSON data is:")
-    // fmt.Println(jsonStr)
-
-    file, _ := json.MarshalIndent(data, "", " ")
- 
-    _ = ioutil.WriteFile(fn, file, 0644)
-
-}
-
-//-----------------------------------------------------------------------------
-func _save_kmers_bases_to_json(data map[string]map[string][]string, fn string) {
 
     // Marshal the map into a JSON string.
     // saveData, err := json.Marshal(data)   
@@ -556,7 +417,6 @@ func LoadFilter(fn string) * Filter {
 	filter.table = _load_table_alone(fn+".table", filter.M)
 	filter.Gid_header = make(map[uint16][]string)
 	filter.Kmer_pos = _load_kmerpos(fn+".json")
-	filter.Kmers_bases = make(map[string]map[string][]string)
 	// filter.HashFunction = _load_hashfunction(fn+"_hf.json")
 	return filter
 }

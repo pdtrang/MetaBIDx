@@ -20,7 +20,6 @@ func main() {
     level := flag.String("level", "strains", "query level")
     strategy := flag.String("strategy", "oon", "querying strategy")
     analysis := flag.Bool("analysis", false, "save read query to file")
-    filter_to_query := flag.String("filter-type", "base", "select filter type to query")
     flag.Parse()
 	
     var f *ppt_filter.Filter
@@ -30,11 +29,9 @@ func main() {
 
 	// Load filter
 	log.Printf("Load filter")
-    if *filter_to_query == "base"{
-        f = ppt_filter.Load(*filter_saved_file)
-    } else {
-        f = ppt_filter.LoadReducedFilter(*filter_saved_file)
-    }
+    
+    f = ppt_filter.Load(*filter_saved_file)
+    
     // fmt.Println(f)
     // fmt.Println(f.Gid)
     // f.Summarize()	
@@ -47,7 +44,7 @@ func main() {
 	if *read_2 == "" {
 		f.OnlineSingleQuery(*read_1, *out, *strategy, upper_threshold, lower_threshold, *analysis)	
 	} else {
-		f.OnlinePairQuery(*read_1, *read_2, *out, *strategy, upper_threshold, lower_threshold, *analysis, *level, *filter_to_query)
+		f.OnlinePairQuery(*read_1, *read_2, *out, *strategy, upper_threshold, lower_threshold, *analysis, *level)
 	}
 
     // print Memory Usage    
