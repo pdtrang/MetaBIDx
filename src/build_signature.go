@@ -7,7 +7,7 @@ import (
     "fmt"
     "os"
     "time"
-    "runtime"
+    //"runtime"
     "math"
     "strings"
     "./utils"
@@ -47,17 +47,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
             // fmt.Println(uint16(fidx+1), string(fa_scanner.Seq))
 
             for kmer_scanner.ScanBothStrands() {
-                // fmt.Println(string(kmer_scanner.Kmer), kmer_scanner.IsPrimary, kmer_scanner.Kmer_loc)
-                // if kmer_scanner.IsPrimary {
-                //     fmt.Println(string(kmer_scanner.Kmer_rc), !kmer_scanner.IsPrimary, kmer_scanner.Kmer_loc)
-                //     f.HashSignature(kmer_scanner.Kmer_rc, kmer_scanner.IsFirstKmer, !kmer_scanner.IsPrimary, uint16(fidx+1), ph, f.Gid[uint16(fidx+1)], fa_scanner.Header[1:], kmer_scanner.Kmer_loc)
-                // } else {
-                //     fmt.Println(string(kmer_scanner.Kmer), !kmer_scanner.IsPrimary, kmer_scanner.Kmer_loc)
-                //     f.HashSignature(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, !kmer_scanner.IsPrimary, uint16(fidx+1), ph, f.Gid[uint16(fidx+1)], fa_scanner.Header[1:], kmer_scanner.Kmer_loc)
-                // }
                 f.HashSignature(kmer_scanner.Kmer, kmer_scanner.IsFirstKmer, kmer_scanner.IsPrimary, uint16(fidx+1), ph, f.Gid[uint16(fidx+1)], fa_scanner.Header[1:], kmer_scanner.Kmer_loc)
-                
-                
             }
         }       
         // fmt.Printf("%d\n", count)
@@ -121,7 +111,7 @@ func main() {
     // FILTER_LEN = int64(*power)
 
     // Time On
-    defer TimeConsume(time.Now(), "Run time: ")
+    defer utils.TimeConsume(time.Now(), "Run time: ")
     
     // Build
     if *filter_name == "" {
@@ -153,7 +143,7 @@ func main() {
     // log.Printf("Saved: %s.", *filter_saved_file)
 
     // print Memory Usage    
-    PrintMemUsage()
+    utils.PrintMemUsage()
 
 }
 

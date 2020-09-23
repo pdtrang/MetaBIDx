@@ -2,11 +2,11 @@ package main
 
 import (
 	"./ppt_filter"
-	"fmt"
+	//"fmt"
 	"flag"
 	"log"
     "time"
-    "runtime"
+    //"runtime"
 )
 
 func main() {
