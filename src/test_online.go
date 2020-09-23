@@ -25,7 +25,7 @@ func main() {
     var f *ppt_filter.Filter
 
     // Time On
-    defer TimeConsume(time.Now(), "Run time: ")
+    defer utils.TimeConsume(time.Now(), "Run time: ")
 
 	// Load filter
 	log.Printf("Load filter")
@@ -48,7 +48,7 @@ func main() {
 	}
 
     // print Memory Usage    
-    PrintMemUsage()
+    utils.PrintMemUsage()
 
 }
 
