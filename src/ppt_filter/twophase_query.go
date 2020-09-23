@@ -90,25 +90,25 @@ func (f *Filter) TwoPhaseOneHitQueryRead(read []byte) (uint16, bool, []byte) {
 //////////////////////////////////////////////////////////////
 // Majority
 //////////////////////////////////////////////////////////////
-// func FindMajority(gidx map[uint16][][]byte) uint16 {
-// 	maxCount := 0
-// 	index := uint16(0)
-// 	total_count := 0 
-// 	for key, element := range gidx {
-// 		if len(element) > maxCount {
-// 			maxCount = len(element)
-// 			index = key
-// 		}	
-// 		total_count += len(element)
-// 	}
+func FindMajority(gidx map[uint16][][]byte) uint16 {
+	maxCount := 0
+	index := uint16(0)
+	total_count := 0 
+	for key, element := range gidx {
+		if len(element) > maxCount {
+			maxCount = len(element)
+			index = key
+		}	
+		total_count += len(element)
+	}
 	
-// 	if maxCount > total_count/2 {
-// 		fmt.Println(maxCount, total_count)
-// 		return index
-// 	}
+	if maxCount > total_count/2 {
+		// fmt.Println(maxCount, total_count)
+		return index
+	}
 	
-// 	return uint16(0)
-// }
+	return uint16(0)
+}
 
 func (f *Filter) TwoPhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, analysis bool, analysis_fi *os.File) int {
 	gidx := make(map[uint16][][]byte) // map to keep all the hit kmers for each genome
