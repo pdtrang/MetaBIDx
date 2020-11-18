@@ -29,6 +29,10 @@ func (b *Bacteria) AddSignature(j int64) {
 	}
 }
 
+func (b *Bacteria) AppendSignature(j int64) {
+	b.Signatures.Add(j)
+}
+
 func (b *Bacteria) PrintBacteria() {
 	fmt.Println("Signatures: ", b.Signatures)
 	fmt.Println("UpperThreshold: ", b.UpperThreshold)

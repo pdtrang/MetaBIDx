@@ -9,7 +9,33 @@ import (
 	"strings"
 	"encoding/csv"
 	"io"
+	"sync"
 )
+
+func SaveSignatures2(f *Filter, signatures []int64, idx uint16, bacteria_map map[uint16]*Bacteria, start_time time.Time, mutex *sync.Mutex) int {
+	bac_found := 0
+	mutex.Lock()
+	
+	for i := 0; i < len(signatures); i++ {
+			
+		bacteria_map[idx].AddSignature(signatures[i])
+		
+
+		//if bacteria_map[idx].ReachUpperThreshold() && bacteria_map[idx].Reported == false {
+		if bacteria_map[idx].Reported == false {
+			elapsed := time.Since(start_time)
+			log.Printf("Found [%s], elapsed: %s ", f.Gid[idx], elapsed)
+			log.Printf("Threshold: ", bacteria_map[idx].UpperThreshold, bacteria_map[idx].LowerThreshold)
+			bacteria_map[idx].Reported = true
+			bacteria_map[idx].QueryTime = elapsed
+			bac_found = 1
+		}
+	}
+
+	mutex.Unlock()
+
+	return bac_found
+}
 
 func SaveSignatures(f *Filter, signatures []int64, idx uint16, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
 	bac_found := 0
@@ -219,9 +245,9 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
 
     	// compute avg query time
     	t := ComputeAverageQueryTime(bacteria_map, num_bacteria)
-    	t_all := ComputeAverageQueryTimeAll(bacteria_map, start_time)
-    	fmt.Printf("Average query time = %s\n", t)
-    	fmt.Printf("Average query time of all bacteria = %s\n", t_all)
+    	// t_all := ComputeAverageQueryTimeAll(bacteria_map, start_time)
+    	// fmt.Printf("Average query time = %s\n", t)
+    	// fmt.Printf("Average query time of all bacteria = %s\n", t_all)
     	// s := "# Reported bacteria \n"
     	// _, err = fi.WriteString(s)
 	    // if err != nil {
@@ -256,13 +282,13 @@ func SaveQueryResult(f *Filter, bacteria_map map[uint16]*Bacteria, num_bacteria 
 	        return
 	    }
 
-	    s = "# Average query time of all bacteria = " + t_all.String() + "\n"
-    	_, err = fi.WriteString(s)
-	    if err != nil {
-	        fmt.Println(err)
-	        fi.Close()
-	        return
-	    }
+	    // s = "# Average query time of all bacteria = " + t_all.String() + "\n"
+    	// _, err = fi.WriteString(s)
+	    // if err != nil {
+	    //     fmt.Println(err)
+	    //     fi.Close()
+	    //     return
+	    // }
 
     } else {
     	fmt.Println("No bacteria found.")
