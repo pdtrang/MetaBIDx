@@ -82,11 +82,12 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
     reads_channel := make(chan string)
     reads_2_channel := make(chan string)
     go func() {
-	for scanner.Scan() && scanner2.Scan() {
-		c += 1
-		reads_channel <- (scanner.Seq)
-		reads_2_channel <- (scanner2.Seq)
-	}
+		for scanner.Scan() && scanner2.Scan() {
+			c += 1
+			reads_channel <- (scanner.Seq)
+			reads_2_channel <- (scanner2.Seq)
+		}
+		
 		close(reads_channel)
 		close(reads_2_channel)
 	}()
