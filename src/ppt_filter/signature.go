@@ -7,6 +7,7 @@ package ppt_filter
 
 import (
 	// "fmt" 
+	"sync"
 )
 
 const Dirty = uint16(65534)
@@ -15,9 +16,12 @@ const Dirty = uint16(65534)
 // If all slots have either 0 (clean) or gid, then kmer is unique.
 // If so, set these slots to gid.  If not, set them to Dirty.
 //-----------------------------------------------------------------------------
-func (f *Filter) HashSignature(kmer []byte, is_first_kmer bool, isPrimary bool, gid uint16, ph int, gname string, header string, kmer_pos int) {
+// func (f *Filter) HashSignature(kmer []byte, is_first_kmer bool, isPrimary bool, gid uint16, ph int, gname string, header string, kmer_pos int) {
+func (f *Filter) HashSignature(kmer []byte, gid uint16, ph int, header string, kmer_pos int, mutex *sync.Mutex) {
 	unique_to_genome := true
 	idx := make([]int64, 0)
+	// fmt.Println(string(kmer), gid)
+	mutex.Lock()
 	for i := 0; i < len(f.HashFunction); i++ {
 		// j := f.HashFunction[i].SlidingHashKmerModified(kmer, is_first_kmer, isPrimary)
 		j := f.HashFunction[i].HashKmer(kmer)
@@ -27,10 +31,9 @@ func (f *Filter) HashSignature(kmer []byte, is_first_kmer bool, isPrimary bool, 
 		}
 	}
 
+	
 	if unique_to_genome {
 
-		
-		// fmt.Println("unique", gid, string(kmer), isPrimary, idx)
 
 		for i := 0; i < len(idx); i++ {
 			f.table[idx[i]] = gid
@@ -39,10 +42,8 @@ func (f *Filter) HashSignature(kmer []byte, is_first_kmer bool, isPrimary bool, 
 		// store all positions of unique kmers in phase 2
 		// if the position is already stored, skip it
 		if ph == 2 {
-			// fmt.Println(string(kmer), isPrimary, is_first_kmer, idx)
-			// fmt.Println("Unique kmers", string(kmer), idx, gid)
 			_, found := Find(f.Kmer_pos[header], kmer_pos)
-		    
+    
 			if !found {
 				f.Kmer_pos[header] = append(f.Kmer_pos[header], kmer_pos)
 				// sort.Ints(f.Kmer_pos[header])	
@@ -55,6 +56,7 @@ func (f *Filter) HashSignature(kmer []byte, is_first_kmer bool, isPrimary bool, 
 			f.table[idx[i]] = Dirty
 		}
 	}
+	mutex.Unlock()
 }
 
 // Find takes a slice and looks for an element in it. If found it will

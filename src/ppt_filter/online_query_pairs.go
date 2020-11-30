@@ -11,6 +11,19 @@ import (
 	"sync"
 )
 
+type Read struct {
+    read1 string
+    read2 string
+}
+
+func NewRead(read1 string, read2 string) *Read {
+    return &Read{
+        read1:   read1,
+        read2:   read2,
+
+    }
+}
+
 //-----------------------------------------------------------------------------
 // Online Query for paired-end reads
 //-----------------------------------------------------------------------------
@@ -79,17 +92,14 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 	runtime.GOMAXPROCS(numCores)
 	// runtime.GOMAXPROCS(3)
     var wg sync.WaitGroup
-    reads_channel := make(chan string)
-    reads_2_channel := make(chan string)
+    reads_channel := make(chan Read)
     go func() {
 		for scanner.Scan() && scanner2.Scan() {
 			c += 1
-			reads_channel <- (scanner.Seq)
-			reads_2_channel <- (scanner2.Seq)
+			reads_channel <- (*NewRead(scanner.Seq, scanner2.Seq))
 		}
-		
+
 		close(reads_channel)
-		close(reads_2_channel)
 	}()
 
 	// fmt.Println("numCores ", numCores)
@@ -102,24 +112,20 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 		go func() {
 			defer wg.Done()
 			for read := range(reads_channel){
-				read_1 := read
-				read_2 := <- reads_2_channel
-				// fmt.Println(read_1, read_2)
-				
 				if f.N_phases == 2 {
 
-					num_bacteria += f.TwoPhaseQuery([]byte(read_1), []byte(read_2), 
+					num_bacteria += f.TwoPhaseQuery([]byte(read.read1), []byte(read.read2), 
 													bacteria_map, start_time, strategy, analysis, analysis_fi, 
 													scanner.Header, scanner2.Header, genome_info, level, mutex)						
 					// num_bacteria += f.TwoPhaseQuery([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time, strategy, analysis, analysis_fi, scanner.Header, scanner2.Header)						
 
 					} else if f.N_phases == 1 {
-						num_bacteria += f.OnePhaseQuery([]byte(read_1), []byte(read_2), bacteria_map, start_time, strategy, analysis, analysis_fi)
+						num_bacteria += f.OnePhaseQuery([]byte(read.read1), []byte(read.read2), bacteria_map, start_time, strategy, analysis, analysis_fi)
 				}
 
 			}
 		}()
-   }
+	}
 
    	wg.Wait()
 

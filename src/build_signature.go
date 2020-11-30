@@ -18,16 +18,16 @@ import (
 )
 
 type Kmer struct {
-    kmer []byte
-    idx  uint16
+    seq []byte
+    gidx  uint16
     header string
     loc int
 }
 
 func NewKmer(kmer []byte, idx uint16, header string, loc int) *Kmer {
     return &Kmer{
-        kmer:   kmer,
-        idx:    idx,
+        seq:   kmer,
+        gidx:    idx,
         header: header,
         loc:    loc,
     }
@@ -41,9 +41,12 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
     fscanner := ppt_filter.NewFileScanner(refseq)
 
     kmer_channel := make(chan Kmer)
-    
+    numCores := runtime.NumCPU()
+    runtime.GOMAXPROCS(numCores)
+    var mutex = &sync.Mutex{}
     // Scan reference genomes
     for fidx, filename := range fscanner.Scan() {
+        // kmer_channel := make(chan Kmer)
         count := 0
         fa, err := os.Open(filename)
         if err != nil {
@@ -71,6 +74,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
                                      fa_scanner.Header[1:], kmer_scanner.Kmer_loc))
                 }
             }()
+            
 
             // for kmer_scanner.ScanBothStrands() {
             //     f.HashSignature(kmer_scanner.Kmer, 
@@ -83,25 +87,21 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
         // fmt.Printf("%d\n", count)
     }
 
-    
-    numCores := runtime.NumCPU()
-    runtime.GOMAXPROCS(numCores)
-    var mutex = &sync.Mutex{}
-
     for i:=0; i<numCores; i++ {
         wg.Add(1)
 
         go func() {
             defer wg.Done()
             for kmer := range(kmer_channel){
-                f.HashSignature(kmer.kmer, kmer.idx, ph, kmer.header, kmer.loc, mutex)
+                f.HashSignature(kmer.seq, kmer.gidx, ph, kmer.header, kmer.loc, mutex)
             }
         }()
     }
 
+    
     wg.Wait()
 
-    close(kmer_channel)
+    
 
 }
 
