@@ -11,6 +11,7 @@ import (
 	"path"
 	"unsafe"
 	"io/ioutil"
+	"sync"
 )
 
 const Unused = uint16(65535)
@@ -146,6 +147,61 @@ func (f *Filter) RemoveAllKmers() {
 }
 
 //-----------------------------------------------------------------------------
+func (f *Filter) SetGidWithMutex(gid uint16, seq []byte, pos_array []int, temp_table []uint16, mutex *sync.Mutex) (int, int) {
+	// fmt.Println("Set GID")
+	// fmt.Println("SetGid", len(pos_array))
+	count := 0
+	count_rc := 0
+	mutex.Lock()
+	for p := 0; p < len(pos_array); p++ {
+		// fmt.Println(gid, pos_array[p])
+		kmer := seq[pos_array[p] : f.K+pos_array[p]]
+
+		unique_to_genome := true
+		idx := make([]int64, 0)
+		for i := 0; i < len(f.HashFunction); i++ {
+			j := f.HashFunction[i].HashKmer(kmer)
+			idx = append(idx, j)
+			if f.table[j] != Empty && f.table[j] != gid {
+				unique_to_genome = false
+				break
+			}
+		}
+
+		if unique_to_genome {
+			count += 1
+			for i := 0; i < len(idx); i++ {
+				temp_table[idx[i]] = gid	
+			}
+			// fmt.Println("main", string(kmer), idx)
+		}
+
+		unique_to_genome_rc := true
+		kmer_rc := []byte(ReverseComplement(string(kmer)))
+		idx_rc := make([]int64, 0)
+		for i := 0; i < len(f.HashFunction); i++ {
+			j := f.HashFunction[i].HashKmer(kmer_rc)
+			idx_rc = append(idx_rc, j)
+			if f.table[j] != Empty && f.table[j] != gid {
+				unique_to_genome_rc = false
+				break
+			}
+		}
+
+		if unique_to_genome_rc {
+			count_rc += 1
+			for i := 0; i < len(idx_rc); i++ {
+				temp_table[idx_rc[i]] = gid	
+			}
+			// fmt.Println("rc", string(kmer_rc), idx_rc)
+		}
+
+	}
+	mutex.Unlock()
+	return count, count_rc
+}
+
+//-----------------------------------------------------------------------------
 func (f *Filter) SetGid(gid uint16, seq []byte, pos_array []int, temp_table []uint16) (int, int) {
 	// fmt.Println("Set GID")
 	// fmt.Println("SetGid", len(pos_array))
@@ -197,7 +253,6 @@ func (f *Filter) SetGid(gid uint16, seq []byte, pos_array []int, temp_table []ui
 	}
 	return count, count_rc
 }
-
 
 //-----------------------------------------------------------------------------
 func (f *Filter) GetNumberOfUniqueKmers() {

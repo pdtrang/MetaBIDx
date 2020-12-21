@@ -12,7 +12,7 @@ import (
     "strings"
     "./utils"
     "sync"
-    // "sort"
+    "sort"
     // "path/filepath"
     // "strconv"
 )
@@ -33,8 +33,6 @@ func NewKmer(kmer []byte, idx uint16, header string, loc int) *Kmer {
     }
 }
 
-var wg sync.WaitGroup
-
 //-----------------------------------------------------------------------------
 func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
     // Walk through refseq dir 
@@ -44,64 +42,73 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
     numCores := runtime.NumCPU()
     runtime.GOMAXPROCS(numCores)
     var mutex = &sync.Mutex{}
+    var wg_hash_kmers sync.WaitGroup
+    var wg1_scan_kmers sync.WaitGroup
     // Scan reference genomes
     for fidx, filename := range fscanner.Scan() {
         // kmer_channel := make(chan Kmer)
-        count := 0
-        fa, err := os.Open(filename)
-        if err != nil {
-            panic(err)
-        }
-        fa_scanner := ppt_filter.NewFastaScanner(fa)
+        wg1_scan_kmers.Add(1)
 
-        // Scan through all sequences in the fasta file
-        for fa_scanner.Scan() {
-            // f.Gid[uint16(fidx+1)] = fa_scanner.Header[1:]
-            name_parts := strings.Split(filename, "/")
-            f.Gid[uint16(fidx+1)] = strings.Replace(name_parts[len(name_parts)-1],".fa","",-1)
-            
-            // Sequence header, and seq length            
-            // fmt.Println(uint16(fidx+1), fa_scanner.Header[1:], len(fa_scanner.Seq))
-            header := fa_scanner.Header[1:]
-            f.SeqLength[header] = len(fa_scanner.Seq)
-            count = count + len(fa_scanner.Seq)
-            kmer_scanner := ppt_filter.NewKmerScanner(fa_scanner.Seq, k)
-            // fmt.Println(uint16(fidx+1), string(fa_scanner.Seq))
+        go func(fidx int, filename string, mutex *sync.Mutex) {
+            defer wg1_scan_kmers.Done()
 
-            go func() {
+            count := 0
+            fa, err := os.Open(filename)
+            if err != nil {
+                panic(err)
+            }
+            fa_scanner := ppt_filter.NewFastaScanner(fa)
+
+            // Scan through all sequences in the fasta file
+            for fa_scanner.Scan() {
+                // f.Gid[uint16(fidx+1)] = fa_scanner.Header[1:]
+                name_parts := strings.Split(filename, "/")
+                mutex.Lock()
+                f.Gid[uint16(fidx+1)] = strings.Replace(name_parts[len(name_parts)-1],".fa","",-1)
+                
+                // Sequence header, and seq length            
+                // fmt.Println(uint16(fidx+1), fa_scanner.Header[1:], len(fa_scanner.Seq))
+                header := fa_scanner.Header[1:]
+                f.SeqLength[header] = len(fa_scanner.Seq)
+                mutex.Unlock()
+                count = count + len(fa_scanner.Seq)
+                kmer_scanner := ppt_filter.NewKmerScanner(fa_scanner.Seq, k)
+                // fmt.Println(uint16(fidx+1), string(fa_scanner.Seq))
+
+                
                 for kmer_scanner.ScanBothStrands() {
                     kmer_channel <- (*NewKmer(kmer_scanner.Kmer, uint16(fidx+1), 
                                      fa_scanner.Header[1:], kmer_scanner.Kmer_loc))
                 }
-            }()
-            
-
-            // for kmer_scanner.ScanBothStrands() {
-            //     f.HashSignature(kmer_scanner.Kmer, 
-            //                     uint16(fidx+1), ph, 
-            //                     fa_scanner.Header[1:], kmer_scanner.Kmer_loc)
                 
-            // }
-        }
+
+            }
+        }(fidx, filename, mutex)
 
         // fmt.Printf("%d\n", count)
     }
 
     for i:=0; i<numCores; i++ {
-        wg.Add(1)
+        wg_hash_kmers.Add(1)
 
-        go func() {
-            defer wg.Done()
+        go func(mutex *sync.Mutex) {
+            defer wg_hash_kmers.Done()
             for kmer := range(kmer_channel){
                 f.HashSignature(kmer.seq, kmer.gidx, ph, kmer.header, kmer.loc, mutex)
             }
-        }()
+        }(mutex)
     }
 
     
-    wg.Wait()
-
+    wg1_scan_kmers.Wait()
+    close(kmer_channel)
+    wg_hash_kmers.Wait()
     
+    if ph == 2{
+        for h := range(f.Kmer_pos) {
+            sort.Ints(f.Kmer_pos[h])
+        }
+    }
 
 }
 
@@ -172,6 +179,7 @@ func main() {
         f.Summarize()
         f.Save(*filter_saved_file)
         fmt.Println(f.Gid)
+        fmt.Println(f.Kmer_pos)
     } else {
         fmt.Println("Load existing filter...")
         f := ppt_filter.LoadFilter(*filter_name)

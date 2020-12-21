@@ -18,6 +18,8 @@ const Dirty = uint16(65534)
 //-----------------------------------------------------------------------------
 // func (f *Filter) HashSignature(kmer []byte, is_first_kmer bool, isPrimary bool, gid uint16, ph int, gname string, header string, kmer_pos int) {
 func (f *Filter) HashSignature(kmer []byte, gid uint16, ph int, header string, kmer_pos int, mutex *sync.Mutex) {
+// func (f *Filter) HashSignature(kmer []byte, gid uint16, ph int, header string, kmer_pos int) {
+
 	unique_to_genome := true
 	idx := make([]int64, 0)
 	// fmt.Println(string(kmer), gid)
