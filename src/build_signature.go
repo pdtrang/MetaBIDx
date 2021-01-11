@@ -178,8 +178,8 @@ func main() {
 
         f.Summarize()
         f.Save(*filter_saved_file)
-        fmt.Println(f.Gid)
-        fmt.Println(f.Kmer_pos)
+        // fmt.Println(f.Gid)
+        // fmt.Println(f.Kmer_pos)
     } else {
         fmt.Println("Load existing filter...")
         f := ppt_filter.LoadFilter(*filter_name)
@@ -189,7 +189,7 @@ func main() {
 
         f.Summarize()
         f.Save(*filter_saved_file)
-        fmt.Println(f.Gid)
+        // fmt.Println(f.Gid)
     }
 
     // Print Summary
