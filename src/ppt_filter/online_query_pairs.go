@@ -92,7 +92,7 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 	runtime.GOMAXPROCS(numCores)
 	// runtime.GOMAXPROCS(3)
     var wg sync.WaitGroup
-    reads_channel := make(chan Read)
+    reads_channel := make(chan Read, 20)
     go func() {
 		for scanner.Scan() && scanner2.Scan() {
 			c += 1
