@@ -32,7 +32,7 @@ func InitBacteriaMap(f *Filter, upper_threshold float64, lower_threshold float64
 	
 	for k, v := range count {
 		if k != Empty && k != Dirty {
-			fmt.Println("k: ", k)
+			// fmt.Println("k: ", k)
 			bacteria_map[k] = NewBacteria(k, float64(v) * upper_threshold, float64(v) * lower_threshold)
 		}
 	}
@@ -93,9 +93,7 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 	reads_channel = ScanReads2Channel(read_file_1, read_file_2)
 
 	c := 0
-	//genome_info := LoadGenomeInfo(level)
-	genome_info := make(map[string]string)
-
+	
 	var mutex sync.Mutex
 	var wg sync.WaitGroup
 	start_time := time.Now()
@@ -110,16 +108,15 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 			c := 0
 			defer wg.Done()
 			for read := range(reads_channel){
-				fmt.Println(read.read1, read.read2)
+				// fmt.Println(read.read1, read.read2)
 				if f.N_phases == 2 {
 
 					c = f.TwoPhaseQuery([]byte(read.read1), []byte(read.read2), 
-													bacteria_map, start_time, strategy, 
-													genome_info, level)	
+													bacteria_map, start_time,  
+													strategy, level)	
 					mutex.Lock()
 					num_bacteria += c
 					mutex.Unlock()					
-					// num_bacteria += f.TwoPhaseQuery([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time, strategy, analysis, analysis_fi, scanner.Header, scanner2.Header)						
 
 				} else if f.N_phases == 1 {
 					c = f.OnePhaseQuery([]byte(read.read1), []byte(read.read2), bacteria_map, start_time, strategy)
@@ -200,7 +197,7 @@ func (f *Filter) OnlinePairQuery_Single(read_file_1 string, read_file_2 string, 
 	}
 
 	//genome_info := LoadGenomeInfo(level)
-	genome_info := make(map[string]string)
+	// genome_info := make(map[string]string)
 	// var mutex = &sync.Mutex{}
 
 	for scanner.Scan() && scanner2.Scan() {
@@ -213,7 +210,7 @@ func (f *Filter) OnlinePairQuery_Single(read_file_1 string, read_file_2 string, 
 		
 		// fmt.Println(scanner.Seq, scanner2.Seq)
 		if f.N_phases == 2 {
-		num_bacteria += f.TwoPhaseQuery([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time, strategy, genome_info, level)						
+		num_bacteria += f.TwoPhaseQuery([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time, strategy, level)						
 		// num_bacteria += f.TwoPhaseQuery([]byte(scanner.Seq), []byte(scanner2.Seq), bacteria_map, start_time, strategy, analysis, analysis_fi, scanner.Header, scanner2.Header)						
 
 		} else if f.N_phases == 1 {
