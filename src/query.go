@@ -20,7 +20,6 @@ func main() {
     lt := flag.Float64("lt", float64(0.2), "lower threshold")
     level := flag.String("level", "strains", "query level")
     strategy := flag.String("strategy", "oon", "querying strategy")
-    analysis := flag.Bool("analysis", false, "save read query to file")
     flag.Parse()
 	
     var f *ppt_filter.Filter
@@ -43,9 +42,9 @@ func main() {
 
     log.Printf(*out)
 	if *read_2 == "" {
-		f.OnlineSingleQuery(*read_1, *out, *strategy, upper_threshold, lower_threshold, *analysis)	
+		f.OnlineSingleQuery(*read_1, *out, *strategy, upper_threshold, lower_threshold)	
 	} else {
-        f.OnlinePairQuery_Threads(*read_1, *read_2, *out, *strategy, upper_threshold, lower_threshold, *analysis, *level)
+        f.OnlinePairQuery_Threads(*read_1, *read_2, *out, *strategy, upper_threshold, lower_threshold, *level)
         // f.OnlinePairQuery_Single(*read_1, *read_2, *out, *strategy, upper_threshold, lower_threshold, *analysis, *level)
 	}
 

@@ -2,21 +2,21 @@ package ppt_filter
 
 import (
 	"time"
-	"fmt"
-	"os"
-	"sync"
+	//"fmt"
+	//"os"
+	// "sync"
 )
 
 // func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, strategy string, analysis bool, analysis_fi *os.File, header_1 string, header_2 string, genome_info map[string]string, level string, wg *sync.WaitGroup) int {
-func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, strategy string, analysis bool, analysis_fi *os.File, header_1 string, header_2 string, genome_info map[string]string, level string, mutex *sync.Mutex) int {
+func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, strategy string, genome_info map[string]string, level string) int {
 // func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, strategy string, analysis bool, analysis_fi *os.File, header_1 string, header_2 string) int {
 	// defer wg.Done()
 	if strategy == "majority" {
-		return f.TwoPhaseMajorityQuery(read_1, read_2, bacteria_map, start_time, analysis, analysis_fi, mutex)
+		return f.TwoPhaseMajorityQuery(read_1, read_2, bacteria_map, start_time)
 	} else if strategy == "one_hit" {
-		return f.TwoPhaseOneHitQuery(read_1, read_2, bacteria_map, start_time, analysis, analysis_fi, mutex)
+		return f.TwoPhaseOneHitQuery(read_1, read_2, bacteria_map, start_time)
 	} else {
-		return f.TwoPhaseOneOrNothingQuery(read_1, read_2, bacteria_map, start_time, analysis, analysis_fi, header_1, header_2, genome_info, level, mutex)
+		return f.TwoPhaseOneOrNothingQuery(read_1, read_2, bacteria_map, start_time, genome_info, level)
 		// return f.TwoPhaseOneOrNothingQuery(read_1, read_2, bacteria_map, start_time, analysis, analysis_fi, header_1, header_2)
 
 	}
@@ -26,31 +26,13 @@ func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[ui
 //////////////////////////////////////////////////////////////
 // One Hit
 //////////////////////////////////////////////////////////////
-func (f *Filter) TwoPhaseOneHitQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, analysis bool, analysis_fi *os.File, mutex *sync.Mutex) int {
+func (f *Filter) TwoPhaseOneHitQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
 
 	idx, is_valid_gid, kmer := f.TwoPhaseOneHitQueryRead(read_1)
 
 	if !is_valid_gid && idx == uint16(0) {
 		idx, is_valid_gid, kmer = f.TwoPhaseOneHitQueryRead(read_2)
 	} 
-
-	if is_valid_gid {
-		if analysis == true {
-			_, err := analysis_fi.WriteString(string(read_1)+ "," +string(read_2)+","+string(idx)+"\n")
-			if err != nil {
-				fmt.Println(err)
-				analysis_fi.Close()
-			}	
-		}	
-	} else {
-		if analysis == true {
-			_, err := analysis_fi.WriteString(string(read_1)+ "," +string(read_2)+",NA\n")
-			if err != nil {
-				fmt.Println(err)
-				analysis_fi.Close()
-			}	
-		}
-	}
 	
 
 	if is_valid_gid && idx != uint16(0) {
@@ -62,7 +44,7 @@ func (f *Filter) TwoPhaseOneHitQuery(read_1 []byte, read_2 []byte, bacteria_map 
 
 			}
 
-			return SaveSignatures2(f, signatures, idx, bacteria_map, start_time, mutex)	
+			return SaveSignatures2(f, signatures, idx, bacteria_map, start_time)	
 		} else {
 			 return 0
 		}
@@ -112,7 +94,7 @@ func FindMajority(gidx map[uint16][][]byte) uint16 {
 	return uint16(0)
 }
 
-func (f *Filter) TwoPhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, analysis bool, analysis_fi *os.File, mutex *sync.Mutex) int {
+func (f *Filter) TwoPhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
 	gidx := make(map[uint16][][]byte) // map to keep all the hit kmers for each genome
 
 	f.TwoPhasesMajorityQueryRead(read_1, gidx)
@@ -121,15 +103,6 @@ func (f *Filter) TwoPhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_ma
 	idx := FindMajority(gidx)	
 
 	if idx != uint16(0) {
-
-		if analysis == true {
-			_, err := analysis_fi.WriteString(string(read_1)+ "," +string(read_2)+","+string(idx)+"\n")
-			if err != nil {
-				fmt.Println(err)
-				analysis_fi.Close()
-			}
-		}
-		
 
 		// if bacteria idx has been reported,
 		// there is no need to count the signatures
@@ -144,19 +117,11 @@ func (f *Filter) TwoPhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_ma
 				}
 			}
 
-			return SaveSignatures2(f, signatures, idx, bacteria_map, start_time, mutex)
+			return SaveSignatures2(f, signatures, idx, bacteria_map, start_time)
 		} else {
 			return 0
 		}
 	} else {
-		if analysis == true {
-			_, err := analysis_fi.WriteString(string(read_1)+ "," +string(read_2)+",NA\n")
-			if err != nil {
-				fmt.Println(err)
-				analysis_fi.Close()
-			}	
-		}
-		
 		return 0
 	}
 }
@@ -182,7 +147,7 @@ func (f *Filter) TwoPhasesMajorityQueryRead(read []byte, gidx map[uint16][][]byt
 //////////////////////////////////////////////////////////////
 // One Or Nothing
 //////////////////////////////////////////////////////////////
-func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, analysis bool, analysis_fi *os.File, header_1 string, header_2 string, genome_info map[string]string, level string, mutex *sync.Mutex) int {
+func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, genome_info map[string]string, level string) int {
 // func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, analysis bool, analysis_fi *os.File, header_1 string, header_2 string) int {
 	kmers := make([][]byte, 0)
 	idx := uint16(0)
@@ -200,13 +165,7 @@ func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteri
 	if is_valid_gid && idx != uint16(0) {
 		// fmt.Println(string(kmer))
 		// PrintOnlineResult(f, idx, read_1, read_2, kmer, bacteria_map, header_1, header_2, genome_info, level)
-		if analysis == true {
-			_, err := analysis_fi.WriteString(string(read_1)+ "," +string(read_2)+","+string(idx)+"\n")
-			if err != nil {
-				fmt.Println(err)
-				analysis_fi.Close()
-			}	
-		}
+		
 
 		// if bacteria idx has been reported,
 		// there is no need to count the signatures
@@ -222,19 +181,10 @@ func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteri
 				}
 			}
 
-			return SaveSignatures2(f, signatures, idx, bacteria_map, start_time, mutex)	
+			return SaveSignatures2(f, signatures, idx, bacteria_map, start_time)	
 		} else {
 			return 0
 		}
-	} else {
-		if analysis == true {
-			_, err := analysis_fi.WriteString(string(read_1)+ "," +string(read_2)+",NA\n")
-			if err != nil {
-				fmt.Println(err)
-				analysis_fi.Close()
-			}	
-		}
-		
 	}
 
 	return 0

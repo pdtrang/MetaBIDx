@@ -9,12 +9,11 @@ import (
 	"strings"
 	"encoding/csv"
 	"io"
-	"sync"
 )
 
-func SaveSignatures2(f *Filter, signatures []int64, idx uint16, bacteria_map map[uint16]*Bacteria, start_time time.Time, mutex *sync.Mutex) int {
+func SaveSignatures2(f *Filter, signatures []int64, idx uint16, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
 	bac_found := 0
-	mutex.Lock()
+	bacteria_map[idx].Mutex.Lock()
 	
 	for i := 0; i < len(signatures); i++ {
 			
@@ -32,7 +31,7 @@ func SaveSignatures2(f *Filter, signatures []int64, idx uint16, bacteria_map map
 		}
 	}
 
-	mutex.Unlock()
+	bacteria_map[idx].Mutex.Unlock()
 
 	return bac_found
 }
@@ -76,7 +75,6 @@ func IsExactSubstring(fasta_file string, substring string) bool {
 
 // analysis utils
 func PrintOnlineResult(f *Filter, idx uint16, read_1 []byte, read_2 []byte, kmer []byte, bacteria_map map[uint16]*Bacteria, header_1 string, header_2 string, genome_info map[string]string, level string) {
-	// fmt.Println("-------------------------")	
 
 	var header_parts []string
 	if strings.Contains(string(read_1), string(kmer)) || strings.Contains(RevComp(string(read_1)), string(kmer)) {

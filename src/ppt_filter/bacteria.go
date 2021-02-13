@@ -3,18 +3,22 @@ package ppt_filter
 import (
 	"fmt"
 	"time"
+	"sync"
 )
 
 type Bacteria struct {
+	ID uint16
 	Signatures *Int64Set
 	UpperThreshold float64
 	LowerThreshold float64
 	Reported bool
 	QueryTime time.Duration
+	Mutex sync.Mutex
 }
 
-func NewBacteria(ut float64, lt float64) *Bacteria {
+func NewBacteria(id uint16, ut float64, lt float64) *Bacteria {
 	return &Bacteria {
+		ID: id, 
 		Signatures: NewInt64Set(),
 		UpperThreshold: ut,
 		LowerThreshold: lt,
@@ -34,6 +38,7 @@ func (b *Bacteria) AppendSignature(j int64) {
 }
 
 func (b *Bacteria) PrintBacteria() {
+	fmt.Println("ID", b.ID)
 	fmt.Println("Signatures: ", b.Signatures)
 	fmt.Println("UpperThreshold: ", b.UpperThreshold)
 	fmt.Println("LowerThreshold: ", b.LowerThreshold)
