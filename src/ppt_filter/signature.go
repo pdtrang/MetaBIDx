@@ -23,7 +23,9 @@ func (f *Filter) HashSignature(kmer []byte, gid uint16, ph int, header string, k
 	unique_to_genome := true
 	idx := make([]int64, 0)
 	// fmt.Println(string(kmer), gid)
-	mutex.Lock()
+
+	// mut:= f.GetLock()
+	
 	for i := 0; i < len(f.HashFunction); i++ {
 		// j := f.HashFunction[i].SlidingHashKmerModified(kmer, is_first_kmer, isPrimary)
 		j := f.HashFunction[i].HashKmer(kmer)
@@ -33,32 +35,66 @@ func (f *Filter) HashSignature(kmer []byte, gid uint16, ph int, header string, k
 		}
 	}
 
-	
+	var wg sync.WaitGroup
+
 	if unique_to_genome {
 
-
 		for i := 0; i < len(idx); i++ {
-			f.table[idx[i]] = gid
+			wg.Add(1)
+			go func(entry int64, i int, kmer_pos int, header string) {
+				defer wg.Done()
+
+				mut := f.GetLock(entry)
+
+				f.lock[mut].Lock()
+				f.table[entry] = gid	
+				f.lock[mut].Unlock()
+
+				if i == len(f.HashFunction) { 
+					// store all positions of unique kmers in phase 2
+					if ph == 2 {
+						f.GetPositionofUniqueKmer(kmer_pos, header)			
+					}
+				}
+				
+			}(idx[i], i, kmer_pos, header)
+			
 		}
 
-		// store all positions of unique kmers in phase 2
-		// if the position is already stored, skip it
-		if ph == 2 {
-			_, found := Find(f.Kmer_pos[header], kmer_pos)
-    
-			if !found {
-				f.Kmer_pos[header] = append(f.Kmer_pos[header], kmer_pos)
-				// sort.Ints(f.Kmer_pos[header])	
-			}			
-		}
+		wg.Wait()
+
+		
+		
 		
 	} else {
 		// fmt.Println("Dirty", gid, string(kmer), idx)
 		for i := 0; i < len(idx); i++ {
-			f.table[idx[i]] = Dirty
+			wg.Add(1)
+			go func(entry int64) {
+				defer wg.Done()
+
+				mut := f.GetLock(entry)
+
+				f.lock[mut].Lock()
+				f.table[entry] = Dirty	
+				f.lock[mut].Unlock()
+
+			}(idx[i])
 		}
+
+		wg.Wait()
 	}
-	mutex.Unlock()
+	
+}
+
+func (f *Filter) GetPositionofUniqueKmer(kmer_pos int, header string){
+	_, found := Find(f.Kmer_pos[header], kmer_pos)
+    
+    // if the position is already stored, skip it
+	if !found {
+		f.Kmer_pos[header] = append(f.Kmer_pos[header], kmer_pos)
+	}	
+
 }
 
 // Find takes a slice and looks for an element in it. If found it will

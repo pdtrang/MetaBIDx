@@ -28,6 +28,7 @@ type Filter struct {
 	SeqLength    map[string]int // map of sequence length
 	Kmer_pos     map[string][]int // map of position of unique kmers in each sequence
 	N_phases	 int
+	lock map[int]*sync.Mutex
 }
 
 //-----------------------------------------------------------------------------
@@ -52,6 +53,11 @@ func NewFilter(m int64, k int, num_hashes int, n_phases int) *Filter {
 		f.HashFunction[i] = NewLinearHash(m)
 		f.HashFunction[i].SetK(k)
 	}
+	f.lock = make(map[int]*sync.Mutex, 10)
+	for i := 0; i < 10; i++ {
+		f.lock[i] = new(sync.Mutex)
+	}
+
 	return f
 }
 
@@ -90,6 +96,12 @@ func (f *Filter) Summarize() {
 
 func (f *Filter) SetTable(table []uint16) {
 	f.table = table
+}
+
+func (f *Filter) GetLock(entry int64) int {
+	mut := int(entry) % len(f.lock)
+
+	return mut
 }
 
 //-----------------------------------------------------------------------------
