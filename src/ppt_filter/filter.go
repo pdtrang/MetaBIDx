@@ -12,6 +12,8 @@ import (
 	"unsafe"
 	"io/ioutil"
 	"sync"
+	"../utils"
+	"time"
 )
 
 const Unused = uint16(65535)
@@ -490,6 +492,7 @@ func LoadReducedFilter(fn string) * Filter {
 //-----------------------------------------------------------------------------
 // load the table
 func Load(fn string) *Filter {
+	defer utils.TimeConsume(time.Now(), "Load filter: ")
 	filter := LoadFilterGob(fn)
 	filter.table = _load_table_alone(fn+".table", filter.M)
 	return filter
