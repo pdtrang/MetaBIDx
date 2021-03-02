@@ -25,6 +25,8 @@ func NewRead(read1 string, read2 string) *Read {
 }
 
 func InitBacteriaMap(f *Filter, upper_threshold float64, lower_threshold float64) map[uint16]*Bacteria {
+	defer utils.TimeConsume(time.Now(), "Run time - InitBacteriaMap: ")
+
 	bacteria_map := make(map[uint16]*Bacteria)
 
 	// compute threshold for each bacteria
@@ -48,6 +50,8 @@ func InitBacteriaMap(f *Filter, upper_threshold float64, lower_threshold float64
 }
 
 func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
+	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
+	
 	log.Printf("Opening fastq files")
 	fq, err := os.Open(read_file_1)
 	if err != nil {
