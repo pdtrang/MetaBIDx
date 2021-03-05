@@ -52,7 +52,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
         go func(fidx int, filename string, mutex *sync.Mutex) {
             defer wg1_scan_kmers.Done()
 
-            count := 0
+            // count := 0
             fa, err := os.Open(filename)
             if err != nil {
                 panic(err)
@@ -71,9 +71,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
                 header := fa_scanner.Header[1:]
                 f.SeqLength[header] = len(fa_scanner.Seq)
                 mutex.Unlock()
-                count = count + len(fa_scanner.Seq)
                 kmer_scanner := ppt_filter.NewKmerScanner(fa_scanner.Seq, k)
-                // fmt.Println(uint16(fidx+1), string(fa_scanner.Seq))
 
                 
                 for kmer_scanner.ScanBothStrands() {
@@ -91,12 +89,12 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
     for i:=0; i<numCores; i++ {
         wg_hash_kmers.Add(1)
 
-        go func(mutex *sync.Mutex) {
+        go func(ph int, mutex *sync.Mutex) {
             defer wg_hash_kmers.Done()
             for kmer := range(kmer_channel){
                 f.HashSignature(kmer.seq, kmer.gidx, ph, kmer.header, kmer.loc, mutex)
             }
-        }(mutex)
+        }(ph, mutex)
     }
 
     
@@ -175,7 +173,7 @@ func main() {
         fmt.Println("Build filter...")
         f := BuildNewFilter(*refseq_genomes, *K, *N_HASH_FUNCTIONS, FILTER_LEN, *N_PHASES)
         
-
+        f.CountSignature()
         f.Summarize()
         f.Save(*filter_saved_file)
         // fmt.Println(f.Gid)
@@ -186,7 +184,7 @@ func main() {
         fmt.Println("Build new table...")
         BuildNewTable(f, *refseq_genomes, f.K, len(f.HashFunction), f.M, f.N_phases)
         
-
+        f.CountSignature()
         f.Summarize()
         f.Save(*filter_saved_file)
         // fmt.Println(f.Gid)

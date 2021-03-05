@@ -28,11 +28,8 @@ func InitBacteriaMap(f *Filter, upper_threshold float64, lower_threshold float64
 	defer utils.TimeConsume(time.Now(), "Run time - InitBacteriaMap: ")
 
 	bacteria_map := make(map[uint16]*Bacteria)
-
-	// compute threshold for each bacteria
-	count := f.CountSignature()	
 	
-	for k, v := range count {
+	for k, v := range f.Total_signatures {
 		if k != Empty && k != Dirty {
 			// fmt.Println("k: ", k)
 			bacteria_map[k] = NewBacteria(k, float64(v) * upper_threshold, float64(v) * lower_threshold)
@@ -51,7 +48,7 @@ func InitBacteriaMap(f *Filter, upper_threshold float64, lower_threshold float64
 
 func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
-	
+
 	log.Printf("Opening fastq files")
 	fq, err := os.Open(read_file_1)
 	if err != nil {
@@ -154,8 +151,8 @@ func (f *Filter) OnlinePairQuery_Single(read_file_1 string, read_file_2 string, 
 	bacteria_map := make(map[uint16]*Bacteria)
 
 	// compute threshold for each bacteria
-	count := f.CountSignature()	
-	for k, v := range count {
+		
+	for k, v := range f.Total_signatures {
 		if k != Empty && k != Dirty {
 			bacteria_map[k] = NewBacteria(k, float64(v) * upper_threshold, float64(v) * lower_threshold)
 		}

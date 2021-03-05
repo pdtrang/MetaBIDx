@@ -28,6 +28,7 @@ type Filter struct {
 	SeqLength    map[string]int // map of sequence length
 	Kmer_pos     map[string][]int // map of position of unique kmers in each sequence
 	N_phases	 int
+	Total_signatures map[uint16]int //map of total signatures of each bacteria
 	lock map[int]*sync.Mutex
 }
 
@@ -47,6 +48,7 @@ func NewFilter(m int64, k int, num_hashes int, n_phases int) *Filter {
 		SeqLength: make(map[string]int),
 		Kmer_pos: make(map[string][]int),
 		N_phases: n_phases,
+		Total_signatures: make(map[uint16]int),
 	}
 	f.HashFunction = make([]*LinearHash, num_hashes)
 	for i := 0; i < num_hashes; i++ {
@@ -71,34 +73,21 @@ func (f *Filter) Summarize() {
 	fmt.Println("Number of hash functions: ", len(f.HashFunction))
 	fmt.Println("Kmer length:              ", f.K)
 	fmt.Println("Table size:               ", f.M)
-	count := make(map[uint16]int)
-	for i := int64(0); i < f.M; i++ {
-		count[f.table[i]]++
-	}
-	for k, v := range count {
-		fmt.Printf("%d\t%d\n", k, v)
-	}
 	fmt.Println("Gid")
 	for key, value := range f.Gid {
 	    fmt.Println(key,":",value)
 	}
-
-	// fmt.Println("Gid_header")
-	// for key, value := range f.Gid_header {
-	// 	fmt.Println(key, ":", value)
-	// }
-
-
-	// for header, pos := range f.Kmer_pos {
-	// 	fmt.Println(header, pos)
-	// }
+	fmt.Println("Total_signatures")
+	for key, value := range f.Total_signatures {
+	    fmt.Println(key,":",value)
+	}
 }
 
 func (f *Filter) SetTable(table []uint16) {
 	f.table = table
 }
 
-func (f *Filter) GetLock(entry int64) int {
+func (f *Filter) GetLock(entry uint16) int {
 	mut := int(entry) % len(f.lock)
 
 	return mut
@@ -282,13 +271,11 @@ func (f *Filter) GetNumberOfUniqueKmers() {
 	}
 }
 
-func (f *Filter) CountSignature()  map[uint16]int {
-	count := make(map[uint16]int)
+func (f *Filter) CountSignature() {
 	for i := int64(0); i < f.M; i++ {
-		count[f.table[i]]++
+		f.Total_signatures[f.table[i]] += 1
 	}
 
-	return count
 }
 
 //-----------------------------------------------------------------------------
