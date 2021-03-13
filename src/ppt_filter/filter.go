@@ -50,7 +50,7 @@ func NewFilter(m int64, k int, num_hashes int, n_phases int) *Filter {
 		Kmer_pos: make(map[string][]int),
 		N_phases: n_phases,
 		Total_signatures: make(map[uint16]int),
-		NumOfLocks: 1000,
+		NumOfLocks: 10000,
 	}
 	f.HashFunction = make([]*LinearHash, num_hashes)
 	for i := 0; i < num_hashes; i++ {
@@ -58,7 +58,7 @@ func NewFilter(m int64, k int, num_hashes int, n_phases int) *Filter {
 		f.HashFunction[i].SetK(k)
 	}
 	f.lock = make(map[int]*sync.Mutex, f.NumOfLocks)
-	for i := 0; i < 10; i++ {
+	for i := 0; i <= f.NumOfLocks; i++ {
 		f.lock[i] = new(sync.Mutex)
 	}
 
@@ -91,12 +91,15 @@ func (f *Filter) SetTable(table []uint16) {
 
 func (f *Filter) GetLock(entry int64) int {
 	div := int(f.M) / f.NumOfLocks
-
+	// fmt.Println("div", div)
 	if div == 0 {
 		return 0
 	}
 
-	mut := int(entry) % div
+	mut := int(entry) / div
+	if mut > f.NumOfLocks {
+		mut = f.NumOfLocks
+	}
 
 	return mut
 }
