@@ -49,7 +49,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
         // kmer_channel := make(chan Kmer)
         wg1_scan_kmers.Add(1)
 
-        go func(fidx int, filename string, mutex *sync.Mutex) {
+        go func(fidx int, filename string, mutex *sync.Mutex, kmer_channel chan Kmer) {
             defer wg1_scan_kmers.Done()
 
             // count := 0
@@ -81,7 +81,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
                 
 
             }
-        }(fidx, filename, mutex)
+        }(fidx, filename, mutex, kmer_channel)
 
         // fmt.Printf("%d\n", count)
     }

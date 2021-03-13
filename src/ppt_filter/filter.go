@@ -29,6 +29,7 @@ type Filter struct {
 	Kmer_pos     map[string][]int // map of position of unique kmers in each sequence
 	N_phases	 int
 	Total_signatures map[uint16]int //map of total signatures of each bacteria
+	NumOfLocks	int
 	lock map[int]*sync.Mutex
 }
 
@@ -49,13 +50,14 @@ func NewFilter(m int64, k int, num_hashes int, n_phases int) *Filter {
 		Kmer_pos: make(map[string][]int),
 		N_phases: n_phases,
 		Total_signatures: make(map[uint16]int),
+		NumOfLocks: 100000,
 	}
 	f.HashFunction = make([]*LinearHash, num_hashes)
 	for i := 0; i < num_hashes; i++ {
 		f.HashFunction[i] = NewLinearHash(m)
 		f.HashFunction[i].SetK(k)
 	}
-	f.lock = make(map[int]*sync.Mutex, 10)
+	f.lock = make(map[int]*sync.Mutex, f.NumOfLocks)
 	for i := 0; i < 10; i++ {
 		f.lock[i] = new(sync.Mutex)
 	}
@@ -87,8 +89,14 @@ func (f *Filter) SetTable(table []uint16) {
 	f.table = table
 }
 
-func (f *Filter) GetLock(entry uint16) int {
-	mut := int(entry) % len(f.lock)
+func (f *Filter) GetLock(entry int64) int {
+	div := int(f.M) / f.NumOfLocks
+
+	if div == 0 {
+		div = 1
+	}
+
+	mut := int(entry) % div
 
 	return mut
 }

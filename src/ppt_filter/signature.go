@@ -30,20 +30,29 @@ func (f *Filter) HashSignature(kmer []byte, gid uint16, ph int, header string, k
 		}
 	}
 
-	mut := f.GetLock(gid)
-	f.lock[mut].Lock()
+
 	if unique_to_genome {
 		for i := 0; i < len(idx); i++ {
+			mut := f.GetLock(idx[i])
+			f.lock[mut].Lock()
+
 			f.table[idx[i]] = gid	
+			
+			f.lock[mut].Unlock()
 		}
 	} else {
 
 		for i := 0; i < len(idx); i++ {
+			mut := f.GetLock(idx[i])
+			f.lock[mut].Lock()
+
 			f.table[idx[i]] = Dirty
+			
+			f.lock[mut].Unlock()
 		}
 
 	}
-	f.lock[mut].Unlock()
+	
 
 	if unique_to_genome {
 		if ph == 2 {
