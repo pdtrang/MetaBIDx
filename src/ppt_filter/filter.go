@@ -93,7 +93,7 @@ func (f *Filter) GetLock(entry int64) int {
 	div := int(f.M) / f.NumOfLocks
 
 	if div == 0 {
-		div = 1
+		return 0
 	}
 
 	mut := int(entry) % div
