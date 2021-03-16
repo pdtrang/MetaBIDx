@@ -41,6 +41,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
     kmer_channel := make(chan Kmer)
     numCores := runtime.NumCPU()
     runtime.GOMAXPROCS(numCores)
+    
     var mutex = &sync.Mutex{}
     var wg_hash_kmers sync.WaitGroup
     var wg1_scan_kmers sync.WaitGroup
@@ -89,12 +90,12 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
     for i:=0; i<numCores; i++ {
         wg_hash_kmers.Add(1)
 
-        go func(ph int, mutex *sync.Mutex) {
+        go func(ph int, mutex *sync.Mutex, kmer_channel chan Kmer) {
             defer wg_hash_kmers.Done()
             for kmer := range(kmer_channel){
                 f.HashSignature(kmer.seq, kmer.gidx, ph, kmer.header, kmer.loc, mutex)
             }
-        }(ph, mutex)
+        }(ph, mutex, kmer_channel)
     }
 
     
