@@ -50,7 +50,7 @@ func NewFilter(m int64, k int, num_hashes int, n_phases int) *Filter {
 		Kmer_pos: make(map[string][]int),
 		N_phases: n_phases,
 		Total_signatures: make(map[uint16]int),
-		NumOfLocks: 50000,
+		NumOfLocks: 10000,
 	}
 	f.HashFunction = make([]*LinearHash, num_hashes)
 	for i := 0; i < num_hashes; i++ {
