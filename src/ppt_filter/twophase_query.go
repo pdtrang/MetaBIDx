@@ -30,9 +30,11 @@ func (f *Filter) TwoPhaseOneHitQuery(read_1 []byte, read_2 []byte, bacteria_map 
 
 	idx, is_valid_gid, kmer := f.TwoPhaseOneHitQueryRead(read_1)
 
-	if !is_valid_gid && idx == uint16(0) {
-		idx, is_valid_gid, kmer = f.TwoPhaseOneHitQueryRead(read_2)
-	} 
+	if string(read_2) != "" {
+		if !is_valid_gid && idx == uint16(0) {
+			idx, is_valid_gid, kmer = f.TwoPhaseOneHitQueryRead(read_2)
+		} 
+	}
 	
 
 	if is_valid_gid && idx != uint16(0) {
@@ -98,8 +100,11 @@ func (f *Filter) TwoPhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_ma
 	gidx := make(map[uint16][][]byte) // map to keep all the hit kmers for each genome
 
 	f.TwoPhasesMajorityQueryRead(read_1, gidx)
-	f.TwoPhasesMajorityQueryRead(read_2, gidx)
 
+	if string(read_2) != "" {
+		f.TwoPhasesMajorityQueryRead(read_2, gidx)
+	}
+		
 	idx := FindMajority(gidx)	
 
 	if idx != uint16(0) {
@@ -154,13 +159,15 @@ func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteri
 
 	// idx, is_valid_gid, kmer := f.TwoPhasesOONQueryRead(read_1, &kmers, idx)
 	idx, is_valid_gid, _ := f.TwoPhasesOONQueryRead(read_1, &kmers, idx)
-	if is_valid_gid {
-		// idx, is_valid_gid, kmer = f.TwoPhasesOONQueryRead(read_2, &kmers, idx)
-		idx, is_valid_gid, _ = f.TwoPhasesOONQueryRead(read_2, &kmers, idx)	
-	} else {
-		return 0
-	}
-	
+
+	if string(read_2) != "" {
+		if is_valid_gid {
+			// idx, is_valid_gid, kmer = f.TwoPhasesOONQueryRead(read_2, &kmers, idx)
+			idx, is_valid_gid, _ = f.TwoPhasesOONQueryRead(read_2, &kmers, idx)	
+		} else {
+			return 0
+		}
+	}	
 	// if there is only one gid and that gid is not 0
 	if is_valid_gid && idx != uint16(0) {
 		// fmt.Println(string(kmer))

@@ -42,7 +42,7 @@ func main() {
 
 	log.Printf(*out)
 	if *read_2 == "" {
-		f.OnlineSingleQuery(*read_1, *out, *strategy, upper_threshold, lower_threshold)	
+		f.OnlineSingleQuery(*read_1, *out, *strategy, upper_threshold, lower_threshold, *level)	
 	} else {
 		f.OnlinePairQuery_Threads(*read_1, *read_2, *out, *strategy, upper_threshold, lower_threshold, *level)
 		// f.OnlinePairQuery_Single(*read_1, *read_2, *out, *strategy, upper_threshold, lower_threshold, *analysis, *level)

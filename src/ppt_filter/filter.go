@@ -71,6 +71,14 @@ func (f *Filter) IsEmpty() bool {
 }
 
 //-----------------------------------------------------------------------------
+func (f *Filter) InitLocks() {
+	f.lock = make(map[int]*sync.Mutex, f.NumOfLocks)
+	for i := 0; i <= f.NumOfLocks; i++ {
+		f.lock[i] = new(sync.Mutex)
+	}
+}
+
+//-----------------------------------------------------------------------------
 func (f *Filter) Summarize() {
 	fmt.Println("Number of hash functions: ", len(f.HashFunction))
 	fmt.Println("Kmer length:              ", f.K)
@@ -356,7 +364,7 @@ func _load_binary_kmerpos(fn string) map[string][]int {
     var data map[string][]int
     err = decoder.Decode(&data)
 
-    fmt.Println("kmer pos: ", data)
+    // fmt.Println("kmer pos: ", data)
 
     return data
 }
@@ -514,6 +522,7 @@ func LoadFilter(fn string) * Filter {
 	filter := LoadFilterGob(fn)
 	// filter.table = make([]uint16, filter.M)
 	filter.table = _load_table_alone(fn+".table", filter.M)
+	filter.InitLocks()
 	filter.Gid_header = make(map[uint16][]string)
 	// filter.Kmer_pos = _load_kmerpos(fn+".json")
 	filter.Kmer_pos = _load_binary_kmerpos(fn+"_kmerpos.bin")
