@@ -113,9 +113,9 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
 
 
 //-----------------------------------------------------------------------------
-func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases int) *ppt_filter.Filter {
+func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases int, nlocks int) *ppt_filter.Filter {
     // Create an empty filter
-    f := ppt_filter.NewFilter(table_size, k, n_hf, n_phases)    
+    f := ppt_filter.NewFilter(table_size, k, n_hf, n_phases, nlocks)    
 
     
     // 1st walk
@@ -132,7 +132,7 @@ func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases i
 }
 
 //-----------------------------------------------------------------------------
-func BuildNewTable(f *ppt_filter.Filter, refseq string, k int, n_hf int, table_size int64, n_phases int) {
+func BuildNewTable(f *ppt_filter.Filter, refseq string, k int, n_hf int, table_size int64, n_phases int, nlocks int) {
         
     // 1st walk
     VerifySignature(f, refseq, k, 1)
@@ -157,6 +157,7 @@ func main() {
     power := flag.Int("p", 32, "power")
     N_HASH_FUNCTIONS := flag.Int("n", 2, "number of hash functions")
     N_PHASES := flag.Int("ph", 2, "number of phases")
+    N_LOCKS := flag.Int("locks", 50000, "number of mutex locks")
 
     //
     flag.Parse()
@@ -172,7 +173,7 @@ func main() {
     // Build
     if *filter_name == "" {
         fmt.Println("Build filter...")
-        f := BuildNewFilter(*refseq_genomes, *K, *N_HASH_FUNCTIONS, FILTER_LEN, *N_PHASES)
+        f := BuildNewFilter(*refseq_genomes, *K, *N_HASH_FUNCTIONS, FILTER_LEN, *N_PHASES, *N_LOCKS)
         
         f.CountSignature()
         f.Summarize()
@@ -183,7 +184,7 @@ func main() {
         fmt.Println("Load existing filter...")
         f := ppt_filter.LoadFilter(*filter_name)
         fmt.Println("Build new table...")
-        BuildNewTable(f, *refseq_genomes, f.K, len(f.HashFunction), f.M, f.N_phases)
+        BuildNewTable(f, *refseq_genomes, f.K, len(f.HashFunction), f.M, f.N_phases, f.NumOfLocks)
         
         f.CountSignature()
         f.Summarize()

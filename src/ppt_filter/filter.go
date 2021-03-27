@@ -38,7 +38,7 @@ type Filter struct {
 // k: length of kmers
 //-----------------------------------------------------------------------------
 
-func NewFilter(m int64, k int, num_hashes int, n_phases int) *Filter {
+func NewFilter(m int64, k int, num_hashes int, n_phases int, nlocks int) *Filter {
 	//num_hashes := 2
 	f := &Filter{
 		M:     m,
@@ -50,7 +50,7 @@ func NewFilter(m int64, k int, num_hashes int, n_phases int) *Filter {
 		Kmer_pos: make(map[string][]int),
 		N_phases: n_phases,
 		Total_signatures: make(map[uint16]int),
-		NumOfLocks: 50000,
+		NumOfLocks: nlocks,
 	}
 	f.HashFunction = make([]*LinearHash, num_hashes)
 	for i := 0; i < num_hashes; i++ {
