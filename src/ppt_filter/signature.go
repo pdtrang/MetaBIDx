@@ -56,12 +56,12 @@ func (f *Filter) HashSignature(kmer []byte, gid uint16, ph int, header string, k
 	}
 	
 
-	if unique_to_genome {
-		if ph == 2 {
-            // store all positions of unique kmers in phase 2
-			f.GetPositionofUniqueKmer(kmer_pos, header, mutex)
-		}
-	}
+	// if unique_to_genome {
+	// 	if ph == 2 {
+ //            // store all positions of unique kmers in phase 2
+	// 		f.GetPositionofUniqueKmer(kmer_pos, header, mutex)
+	// 	}
+	// }
 	
 }
 

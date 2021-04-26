@@ -12,7 +12,7 @@ import (
     "strings"
     "./utils"
     "sync"
-    "sort"
+    // "sort"
     // "path/filepath"
     // "strconv"
 )
@@ -103,11 +103,11 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
     close(kmer_channel)
     wg_hash_kmers.Wait()
     
-    if ph == 2{
-        for h := range(f.Kmer_pos) {
-            sort.Ints(f.Kmer_pos[h])
-        }
-    }
+    // if ph == 2{
+    //     for h := range(f.Kmer_pos) {
+    //         sort.Ints(f.Kmer_pos[h])
+    //     }
+    // }
 
 }
 
