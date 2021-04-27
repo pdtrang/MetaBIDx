@@ -59,7 +59,8 @@ func Select_Kmers_byNumbers(f * ppt_filter.Filter, refseq string, max_num_kmers 
         for fa_scanner.Scan() {
             header := fa_scanner.Header[1:]
             f.Gid_header[uint16(fidx+1)] = append(f.Gid_header[uint16(fidx+1)], header)
-            if len(f.Kmer_pos[header]) > max_num_kmers {
+            gid := uint16(fidx+1)
+            if len(f.Kmer_pos[gid]) > max_num_kmers {
                 // sort all the positions
                 // sort.Ints(f.Kmer_pos[header])
 
@@ -72,7 +73,7 @@ func Select_Kmers_byNumbers(f * ppt_filter.Filter, refseq string, max_num_kmers 
 
                 // if window >= 2 {
                 for i := 0; i < max_num_kmers; i++ {
-                    selected_pos, start, end = GetPositions(start, end, window, f.Kmer_pos[header])
+                    selected_pos, start, end = GetPositions(start, end, window, f.Kmer_pos[gid])
                     
                     if len(selected_pos) > 0 {
                         _, found := ppt_filter.Find(selected_unique_pos[header], selected_pos[0])
@@ -86,7 +87,7 @@ func Select_Kmers_byNumbers(f * ppt_filter.Filter, refseq string, max_num_kmers 
                 // }
             } else {
                 fmt.Println("Skip", header)
-                selected_unique_pos[header] = f.Kmer_pos[header]
+                selected_unique_pos[header] = f.Kmer_pos[gid]
             }
             c, c_rc := f.SetGid(uint16(fidx+1), fa_scanner.Seq, selected_unique_pos[header], temp_table)
             count += c
@@ -134,12 +135,13 @@ func Select_Kmers(f * ppt_filter.Filter, refseq string, threshold float64) {
                 header := fa_scanner.Header[1:]
                 mutex.Lock()
                 f.Gid_header[uint16(fidx+1)] = append(f.Gid_header[uint16(fidx+1)], header)
+                gid := uint16(fidx+1)
                 num_kmers := int(math.Round(threshold * float64(f.SeqLength[header]) / 100.0))
                 // fmt.Println("Number of unique kmers", header, len(f.Kmer_pos[header]))
                 // fmt.Println("Seq Length", f.SeqLength[header])
                 // fmt.Println("Number kmers to select", num_kmers)
                 // fmt.Println()
-                if len(f.Kmer_pos[header]) > num_kmers && num_kmers > 0 {
+                if len(f.Kmer_pos[gid]) > num_kmers && num_kmers > 0 {
                     // sort all the positions
                     // sort.Ints(f.Kmer_pos[header])
 
@@ -147,10 +149,10 @@ func Select_Kmers(f * ppt_filter.Filter, refseq string, threshold float64) {
                     // mark other kmers as Unused
                     window := f.SeqLength[header] / num_kmers
                     
-                    selected_unique_pos[header] = append(selected_unique_pos[header],f.Kmer_pos[header][0])
-                    for i := 1; i < len(f.Kmer_pos[header]); i++ {
-                        if selected_unique_pos[header][len(selected_unique_pos[header])-1] + window < f.Kmer_pos[header][i] {
-                            selected_unique_pos[header] = append(selected_unique_pos[header], f.Kmer_pos[header][i])
+                    selected_unique_pos[header] = append(selected_unique_pos[header],f.Kmer_pos[gid][0])
+                    for i := 1; i < len(f.Kmer_pos[gid]); i++ {
+                        if selected_unique_pos[header][len(selected_unique_pos[header])-1] + window < f.Kmer_pos[gid][i] {
+                            selected_unique_pos[header] = append(selected_unique_pos[header], f.Kmer_pos[gid][i])
                         } 
 
                     } 
@@ -176,8 +178,8 @@ func Select_Kmers(f * ppt_filter.Filter, refseq string, threshold float64) {
                             
                     // }
                 } else {
-                    fmt.Println("Skip", header, len(f.Kmer_pos[header]), num_kmers)
-                    selected_unique_pos[header] = f.Kmer_pos[header]
+                    fmt.Println("Skip", header, len(f.Kmer_pos[gid]), num_kmers)
+                    selected_unique_pos[header] = f.Kmer_pos[gid]
                 }
                 mutex.Unlock()
                 c, c_rc := f.SetGidWithMutex(uint16(fidx+1), fa_scanner.Seq, selected_unique_pos[header], temp_table, mutex)
@@ -219,12 +221,13 @@ func Select_Kmers_byThreshold(f * ppt_filter.Filter, refseq string, threshold fl
         for fa_scanner.Scan() {
             header := fa_scanner.Header[1:]
             f.Gid_header[uint16(fidx+1)] = append(f.Gid_header[uint16(fidx+1)], header)
+            gid := uint16(fidx+1)
             num_kmers := int(math.Round(threshold * float64(f.SeqLength[header]) / 100.0))
-            fmt.Println("Number of unique kmers", header, len(f.Kmer_pos[header]))
+            fmt.Println("Number of unique kmers", header, len(f.Kmer_pos[gid]))
             fmt.Println("Seq Length", f.SeqLength[header])
             fmt.Println("Number kmers to select", num_kmers)
             // fmt.Println()
-            if len(f.Kmer_pos[header]) > num_kmers && num_kmers > 0 {
+            if len(f.Kmer_pos[gid]) > num_kmers && num_kmers > 0 {
                 // sort all the positions
                 // sort.Ints(f.Kmer_pos[header])
 
@@ -238,7 +241,7 @@ func Select_Kmers_byThreshold(f * ppt_filter.Filter, refseq string, threshold fl
 
                 // if window >= 2 {
                 for i := 0; i < num_kmers; i++ {
-                    selected_pos, start, end = GetPositions(start, end, window, f.Kmer_pos[header])
+                    selected_pos, start, end = GetPositions(start, end, window, f.Kmer_pos[gid])
 
                     // f.RemoveUnusedKmers(uint16(fidx+1), fa_scanner.Seq, selected_pos)
                     
@@ -252,8 +255,8 @@ func Select_Kmers_byThreshold(f * ppt_filter.Filter, refseq string, threshold fl
                 }
                         
             } else {
-                fmt.Println("Skip", header, len(f.Kmer_pos[header]), num_kmers)
-                selected_unique_pos[header] = f.Kmer_pos[header]
+                fmt.Println("Skip", header, len(f.Kmer_pos[gid]), num_kmers)
+                selected_unique_pos[header] = f.Kmer_pos[gid]
             }
             c, c_rc := f.SetGid(uint16(fidx+1), fa_scanner.Seq, selected_unique_pos[header], temp_table)
             count += c

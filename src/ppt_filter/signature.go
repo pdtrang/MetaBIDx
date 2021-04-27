@@ -56,24 +56,25 @@ func (f *Filter) HashSignature(kmer []byte, gid uint16, ph int, header string, k
 	}
 	
 
-	// if unique_to_genome {
-	// 	if ph == 2 {
- //            // store all positions of unique kmers in phase 2
-	// 		f.GetPositionofUniqueKmer(kmer_pos, header, mutex)
-	// 	}
-	// }
+	if unique_to_genome {
+		if ph == 2 {
+            // store all positions of unique kmers in phase 2
+			// f.GetPositionofUniqueKmer(kmer_pos, header, mutex)
+			f.GetPositionofUniqueKmer(kmer_pos, gid, mutex)
+		}
+	}
 	
 }
 
-func (f *Filter) GetPositionofUniqueKmer(kmer_pos int, header string, mutex *sync.Mutex){
+func (f *Filter) GetPositionofUniqueKmer(kmer_pos int, gid uint16, mutex *sync.Mutex){
 	
 	mutex.Lock()
-	_, found := Find(f.Kmer_pos[header], kmer_pos)
+	_, found := Find(f.Kmer_pos[gid], kmer_pos)
 	
 	// if the position is already stored, skip it
 	if !found {
 		
-		f.Kmer_pos[header] = append(f.Kmer_pos[header], kmer_pos)
+		f.Kmer_pos[gid] = append(f.Kmer_pos[gid], kmer_pos)
 		
 	}	
 	mutex.Unlock()

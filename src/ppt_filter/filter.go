@@ -26,7 +26,7 @@ type Filter struct {
 	Gid			 map[uint16]string // map gids and strains/species names
 	Gid_header   map[uint16][]string // map gids and sequence headers (for query)
 	SeqLength    map[string]int // map of sequence length
-	Kmer_pos     map[string][]int // map of position of unique kmers in each sequence
+	Kmer_pos     map[uint16][]int // map of position of unique kmers in each sequence
 	N_phases	 int
 	Total_signatures map[uint16]int //map of total signatures of each bacteria
 	NumOfLocks	int
@@ -47,7 +47,7 @@ func NewFilter(m int64, k int, num_hashes int, n_phases int, nlocks int) *Filter
 		Gid: make(map[uint16]string),
 		Gid_header: make(map[uint16][]string),
 		SeqLength: make(map[string]int),
-		Kmer_pos: make(map[string][]int),
+		Kmer_pos: make(map[uint16][]int),
 		N_phases: n_phases,
 		Total_signatures: make(map[uint16]int),
 		NumOfLocks: nlocks,
@@ -353,7 +353,7 @@ func _load_kmerpos(fn string) map[string][]int {
 }
 
 //-----------------------------------------------------------------------------
-func _load_binary_kmerpos(fn string) map[string][]int {
+func _load_binary_kmerpos(fn string) map[uint16][]int {
     
     file, err := os.Open(fn)
     if err != nil {
@@ -361,7 +361,7 @@ func _load_binary_kmerpos(fn string) map[string][]int {
     }
     defer file.Close()
     decoder := gob.NewDecoder(file)
-    var data map[string][]int
+    var data map[uint16][]int
     err = decoder.Decode(&data)
 
     // fmt.Println("kmer pos: ", data)
@@ -423,7 +423,7 @@ func _save_kmerpos_to_json(data map[string][]int, fn string) {
 }
 
 //-----------------------------------------------------------------------------
-func _save_kmerpos_to_binary(data map[string][]int, fn string) {
+func _save_kmerpos_to_binary(data map[uint16][]int, fn string) {
 
     file, err := os.Create(fn)
     if err != nil {
