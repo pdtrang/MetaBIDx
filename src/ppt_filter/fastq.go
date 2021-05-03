@@ -9,7 +9,7 @@ import (
 type FastqScanner struct {
     Header     string
     NextHeader string
-    Seq        string
+    Seq        []byte
     Qual       string
     Finished   bool
     Scanner    *bufio.Scanner
@@ -64,7 +64,8 @@ func (s *FastqScanner) Scan() bool {
         seq = line
         
     }
-    s.Seq = string(seq)
+    // s.Seq = string(seq)
+    s.Seq = seq
     if err := s.Scanner.Err(); err != nil {
         log.Fatal(err)
     }

@@ -16,7 +16,7 @@ const Dirty = uint16(65534)
 // If all slots have either 0 (clean) or gid, then kmer is unique.
 // If so, set these slots to gid.  If not, set them to Dirty.
 //-----------------------------------------------------------------------------
-func (f *Filter) HashSignature(kmer []byte, gid uint16, ph int, header string, kmer_pos int, mutex *sync.Mutex) {
+func (f *Filter) HashSignature(kmer []byte, gid uint16, ph int, header string, kmer_pos int, isPrimary bool, mutex *sync.Mutex) {
 
 	unique_to_genome := true
 	idx := make([]int64, 0)
@@ -60,25 +60,26 @@ func (f *Filter) HashSignature(kmer []byte, gid uint16, ph int, header string, k
 		if ph == 2 {
             // store all positions of unique kmers in phase 2
 			// f.GetPositionofUniqueKmer(kmer_pos, header, mutex)
-			f.GetPositionofUniqueKmer(kmer_pos, gid, mutex)
+			f.GetPositionofUniqueKmer(kmer_pos, gid, isPrimary, mutex)
 		}
 	}
 	
 }
 
-func (f *Filter) GetPositionofUniqueKmer(kmer_pos int, gid uint16, mutex *sync.Mutex){
+func (f *Filter) GetPositionofUniqueKmer(kmer_pos int, gid uint16, isPrimary bool, mutex *sync.Mutex){
 	
-	mutex.Lock()
-	_, found := Find(f.Kmer_pos[gid], kmer_pos)
-	
-	// if the position is already stored, skip it
-	if !found {
+	if isPrimary {
+		mutex.Lock()
+		_, found := Find(f.Kmer_pos[gid], kmer_pos)
 		
-		f.Kmer_pos[gid] = append(f.Kmer_pos[gid], kmer_pos)
-		
-	}	
-	mutex.Unlock()
-
+		// if the position is already stored, skip it
+		if !found {
+			
+			f.Kmer_pos[gid] = append(f.Kmer_pos[gid], kmer_pos)
+			
+		}	
+		mutex.Unlock()
+	}
 }
 
 // Find takes a slice and looks for an element in it. If found it will

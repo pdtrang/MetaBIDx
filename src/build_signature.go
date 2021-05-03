@@ -22,14 +22,16 @@ type Kmer struct {
     gidx  uint16
     header string
     loc int
+    IsPrimary bool
 }
 
-func NewKmer(kmer []byte, idx uint16, header string, loc int) *Kmer {
+func NewKmer(kmer []byte, idx uint16, header string, loc int, isPrimary bool) *Kmer {
     return &Kmer{
         seq:   kmer,
         gidx:    idx,
         header: header,
         loc:    loc,
+        IsPrimary: isPrimary,
     }
 }
 
@@ -75,10 +77,11 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
                 mutex.Unlock()
                 kmer_scanner := ppt_filter.NewKmerScanner(fa_scanner.Seq, k)
 
-                
+                // fmt.Println(string(fa_scanner.Seq))
                 for kmer_scanner.ScanBothStrands() {
+                    // fmt.Println(string(kmer_scanner.Kmer), kmer_scanner.IsPrimary)
                     kmer_channel <- (*NewKmer(kmer_scanner.Kmer, uint16(fidx+1), 
-                                     fa_scanner.Header[1:], kmer_scanner.Kmer_loc))
+                                     fa_scanner.Header[1:], kmer_scanner.Kmer_loc, kmer_scanner.IsPrimary))
                 }
                 
 
@@ -94,7 +97,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
         go func(ph int, mutex *sync.Mutex, kmer_channel chan Kmer) {
             defer wg_hash_kmers.Done()
             for kmer := range(kmer_channel){
-                f.HashSignature(kmer.seq, kmer.gidx, ph, kmer.header, kmer.loc, mutex)
+                f.HashSignature(kmer.seq, kmer.gidx, ph, kmer.header, kmer.loc, kmer.IsPrimary, mutex)
             }
         }(ph, mutex, kmer_channel)
     }
@@ -105,6 +108,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
     wg_hash_kmers.Wait()
     
     fmt.Println("Finish hashing kmers")
+
 
     if ph == 2{
         var wg2_sort_kmers sync.WaitGroup
@@ -122,7 +126,6 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
 
         wg2_sort_kmers.Wait()
     }
-
 }
 
 
