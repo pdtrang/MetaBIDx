@@ -8,6 +8,7 @@ import (
     "math/big"
     "math/rand"
     "time"
+    "string"
 )
 
 //-----------------------------------------------------------------------------
@@ -147,7 +148,7 @@ func (h *LinearHash) ComputeKmer(kmer []byte) int64 {
         } else if kmer[i] == 'T' {
             base = big.NewInt(3)
         } else {
-            panic("Unknown character: " + string(kmer[i]))
+            panic("Unknown character: " + string(kmer[i]), string(kmer))
         }
         cur_term := big.NewInt(0)
         cur_term.Mul(base, h.Exponents[i])
