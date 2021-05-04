@@ -182,7 +182,7 @@ func Select_Kmers(f * ppt_filter.Filter, refseq string, threshold float64) {
                     selected_unique_pos[header] = f.Kmer_pos[gid]
                 }
                 mutex.Unlock()
-                c, c_rc := f.SetGidWithMutex(uint16(fidx+1), fa_scanner.Seq, selected_unique_pos[header], temp_table, mutex)
+                c, c_rc := f.SetGid(uint16(fidx+1), fa_scanner.Seq, selected_unique_pos[header], temp_table)
                 count += c
                 count_rc += c_rc
             }
