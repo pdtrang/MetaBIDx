@@ -114,13 +114,13 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
         var wg2_sort_kmers sync.WaitGroup
 
         fmt.Println("Sort kmers")
-        for gid := range(f.Kmer_pos) {
+        for h := range(f.Kmer_pos) {
             wg2_sort_kmers.Add(1)
 
-            go func(genomeID uint16) {
+            go func(header string) {
                 defer wg2_sort_kmers.Done()
-                sort.Ints(f.Kmer_pos[genomeID])
-            }(gid)
+                sort.Ints(f.Kmer_pos[header])
+            }(h)
 
         }
 
