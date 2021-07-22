@@ -82,7 +82,11 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
     refs_channel := make(chan Ref, numCores)
     refs_channel = ScanRefs2Channel(refseq)
 
+    maxGoroutines := 1000
+    queue := make(chan int, maxGoroutines)
+
     for ref := range refs_channel {
+        queue <- 1
         wg1_scan_kmers.Add(1)
 
         go func(fidx int, filename string) {
@@ -124,6 +128,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
                     wg2_add_kmers.Wait()
                 }
                 // }
+                <-queue
         }(ref.fidx, ref.filename)
     }
 
