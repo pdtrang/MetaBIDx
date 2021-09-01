@@ -64,8 +64,8 @@ func (s *FastqScanner) Scan() bool {
         seq = line
         
     }
-    // s.Seq = string(seq)
-    s.Seq = seq
+    s.Seq = string(seq)
+    // s.Seq = seq
     if err := s.Scanner.Err(); err != nil {
         log.Fatal(err)
     }
