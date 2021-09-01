@@ -30,7 +30,7 @@ func ScanSingleReads2Channel(read_file string) chan Read {
 	reads_channel := make(chan Read, numCores)
 	go func() {
 		for scanner.Scan(){
-			reads_channel <- (*NewRead(scanner.Seq, []byte("")))
+			reads_channel <- (*NewRead(scanner.Seq, ""))
 		}
 
 		close(reads_channel)

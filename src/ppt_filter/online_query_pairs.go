@@ -12,11 +12,11 @@ import (
 )
 
 type Read struct {
-	read1 []byte
-	read2 []byte
+	read1 string
+	read2 string
 }
 
-func NewRead(read1 []byte, read2 []byte) *Read {
+func NewRead(read1 string, read2 string) *Read {
 	return &Read{
 		read1:   read1,
 		read2:   read2,

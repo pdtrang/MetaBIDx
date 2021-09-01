@@ -9,7 +9,7 @@ import (
 type FastqScanner struct {
     Header     string
     NextHeader string
-    Seq        []byte
+    Seq        string
     Qual       string
     Finished   bool
     Scanner    *bufio.Scanner
