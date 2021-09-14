@@ -34,7 +34,7 @@ func main() {
 	
 	// fmt.Println(f)
 	// fmt.Println(f.Gid)
-	f.Summarize()	
+	// f.Summarize()	
 	log.Println("Finish loading filter.")
 
 	upper_threshold := *ut
