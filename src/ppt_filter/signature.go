@@ -93,3 +93,29 @@ func Find(slice []int, val int) (int, bool) {
 	return -1, false
 }
 
+//-----------------------------------------------------------------------------
+func (f *Filter) HashSignature_OnePhase(kmer []byte, gid uint16, ph int, header string, kmer_pos int, isPrimary bool, mutex *sync.Mutex) {
+	unique_to_genome := true
+
+	for i := 0; i < len(f.HashFunction); i++ {
+		// j := f.HashFunction[i].SlidingHashKmerModified(kmer, is_first_kmer, isPrimary)
+		j := f.HashFunction[i].HashKmer(kmer)
+		
+		mut := f.GetLock(j)
+		f.lock[mut].Lock()
+		if f.table[j] != Empty && f.table[j] != gid {
+			f.table[j] = Dirty
+		} else {
+			f.table[j] = gid	
+		}
+			
+		f.lock[mut].Unlock()
+	}	
+
+	if unique_to_genome {
+        // store all positions of unique kmers in phase 2
+		// f.GetPositionofUniqueKmer(kmer_pos, header, mutex)
+		f.GetPositionofUniqueKmer(kmer_pos, header, isPrimary, mutex)
+	}
+	
+}

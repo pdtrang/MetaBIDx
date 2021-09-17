@@ -19,7 +19,7 @@ func main() {
 	ut := flag.Float64("ut", float64(1.0), "upper threshold")
 	lt := flag.Float64("lt", float64(0.2), "lower threshold")
 	level := flag.String("level", "strains", "query level")
-	strategy := flag.String("strategy", "oon", "querying strategy")
+	strategy := flag.String("strategy", "majority", "querying strategy")
 	flag.Parse()
 	
 	var f *ppt_filter.Filter
