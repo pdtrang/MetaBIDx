@@ -136,6 +136,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
 
 //-----------------------------------------------------------------------------
 func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases int, nlocks int) *ppt_filter.Filter {
+    fmt.Println("Build New Filter")
     // Create an empty filter
     f := ppt_filter.NewFilter(table_size, k, n_hf, n_phases, nlocks)    
 
@@ -155,7 +156,6 @@ func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases i
 
 //-----------------------------------------------------------------------------
 func BuildNewTable(f *ppt_filter.Filter, refseq string, k int, n_hf int, table_size int64, n_phases int, nlocks int) {
-    fmt.Println("Build New Filter")
     // 1st walk
     VerifySignature(f, refseq, k, 1)
 
@@ -188,6 +188,8 @@ func main() {
     // FILTER_LEN = int64(math.Pow(float64(2), float64(24)))
     FILTER_LEN = int64(math.Pow(float64(2), float64(*power)))
     // FILTER_LEN = int64(*power)
+
+    fmt.Println("Build index with papams:", *K, *N_HASH_FUNCTIONS, *N_PHASES, *N_LOCKS, FILTER_LEN)
 
     // Time On
     defer utils.TimeConsume(time.Now(), "Run time: ")

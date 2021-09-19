@@ -53,6 +53,7 @@ func NewFilter(m int64, k int, num_hashes int, n_phases int, nlocks int) *Filter
 		NumOfLocks: nlocks,
 	}
 	f.HashFunction = make([]*LinearHash, num_hashes)
+	fmt.Println("Generate random hash functions")
 	for i := 0; i < num_hashes; i++ {
 		f.HashFunction[i] = NewLinearHash(m)
 		f.HashFunction[i].SetK(k)
