@@ -54,6 +54,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
     // Scan reference genomes
     for fidx, filename := range fscanner.Scan() {
         // kmer_channel := make(chan Kmer)
+        fmt.Println("Scanning", filename)
         wg1_scan_kmers.Add(1)
 
         go func(fidx int, filename string, mutex *sync.Mutex, kmer_channel chan Kmer) {
