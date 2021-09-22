@@ -12,7 +12,7 @@ import (
     "strings"
     "./utils"
     "sync"
-    "sort"
+    // "sort"
     // "path/filepath"
     // "strconv"
 )
@@ -54,10 +54,10 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
     // Scan reference genomes
     for fidx, filename := range fscanner.Scan() {
         // kmer_channel := make(chan Kmer)
-        fmt.Println("Scanning", filename)
         wg1_scan_kmers.Add(1)
 
         go func(fidx int, filename string, mutex *sync.Mutex, kmer_channel chan Kmer) {
+            fmt.Println("Start scanning", filename)
             queue <- 1
             defer wg1_scan_kmers.Done()
 
@@ -116,20 +116,20 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
     fmt.Println("Finish hashing kmers")
 
 
-    var wg2_sort_kmers sync.WaitGroup
+    // var wg2_sort_kmers sync.WaitGroup
 
-    fmt.Println("Sort kmers")
-    for h := range(f.Kmer_pos) {
-        wg2_sort_kmers.Add(1)
+    // fmt.Println("Sort kmers")
+    // for h := range(f.Kmer_pos) {
+    //     wg2_sort_kmers.Add(1)
 
-        go func(header string) {
-            defer wg2_sort_kmers.Done()
-            sort.Ints(f.Kmer_pos[header])
-        }(h)
+    //     go func(header string) {
+    //         defer wg2_sort_kmers.Done()
+    //         sort.Ints(f.Kmer_pos[header])
+    //     }(h)
 
-    }
+    // }
 
-    wg2_sort_kmers.Wait()
+    // wg2_sort_kmers.Wait()
     
 }
 
