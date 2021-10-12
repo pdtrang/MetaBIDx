@@ -107,7 +107,7 @@ func CheckMajorityHashValues(gid_map map[uint16]int, num_hash int) (uint16, bool
 		}
 	}
 
-	if maxCount >= num_hash/2 {
+	if maxCount > num_hash/2 {
 		fmt.Println("Valid kmer", gid_map, gid, maxCount)
 		return gid, true
 	} else {
