@@ -48,7 +48,7 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_ma
 	idx := FindMajority_GID(gidx)	
 
 	if idx != uint16(0) {
-		// fmt.Println(string(read_1), f.Gid[idx])
+		fmt.Println("Read ", string(read_1), "|", f.Gid[idx])
 		// if bacteria idx has been reported,
 		// there is no need to count the signatures
 		// if bacteria idx is not reported, 
@@ -67,7 +67,7 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_ma
 			return 0
 		}
 	} else {
-		// fmt.Println(string(read_1), "unclassified")
+		fmt.Println("Read ", string(read_1), " |unclassified")
 		return 0
 	}
 }
