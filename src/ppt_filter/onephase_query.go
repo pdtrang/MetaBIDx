@@ -67,7 +67,7 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_ma
 			return 0
 		}
 	} else {
-		fmt.Println("Read ", string(read_1), "|", str(idx)," |unclassified")
+		fmt.Println("Read ", string(read_1), "|", idx," |unclassified")
 		return 0
 	}
 }
