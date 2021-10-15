@@ -16,7 +16,7 @@ func (f *Filter) OnePhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[ui
 // Majority
 //////////////////////////////////////////////////////////////
 func FindMajority_GID(gidx map[uint16][][]byte) uint16 {
-	// fmt.Println("Find majority GID", gidx)
+	fmt.Println("Find majority GID", gidx)
 	maxCount := 0
 	index := uint16(0)
 	total_count := 0 
@@ -67,7 +67,7 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_ma
 			return 0
 		}
 	} else {
-		fmt.Println("Read ", string(read_1), " |unclassified")
+		fmt.Println("Read ", string(read_1), "|", str(idx)," |unclassified")
 		return 0
 	}
 }
