@@ -156,6 +156,8 @@ func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases i
 
 //-----------------------------------------------------------------------------
 func BuildNewTable(f *ppt_filter.Filter, refseq string, k int, n_hf int, table_size int64, n_phases int, nlocks int) {
+    f.InitNewInfo(table_size)
+
     // 1st walk
     VerifySignature(f, refseq, k, 1)
 

@@ -66,6 +66,16 @@ func NewFilter(m int64, k int, num_hashes int, n_phases int, nlocks int) *Filter
 	return f
 }
 
+func (f *Filter) InitNewInfo(m int64){
+	f.table = make([]uint16, m)
+	f.Gid = make(map[uint16]string)
+	f.Gid_header = make(map[uint16][]string)
+	f.SeqLength = make(map[string]int)
+	f.Kmer_pos = make(map[string][]int)
+	f.Total_signatures = make(map[uint16]int)
+
+}
+
 //-----------------------------------------------------------------------------
 func (f *Filter) IsEmpty() bool {
 	return len(f.table) == 0
