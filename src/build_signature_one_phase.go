@@ -2,7 +2,7 @@ package main
 
 import (
     "./ppt_filter"
-    // "log"
+    "log"
     "flag"
     "fmt"
     "os"
@@ -14,7 +14,7 @@ import (
     "sync"
     // "sort"
     // "path/filepath"
-    // "strconv"
+    "strconv"
 )
 
 type Kmer struct {
@@ -35,8 +35,26 @@ func NewKmer(kmer []byte, idx uint16, header string, loc int, isPrimary bool) *K
     }
 }
 
+func Save_RunInfo(out_filename string, content string) {
+    f, err := os.Create(out_filename)
+
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    defer f.Close()
+
+    _, err2 := f.WriteString(content)
+
+    if err2 != nil {
+        log.Fatal(err2)
+    }
+
+
+}
+
 //-----------------------------------------------------------------------------
-func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
+func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int, filter_saved_file string) {
     // Walk through refseq dir 
     fscanner := ppt_filter.NewFileScanner(refseq)
 
@@ -61,22 +79,34 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
             queue <- 1
             defer wg1_scan_kmers.Done()
 
-            // count := 0
             fa, err := os.Open(filename)
             if err != nil {
                 panic(err)
             }
             fa_scanner := ppt_filter.NewFastaScanner(fa)
 
+            name_parts := strings.Split(filename, "/")
+            mutex.Lock()
+            f.Gid[uint16(fidx+1)] = strings.Replace(name_parts[len(name_parts)-1],".fa","",-1)
+            mutex.Unlock()
+
             // Scan through all sequences in the fasta file
+            count := 0
+            out_filename := strings.Replace(name_parts[len(name_parts)-1],".fa","",-1)
+            out_filename = out_filename + "_" + strconv.Itoa(fidx) + ".txt"
             for fa_scanner.Scan() {
+                if count % 1000 == 0 {
+                    mutex.Lock()
+                    f.Save(filter_saved_file)
+                    Save_RunInfo(out_filename, strconv.Itoa(count)+","+fa_scanner.Header[1:]+"\n")
+                    mutex.Unlock()
+                }
+
                 // f.Gid[uint16(fidx+1)] = fa_scanner.Header[1:]
-                name_parts := strings.Split(filename, "/")
-                mutex.Lock()
-                f.Gid[uint16(fidx+1)] = strings.Replace(name_parts[len(name_parts)-1],".fa","",-1)
-                
+            
                 // Sequence header, and seq length            
                 // fmt.Println(uint16(fidx+1), fa_scanner.Header[1:], len(fa_scanner.Seq))
+                mutex.Lock()
                 header := fa_scanner.Header[1:]
                 f.SeqLength[header] = len(fa_scanner.Seq)
                 mutex.Unlock()
@@ -89,7 +119,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
                                      fa_scanner.Header[1:], kmer_scanner.Kmer_loc, kmer_scanner.IsPrimary))
                 }
                 
-
+                count += 1
             }
             <- queue
         }(fidx, filename, mutex, kmer_channel)
@@ -135,7 +165,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
 
 
 //-----------------------------------------------------------------------------
-func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases int, nlocks int) *ppt_filter.Filter {
+func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases int, nlocks int, filter_saved_file string) *ppt_filter.Filter {
     fmt.Println("Build New Filter")
     // Create an empty filter
     f := ppt_filter.NewFilter(table_size, k, n_hf, n_phases, nlocks)    
@@ -143,7 +173,7 @@ func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases i
     
     // 1st walk
     fmt.Println("Phase 1...")
-    VerifySignature(f, refseq, k, 1)
+    VerifySignature(f, refseq, k, 1, filter_saved_file)
 
     // if n_phases == 2 {
     //     // 2nd walk
@@ -155,15 +185,15 @@ func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases i
 }
 
 //-----------------------------------------------------------------------------
-func BuildNewTable(f *ppt_filter.Filter, refseq string, k int, n_hf int, table_size int64, n_phases int, nlocks int) {
+func BuildNewTable(f *ppt_filter.Filter, refseq string, k int, n_hf int, table_size int64, n_phases int, nlocks int, filter_saved_file string) {
     f.InitNewInfo(table_size)
 
     // 1st walk
-    VerifySignature(f, refseq, k, 1)
+    VerifySignature(f, refseq, k, 1, filter_saved_file)
 
     if n_phases == 2 {
         // 2nd walk
-        VerifySignature(f, refseq, k, 2)
+        VerifySignature(f, refseq, k, 2, filter_saved_file)
     }
 
 }
@@ -199,9 +229,8 @@ func main() {
     // Build
     if *filter_name == "" {
         fmt.Println("Build filter...")
-        f := BuildNewFilter(*refseq_genomes, *K, *N_HASH_FUNCTIONS, FILTER_LEN, *N_PHASES, *N_LOCKS)
+        f := BuildNewFilter(*refseq_genomes, *K, *N_HASH_FUNCTIONS, FILTER_LEN, *N_PHASES, *N_LOCKS, *filter_saved_file)
         
-        f.CountSignature()
         f.Summarize()
         f.Save(*filter_saved_file)
         // fmt.Println(f.Gid)
@@ -210,9 +239,8 @@ func main() {
         fmt.Println("Load existing filter...")
         f := ppt_filter.LoadFilter(*filter_name)
         fmt.Println("Build new table...")
-        BuildNewTable(f, *refseq_genomes, f.K, len(f.HashFunction), f.M, f.N_phases, f.NumOfLocks)
+        BuildNewTable(f, *refseq_genomes, f.K, len(f.HashFunction), f.M, f.N_phases, f.NumOfLocks, *filter_saved_file)
         
-        f.CountSignature()
         f.Summarize()
         f.Save(*filter_saved_file)
         // fmt.Println(f.Gid)

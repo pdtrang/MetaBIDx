@@ -26,7 +26,7 @@ type Filter struct {
 	Gid			 map[uint16]string // map gids and strains/species names
 	Gid_header   map[uint16][]string // map gids and sequence headers (for query)
 	SeqLength    map[string]int // map of sequence length
-	Kmer_pos     map[string][]int // map of position of unique kmers in each sequence
+	// Kmer_pos     map[string][]int // map of position of unique kmers in each sequence
 	N_phases	 int
 	Total_signatures map[uint16]int //map of total signatures of each bacteria
 	NumOfLocks	int
@@ -47,7 +47,7 @@ func NewFilter(m int64, k int, num_hashes int, n_phases int, nlocks int) *Filter
 		Gid: make(map[uint16]string),
 		Gid_header: make(map[uint16][]string),
 		SeqLength: make(map[string]int),
-		Kmer_pos: make(map[string][]int),
+		// Kmer_pos: make(map[string][]int),
 		N_phases: n_phases,
 		Total_signatures: make(map[uint16]int),
 		NumOfLocks: nlocks,
@@ -71,7 +71,7 @@ func (f *Filter) InitNewInfo(m int64){
 	f.Gid = make(map[uint16]string)
 	f.Gid_header = make(map[uint16][]string)
 	f.SeqLength = make(map[string]int)
-	f.Kmer_pos = make(map[string][]int)
+	// f.Kmer_pos = make(map[string][]int)
 	f.Total_signatures = make(map[uint16]int)
 
 }
@@ -91,6 +91,7 @@ func (f *Filter) InitLocks() {
 
 //-----------------------------------------------------------------------------
 func (f *Filter) Summarize() {
+	f.CountSignature()
 	fmt.Println("Number of hash functions: ", len(f.HashFunction))
 	fmt.Println("Kmer length:              ", f.K)
 	fmt.Println("Table size:               ", f.M)
@@ -499,7 +500,10 @@ func (f *Filter) Save(fn string) {
 	f.SaveFilterGob(fn)
 	_save_table_alone(f.table, path.Join(fn+".table"))
 	// _save_kmerpos_to_json(f.Kmer_pos, path.Join(fn+".json"))
-	_save_kmerpos_to_binary(f.Kmer_pos, path.Join(fn+"_kmerpos.bin"))
+
+	// comment out
+	// _save_kmerpos_to_binary(f.Kmer_pos, path.Join(fn+"_kmerpos.bin"))
+
 	// _save_hashfunction_to_json(f.HashFunction, path.Join(fn+"_hf.json"))
 }
 
@@ -536,7 +540,10 @@ func LoadFilter(fn string) * Filter {
 	filter.InitLocks()
 	filter.Gid_header = make(map[uint16][]string)
 	// filter.Kmer_pos = _load_kmerpos(fn+".json")
-	filter.Kmer_pos = _load_binary_kmerpos(fn+"_kmerpos.bin")
+
+	// comment out 
+	// filter.Kmer_pos = _load_binary_kmerpos(fn+"_kmerpos.bin")
+	
 	// filter.HashFunction = _load_hashfunction(fn+"_hf.json")
 	return filter
 }
