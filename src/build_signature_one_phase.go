@@ -13,8 +13,9 @@ import (
     "./utils"
     "sync"
     // "sort"
-    // "path/filepath"
+    "path/filepath"
     "strconv"
+    "errors"
 )
 
 type Kmer struct {
@@ -69,12 +70,20 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int, filter_
     maxGoroutines := 1000
     queue := make(chan int, maxGoroutines)
 
+    tmp_dir := "tmp"
+    if _, err := os.Stat(tmp_dir); errors.Is(err, os.ErrNotExist) {
+        err := os.Mkdir(tmp_dir, os.ModePerm)
+        if err != nil {
+            log.Println(err)
+        }
+    }
+
     // Scan reference genomes
     for fidx, filename := range fscanner.Scan() {
         // kmer_channel := make(chan Kmer)
         wg1_scan_kmers.Add(1)
 
-        go func(fidx int, filename string, mutex *sync.Mutex, kmer_channel chan Kmer) {
+        go func(fidx int, filename string, mutex *sync.Mutex, kmer_channel chan Kmer, tmp_dir string) {
             fmt.Println("Start scanning", filename)
             queue <- 1
             defer wg1_scan_kmers.Done()
@@ -94,6 +103,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int, filter_
             count := 0
             out_filename := strings.Replace(name_parts[len(name_parts)-1],".fa","",-1)
             out_filename = out_filename + "_" + strconv.Itoa(fidx) + ".txt"
+            out_filename = filepath.Join(tmp_dir, out_filename)
             for fa_scanner.Scan() {
                 if count % 1000 == 0 {
                     mutex.Lock()
@@ -122,7 +132,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int, filter_
                 count += 1
             }
             <- queue
-        }(fidx, filename, mutex, kmer_channel)
+        }(fidx, filename, mutex, kmer_channel, tmp_dir)
 
         // fmt.Printf("%d\n", count)
     }
