@@ -101,7 +101,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int, filter_
 
             // Scan through all sequences in the fasta file
             count := 0
-            out_filename := strings.Replace(name_parts[len(name_parts)-1],".fa","",-1)
+            out_filename := name_parts[len(name_parts)-1]
             out_filename = out_filename + "_" + strconv.Itoa(fidx) + ".txt"
             out_filename = filepath.Join(tmp_dir, out_filename)
             for fa_scanner.Scan() {
