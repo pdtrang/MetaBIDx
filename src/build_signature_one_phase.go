@@ -13,6 +13,7 @@ import (
     "./utils"
     "sync"
     // "sort"
+    "io/ioutil"
     "path/filepath"
     "strconv"
     "errors"
@@ -51,11 +52,23 @@ func Save_RunInfo(out_filename string, content string) {
         log.Fatal(err2)
     }
 
+}
+
+func Get_count(count_filename string) int {
+    data, err := ioutil.ReadFile(count_filename)
+    if err != nil {
+        panic(err)
+    }
+
+    // count, _ := strconv.Atoi(strings.Trim(string(data),"\n"))
+    count, _ := strconv.Atoi(strings.Split(string(data), ",")[0])
+
+    return count
 
 }
 
 //-----------------------------------------------------------------------------
-func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int, filter_saved_file string) {
+func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int, filter_saved_file string, run_info_folder string) {
     // Walk through refseq dir 
     fscanner := ppt_filter.NewFileScanner(refseq)
 
@@ -83,8 +96,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int, filter_
         // kmer_channel := make(chan Kmer)
         wg1_scan_kmers.Add(1)
 
-        go func(fidx int, filename string, mutex *sync.Mutex, kmer_channel chan Kmer, tmp_dir string) {
-            fmt.Println("Start scanning", filename)
+        go func(fidx int, filename string, mutex *sync.Mutex, kmer_channel chan Kmer, tmp_dir string, run_info_folder string) {
             queue <- 1
             defer wg1_scan_kmers.Done()
 
@@ -102,15 +114,45 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int, filter_
             // Scan through all sequences in the fasta file
             count := 0
             out_filename := name_parts[len(name_parts)-1]
-            out_filename = out_filename + "_" + strconv.Itoa(fidx) + ".txt"
-            out_filename = filepath.Join(tmp_dir, out_filename)
+            out_filename = out_filename + ".txt"
+            // out_filename = filepath.Join(tmp_dir, out_filename)
+
+            existing_count := 0
+            curr_count := 0
+            if run_info_folder != "" {
+                // fmt.Println("Get count from file", filepath.Join(run_info_folder, out_filename))
+                if _, err := os.Stat(filepath.Join(run_info_folder, out_filename)); err == nil {
+                    existing_count = Get_count(filepath.Join(run_info_folder, out_filename))
+                    // fmt.Println("Existing count", filename, existing_count)
+                }
+            }
+
+            
+
             for fa_scanner.Scan() {
-                if count % 1000 == 0 {
+                
+                if curr_count <= existing_count {
+                    curr_count += 1
+                    count = curr_count
+                    continue
+                } 
+                
+                // fmt.Println(filename, "Staring from: ", count, fa_scanner.Header)
+
+                // save folder for every 1000 reads
+                if count % 25 == 0 {
                     mutex.Lock()
                     f.Save(filter_saved_file)
-                    Save_RunInfo(out_filename, strconv.Itoa(count)+","+fa_scanner.Header[1:]+"\n")
+                    Save_RunInfo(filepath.Join(tmp_dir, out_filename), strconv.Itoa(count)+","+fa_scanner.Header[1:]+"\n")
                     mutex.Unlock()
                 }
+
+                // if run_info_folder == "" {
+                //     if count == 51 {
+                //         break
+                //     }
+                // }
+                
 
                 // f.Gid[uint16(fidx+1)] = fa_scanner.Header[1:]
             
@@ -122,7 +164,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int, filter_
                 mutex.Unlock()
                 kmer_scanner := ppt_filter.NewKmerScanner(fa_scanner.Seq, k)
 
-                // fmt.Println(string(fa_scanner.Seq))
+                // fmt.Println("Processing: ", string(fa_scanner.Seq))
                 for kmer_scanner.ScanBothStrands() {
                     // fmt.Println(string(kmer_scanner.Kmer), kmer_scanner.IsPrimary)
                     kmer_channel <- (*NewKmer(kmer_scanner.Kmer, uint16(fidx+1), 
@@ -132,7 +174,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int, filter_
                 count += 1
             }
             <- queue
-        }(fidx, filename, mutex, kmer_channel, tmp_dir)
+        }(fidx, filename, mutex, kmer_channel, tmp_dir, run_info_folder)
 
         // fmt.Printf("%d\n", count)
     }
@@ -183,7 +225,7 @@ func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases i
     
     // 1st walk
     fmt.Println("Phase 1...")
-    VerifySignature(f, refseq, k, 1, filter_saved_file)
+    VerifySignature(f, refseq, k, 1, filter_saved_file, "")
 
     // if n_phases == 2 {
     //     // 2nd walk
@@ -195,15 +237,17 @@ func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases i
 }
 
 //-----------------------------------------------------------------------------
-func BuildNewTable(f *ppt_filter.Filter, refseq string, k int, n_hf int, table_size int64, n_phases int, nlocks int, filter_saved_file string) {
-    f.InitNewInfo(table_size)
+func BuildNewTable(f *ppt_filter.Filter, refseq string, k int, n_hf int, table_size int64, n_phases int, nlocks int, filter_saved_file string, run_info_folder string) {
+    if run_info_folder == "" {
+        f.InitNewInfo(table_size)
+    }
 
     // 1st walk
-    VerifySignature(f, refseq, k, 1, filter_saved_file)
+    VerifySignature(f, refseq, k, 1, filter_saved_file, run_info_folder)
 
     if n_phases == 2 {
         // 2nd walk
-        VerifySignature(f, refseq, k, 2, filter_saved_file)
+        VerifySignature(f, refseq, k, 2, filter_saved_file, run_info_folder)
     }
 
 }
@@ -222,6 +266,7 @@ func main() {
     N_HASH_FUNCTIONS := flag.Int("n", 2, "number of hash functions")
     N_PHASES := flag.Int("ph", 2, "number of phases")
     N_LOCKS := flag.Int("locks", 50000, "number of mutex locks")
+    run_info_folder := flag.String("run-info", "", "run info folder")
 
     //
     flag.Parse()
@@ -232,6 +277,10 @@ func main() {
     // FILTER_LEN = int64(*power)
 
     fmt.Println("Build index with papams:", *K, *N_HASH_FUNCTIONS, *N_PHASES, *N_LOCKS, FILTER_LEN)
+    if *run_info_folder != "" {
+        fmt.Println("Resuming building index.")
+    }
+
 
     // Time On
     defer utils.TimeConsume(time.Now(), "Run time: ")
@@ -249,7 +298,7 @@ func main() {
         fmt.Println("Load existing filter...")
         f := ppt_filter.LoadFilter(*filter_name)
         fmt.Println("Build new table...")
-        BuildNewTable(f, *refseq_genomes, f.K, len(f.HashFunction), f.M, f.N_phases, f.NumOfLocks, *filter_saved_file)
+        BuildNewTable(f, *refseq_genomes, f.K, len(f.HashFunction), f.M, f.N_phases, f.NumOfLocks, *filter_saved_file, *run_info_folder)
         
         f.Summarize()
         f.Save(*filter_saved_file)

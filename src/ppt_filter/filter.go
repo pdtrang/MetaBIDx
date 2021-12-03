@@ -76,6 +76,10 @@ func (f *Filter) InitNewInfo(m int64){
 
 }
 
+func (f *Filter) ResetTotalSignatures(){
+	f.Total_signatures = make(map[uint16]int)
+}
+
 //-----------------------------------------------------------------------------
 func (f *Filter) IsEmpty() bool {
 	return len(f.table) == 0
@@ -303,6 +307,7 @@ func (f *Filter) GetNumberOfUniqueKmers() {
 }
 
 func (f *Filter) CountSignature() {
+	f.ResetTotalSignatures()
 	for i := int64(0); i < f.M; i++ {
 		f.Total_signatures[f.table[i]] += 1
 	}
@@ -543,7 +548,7 @@ func LoadFilter(fn string) * Filter {
 
 	// comment out 
 	// filter.Kmer_pos = _load_binary_kmerpos(fn+"_kmerpos.bin")
-	
+
 	// filter.HashFunction = _load_hashfunction(fn+"_hf.json")
 	return filter
 }
