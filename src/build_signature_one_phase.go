@@ -140,7 +140,7 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int, filter_
                 // fmt.Println(filename, "Staring from: ", count, fa_scanner.Header)
 
                 // save folder for every 1000 reads
-                if count % 25 == 0 {
+                if count % 10000 == 0 {
                     mutex.Lock()
                     f.Save(filter_saved_file)
                     Save_RunInfo(filepath.Join(tmp_dir, out_filename), strconv.Itoa(count)+","+fa_scanner.Header[1:]+"\n")
