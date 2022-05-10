@@ -7,18 +7,13 @@ import (
 	// "sync"
 )
 
-// func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, strategy string, analysis bool, analysis_fi *os.File, header_1 string, header_2 string, genome_info map[string]string, level string, wg *sync.WaitGroup) int {
-func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, strategy string, level string) int {
-// func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, strategy string, analysis bool, analysis_fi *os.File, header_1 string, header_2 string) int {
-	// defer wg.Done()
+func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, start_time time.Time, strategy string, level string) {
 	if strategy == "majority" {
-		return f.TwoPhaseMajorityQuery(read_1, read_2, bacteria_map, start_time)
+		f.TwoPhaseMajorityQuery(read_1, read_2, start_time)
 	} else if strategy == "one_hit" {
-		return f.TwoPhaseOneHitQuery(read_1, read_2, bacteria_map, start_time)
+		f.TwoPhaseOneHitQuery(read_1, read_2, start_time)
 	} else {
-		return f.TwoPhaseOneOrNothingQuery(read_1, read_2, bacteria_map, start_time, level)
-		// return f.TwoPhaseOneOrNothingQuery(read_1, read_2, bacteria_map, start_time, analysis, analysis_fi, header_1, header_2)
-
+		f.TwoPhaseOneOrNothingQuery(read_1, read_2, start_time, level)
 	}
 
 }
@@ -26,32 +21,33 @@ func (f *Filter) TwoPhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[ui
 //////////////////////////////////////////////////////////////
 // One Hit
 //////////////////////////////////////////////////////////////
-func (f *Filter) TwoPhaseOneHitQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
+func (f *Filter) TwoPhaseOneHitQuery(read_1 []byte, read_2 []byte, start_time time.Time) {
 
-	idx, is_valid_gid, kmer := f.TwoPhaseOneHitQueryRead(read_1)
+	idx, is_valid_gid, _ := f.TwoPhaseOneHitQueryRead(read_1)
+	// idx, is_valid_gid, kmer := f.TwoPhaseOneHitQueryRead(read_1)
 
 	if string(read_2) != "" {
 		if !is_valid_gid && idx == uint16(0) {
-			idx, is_valid_gid, kmer = f.TwoPhaseOneHitQueryRead(read_2)
+			idx, is_valid_gid, _ = f.TwoPhaseOneHitQueryRead(read_2)
 		} 
 	}
 	
 
 	if is_valid_gid && idx != uint16(0) {
-		if (bacteria_map[idx].Reported == false) {
-			signatures := make([]int64, 0)
+		// if (bacteria_map[idx].Reported == false) {
+		// 	signatures := make([]int64, 0)
 
-			for i := 0; i < len(f.HashFunction); i++ {
-				signatures = append(signatures, f.HashFunction[i].HashKmer(kmer))
+		// 	for i := 0; i < len(f.HashFunction); i++ {
+		// 		signatures = append(signatures, f.HashFunction[i].HashKmer(kmer))
 
-			}
+		// 	}
 
-			return SaveSignatures2(f, signatures, idx, bacteria_map, start_time)	
-		} else {
-			 return 0
-		}
+		// 	return SaveSignatures2(f, signatures, idx, bacteria_map, start_time)	
+		// } else {
+		// 	 return 0
+		// }
 	} else {
-		return 0
+		// return 0
 	}
 	
 }
@@ -96,7 +92,7 @@ func FindMajority(gidx map[uint16][][]byte) uint16 {
 	return uint16(0)
 }
 
-func (f *Filter) TwoPhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
+func (f *Filter) TwoPhaseMajorityQuery(read_1 []byte, read_2 []byte, start_time time.Time)  {
 	gidx := make(map[uint16][][]byte) // map to keep all the hit kmers for each genome
 
 	f.TwoPhasesMajorityQueryRead(read_1, gidx)
@@ -113,22 +109,22 @@ func (f *Filter) TwoPhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_ma
 		// there is no need to count the signatures
 		// if bacteria idx is not reported, 
 		// save and count the signatures
-		if (bacteria_map[idx].Reported == false) {  
-			signatures := make([]int64, 0)
-			for j := 0; j < len(gidx[idx]); j++ {
-				for i := 0; i < len(f.HashFunction); i++ {
-					signatures = append(signatures, f.HashFunction[i].HashKmer(gidx[idx][j]))
+		// if (bacteria_map[idx].Reported == false) {  
+		// 	signatures := make([]int64, 0)
+		// 	for j := 0; j < len(gidx[idx]); j++ {
+		// 		for i := 0; i < len(f.HashFunction); i++ {
+		// 			signatures = append(signatures, f.HashFunction[i].HashKmer(gidx[idx][j]))
 					
-				}
-			}
+		// 		}
+		// 	}
 
-			return SaveSignatures2(f, signatures, idx, bacteria_map, start_time)
-		} else {
-			return 0
-		}
+		// 	return SaveSignatures2(f, signatures, idx, bacteria_map, start_time)
+		// } else {
+		// 	return 0
+		// }
 	} else {
 		fmt.Println(string(read_1), "unclassified")
-		return 0
+		// return 0
 	}
 }
 
@@ -153,8 +149,7 @@ func (f *Filter) TwoPhasesMajorityQueryRead(read []byte, gidx map[uint16][][]byt
 //////////////////////////////////////////////////////////////
 // One Or Nothing
 //////////////////////////////////////////////////////////////
-func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, level string) int {
-// func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, analysis bool, analysis_fi *os.File, header_1 string, header_2 string) int {
+func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, start_time time.Time, level string) {
 	kmers := make([][]byte, 0)
 	idx := uint16(0)
 
@@ -166,36 +161,36 @@ func (f *Filter) TwoPhaseOneOrNothingQuery(read_1 []byte, read_2 []byte, bacteri
 			// idx, is_valid_gid, kmer = f.TwoPhasesOONQueryRead(read_2, &kmers, idx)
 			idx, is_valid_gid, _ = f.TwoPhasesOONQueryRead(read_2, &kmers, idx)	
 		} else {
-			return 0
+			// return 0
 		}
 	}	
 	// if there is only one gid and that gid is not 0
 	if is_valid_gid && idx != uint16(0) {
 		// fmt.Println(string(kmer))
-		// PrintOnlineResult(f, idx, read_1, read_2, kmer, bacteria_map, header_1, header_2, genome_info, level)
+		// PrintOnlineResult(f, idx, read_1, read_2, kmer, header_1, header_2, genome_info, level)
 		
 
 		// if bacteria idx has been reported,
 		// there is no need to count the signatures
 		// if bacteria idx is not reported, 
 		// continue to save and count the signatures
-		if (bacteria_map[idx].Reported == false) {
-			signatures := make([]int64, 0)
+		// if (bacteria_map[idx].Reported == false) {
+		// 	signatures := make([]int64, 0)
 
-			for j := 0; j < len(kmers); j++ {
-				for i := 0; i < len(f.HashFunction); i++ {
-					signatures = append(signatures, f.HashFunction[i].HashKmer(kmers[j]))
+		// 	for j := 0; j < len(kmers); j++ {
+		// 		for i := 0; i < len(f.HashFunction); i++ {
+		// 			signatures = append(signatures, f.HashFunction[i].HashKmer(kmers[j]))
 
-				}
-			}
+		// 		}
+		// 	}
 
-			return SaveSignatures2(f, signatures, idx, bacteria_map, start_time)	
-		} else {
-			return 0
-		}
+		// 	return SaveSignatures2(f, signatures, idx, bacteria_map, start_time)	
+		// } else {
+		// 	return 0
+		// }
 	}
 
-	return 0
+	// return 0
 
 }
 

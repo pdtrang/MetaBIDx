@@ -7,8 +7,8 @@ import (
 	// "sync"
 )
 
-func (f *Filter) OnePhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time, strategy string) int {
-	return f.OnePhaseMajorityQuery(read_1, read_2, bacteria_map, start_time)
+func (f *Filter) OnePhaseQuery(read_1 []byte, read_2 []byte, header string, start_time time.Time, strategy string) {
+	f.OnePhaseMajorityQuery(read_1, read_2, header, start_time)
 
 }
 
@@ -16,7 +16,7 @@ func (f *Filter) OnePhaseQuery(read_1 []byte, read_2 []byte, bacteria_map map[ui
 // Majority
 //////////////////////////////////////////////////////////////
 func FindMajority_GID(gidx map[uint16][][]byte) uint16 {
-	fmt.Println("Find majority GID", gidx)
+	// fmt.Println("Find majority GID", gidx)
 	maxCount := 0
 	index := uint16(0)
 	total_count := 0 
@@ -36,7 +36,7 @@ func FindMajority_GID(gidx map[uint16][][]byte) uint16 {
 	return uint16(0)
 }
 
-func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
+func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, header string, start_time time.Time) {
 	gidx := make(map[uint16][][]byte) // map to keep all the hit kmers for each genome
 
 	f.OnePhaseMajorityQueryRead(read_1, gidx)
@@ -48,27 +48,13 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, bacteria_ma
 	idx := FindMajority_GID(gidx)	
 
 	if idx != uint16(0) {
-		fmt.Println("Read ", string(read_1), "|", f.Gid[idx])
-		// if bacteria idx has been reported,
-		// there is no need to count the signatures
-		// if bacteria idx is not reported, 
-		// save and count the signatures
-		if (bacteria_map[idx].Reported == false) {  
-			signatures := make([]int64, 0)
-			for j := 0; j < len(gidx[idx]); j++ {
-				for i := 0; i < len(f.HashFunction); i++ {
-					signatures = append(signatures, f.HashFunction[i].HashKmer(gidx[idx][j]))
-					
-				}
-			}
+		// fmt.Println("Read ", string(read_1), "|", f.Gid[idx])
+		fmt.Println("Read ", header, "|", f.Gid[idx])
 
-			return SaveSignatures2(f, signatures, idx, bacteria_map, start_time)
-		} else {
-			return 0
-		}
 	} else {
-		fmt.Println("Read ", string(read_1), "|", idx," |unclassified")
-		return 0
+		fmt.Println("Read ", header, "|", idx," |unclassified")
+		// fmt.Println("Read ", string(read_1), "|", idx," |unclassified")
+		// return 0
 	}
 }
 
@@ -108,10 +94,8 @@ func CheckMajorityHashValues(gid_map map[uint16]int, num_hash int) (uint16, bool
 	}
 
 	if maxCount > num_hash/2 {
-		// fmt.Println("Valid kmer", gid_map, gid, maxCount)
 		return gid, true
 	} else {
-		// fmt.Println("\t\tNot valid kmer", gid_map, gid, maxCount)
 		return gid, false
 	}
 		
