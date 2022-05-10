@@ -8,7 +8,7 @@ import (
 	"../utils"
 	// "strings"
 	"runtime"
-	// "sync"
+	"sync"
 )
 
 const Empty = uint16(0)
@@ -95,33 +95,31 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 	runtime.GOMAXPROCS(numCores)
 	reads_channel := make(chan Read, numCores)
 	reads_channel = ScanReads2Channel(read_file_1, read_file_2)
-
-	fmt.Println(len(reads_channel))
 	
-	// var wg sync.WaitGroup
-	// start_time := time.Now()
-	// defer utils.TimeConsume(start_time, "\nQuery Time ")
-	// log.Printf("Start querying...")
+	var wg sync.WaitGroup
+	start_time := time.Now()
+	defer utils.TimeConsume(start_time, "\nQuery Time ")
+	log.Printf("Start querying...")
 
-	// for i:=0; i<numCores; i++ {
-	// 	wg.Add(1)
+	for i:=0; i<numCores; i++ {
+		wg.Add(1)
 		
-	// 	go func() {
-	// 		defer wg.Done()
-	// 		for read := range(reads_channel){
-	// 			// fmt.Println(read.read1, read.read2)
-	// 			if f.N_phases == 2 {
-	// 				f.TwoPhaseQuery([]byte(read.read1), []byte(read.read2), start_time, strategy, level)					
+		go func() {
+			defer wg.Done()
+			for read := range(reads_channel){
+				// fmt.Println(read.read1, read.read2)
+				if f.N_phases == 2 {
+					f.TwoPhaseQuery([]byte(read.read1), []byte(read.read2), start_time, strategy, level)					
 
-	// 			} else if f.N_phases == 1 {
-	// 				f.OnePhaseQuery([]byte(read.read1), []byte(read.read2), read.header, start_time, strategy)		
-	// 			}
+				} else if f.N_phases == 1 {
+					// f.OnePhaseQuery([]byte(read.read1), []byte(read.read2), read.header, start_time, strategy)		
+				}
 
-	// 		}
-	// 	}()
-	// }
+			}
+		}()
+	}
 
-	// wg.Wait()
+	wg.Wait()
 
 
 	fmt.Printf("\n%s and %s.\n", read_file_1, read_file_2)
