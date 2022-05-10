@@ -3,7 +3,7 @@ package main
 import (
 	"./ppt_filter"
 	"./utils"
-	//"fmt"
+	"fmt"
 	"flag"
 	"log"
 	"time"
@@ -34,16 +34,18 @@ func main() {
 	// fmt.Println(f.Gid)
 	// f.Summarize()	
 	log.Println("Finish loading filter.")
+	fmt.Println(f.K)
 
+	fmt.Println(*read_1, *read_2, *level, *strategy)
 	log.Printf(*out)
-	if *read_2 == "" {
-		// f.OnlineSingleQuery(*read_1, *out, *strategy, upper_threshold, lower_threshold, *level)	
-	} else {
-		f.OnlinePairQuery_Threads(*read_1, *read_2, *out, *strategy, *level)
-		// f.OnlinePairQuery_Single(*read_1, *read_2, *out, *strategy, upper_threshold, lower_threshold, *analysis, *level)
-	}
+	// if *read_2 == "" {
+	// 	// f.OnlineSingleQuery(*read_1, *out, *strategy, upper_threshold, lower_threshold, *level)	
+	// } else {
+	// 	f.OnlinePairQuery_Threads(*read_1, *read_2, *out, *strategy, *level)
+	// 	// f.OnlinePairQuery_Single(*read_1, *read_2, *out, *strategy, upper_threshold, lower_threshold, *analysis, *level)
+	// }
 
 	// print Memory Usage    
-	utils.PrintMemUsage()
+	// utils.PrintMemUsage()
 
 }

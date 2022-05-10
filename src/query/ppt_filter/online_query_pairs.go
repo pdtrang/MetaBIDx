@@ -73,6 +73,7 @@ func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 	reads_channel := make(chan Read, numCores)
 	go func() {
 		for scanner.Scan() && scanner2.Scan() {
+			fmt.Println(scanner.Header, scanner.Seq, scanner2.Seq)
 			reads_channel <- (*NewRead(scanner.Header, scanner.Seq, scanner2.Seq))
 		}
 
@@ -95,7 +96,7 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 	reads_channel := make(chan Read, numCores)
 	reads_channel = ScanReads2Channel(read_file_1, read_file_2)
 
-	fmt.Println(reads_channel)
+	fmt.Println(len(reads_channel))
 	
 	// var wg sync.WaitGroup
 	// start_time := time.Now()
