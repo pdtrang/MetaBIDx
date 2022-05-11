@@ -73,7 +73,7 @@ func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 	reads_channel := make(chan Read, numCores)
 	go func() {
 		for scanner.Scan() && scanner2.Scan() {
-			fmt.Println(scanner.Header, scanner.Seq, scanner2.Seq)
+			// fmt.Println(scanner.Header, scanner.Seq, scanner2.Seq)
 			reads_channel <- (*NewRead(scanner.Header, scanner.Seq, scanner2.Seq))
 		}
 
