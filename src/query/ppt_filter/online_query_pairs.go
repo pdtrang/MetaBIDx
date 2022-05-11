@@ -112,8 +112,8 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 					f.TwoPhaseQuery([]byte(read.read1), []byte(read.read2), start_time, strategy, level)					
 
 				} else if f.N_phases == 1 {
-					fmt.Println(read.header)
-					// f.OnePhaseQuery([]byte(read.read1), []byte(read.read2), read.header, start_time, strategy)		
+					// fmt.Println(read.header)
+					f.OnePhaseQuery([]byte(read.read1), []byte(read.read2), read.header, start_time, strategy)		
 				}
 
 			}
