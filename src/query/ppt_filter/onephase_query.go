@@ -7,8 +7,8 @@ import (
 	// "sync"
 )
 
-func (f *Filter) OnePhaseQuery(read_1 []byte, read_2 []byte, header string, start_time time.Time, strategy string) {
-	f.OnePhaseMajorityQuery(read_1, read_2, header, start_time)
+func (f *Filter) OnePhaseQuery(read_1 []byte, read_2 []byte, qual1 string, qual2 string, header string, start_time time.Time, strategy string, kmer_qual_threshold int) {
+	f.OnePhaseMajorityQuery(read_1, read_2, qual1, qual2, header, start_time, kmer_qual_threshold)
 
 }
 
@@ -36,13 +36,13 @@ func FindMajority_GID(gidx map[uint16][][]byte) uint16 {
 	return uint16(0)
 }
 
-func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, header string, start_time time.Time) {
+func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 string, qual2 string, header string, start_time time.Time, kmer_qual_threshold int) {
 	gidx := make(map[uint16][][]byte) // map to keep all the hit kmers for each genome
 
-	f.OnePhaseMajorityQueryRead(read_1, gidx)
+	f.OnePhaseMajorityQueryRead(read_1, qual1, gidx, kmer_qual_threshold)
 
 	if string(read_2) != "" {
-		f.OnePhaseMajorityQueryRead(read_2, gidx)
+		f.OnePhaseMajorityQueryRead(read_2, qual2, gidx, kmer_qual_threshold)
 	}
 		
 	idx := FindMajority_GID(gidx)	
@@ -59,14 +59,14 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, header stri
 }
 
 
-func (f *Filter) OnePhaseMajorityQueryRead(read []byte, gidx map[uint16][][]byte) {
-	kmer_scanner := NewKmerScanner(read, f.K)
+func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual string, gidx map[uint16][][]byte, kmer_qual_threshold int) {
+	kmer_scanner := NewKmerScannerQual(read, f.K, qual)
 
 	kmer_gid := uint16(0)
 	is_valid_kmer := false
 	for kmer_scanner.ScanOneStrand() {
-		
-		kmer_gid, is_valid_kmer = f.OnePhaseQueryHashKmer(kmer_scanner.Kmer)	
+		// fmt.Println(string(kmer_scanner.Kmer), kmer_scanner.Kmer_qual)
+		kmer_gid, is_valid_kmer = f.OnePhaseQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.Kmer_qual, kmer_qual_threshold)	
 		
 
 		if is_valid_kmer {
@@ -102,7 +102,27 @@ func CheckMajorityHashValues(gid_map map[uint16]int, num_hash int) (uint16, bool
 
 }
 
-func (f *Filter) OnePhaseQueryHashKmer(kmer []byte) (uint16, bool) {
+func isGoodKmer(kmer_qual string, kmer_qual_threshold int) bool {
+	runes := []rune(kmer_qual)
+	total := 0
+	for i := 0; i < len(runes); i++ {
+		r := runes[i] - 33
+		total += int(r)
+	}
+	mean_qual := total/len(kmer_qual)
+	if mean_qual < kmer_qual_threshold {
+		return false
+	}
+	return true
+}
+
+func (f *Filter) OnePhaseQueryHashKmer(kmer []byte, kmer_qual string, kmer_qual_threshold int) (uint16, bool) {
+	// check kmer quality 
+	if !isGoodKmer(kmer_qual, kmer_qual_threshold){
+		return uint16(0), false
+	}
+
+	// continue query if it is a good kmer
 	gid_map := make(map[uint16]int)
 	for i := 0; i < len(f.HashFunction); i++ {
 		j := f.HashFunction[i].HashKmer(kmer)

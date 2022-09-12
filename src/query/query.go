@@ -18,6 +18,7 @@ func main() {
 	out := flag.String("out", "result.txt", "output filename")
 	level := flag.String("level", "strains", "query level")
 	strategy := flag.String("strategy", "majority", "querying strategy")
+	kmer_qual := flag.Int("kmer-qual", 20, "threshold for k-mer mean quality")
 	flag.Parse()
 	
 	var f *ppt_filter.Filter
@@ -41,7 +42,7 @@ func main() {
 	if *read_2 == "" {
 		// f.OnlineSingleQuery(*read_1, *out, *strategy, upper_threshold, lower_threshold, *level)	
 	} else {
-		f.OnlinePairQuery_Threads(*read_1, *read_2, *out, *strategy, *level)
+		f.OnlinePairQuery_Threads(*read_1, *read_2, *out, *strategy, *level, *kmer_qual)
 		// f.OnlinePairQuery_Single(*read_1, *read_2, *out, *strategy, upper_threshold, lower_threshold, *analysis, *level)
 	}
 

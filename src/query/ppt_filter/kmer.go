@@ -10,9 +10,11 @@ import (
 
 type KmerScanner struct {
 	Seq         []byte
+	Qual		string
 	Kmer_loc      int // current location of Kmer
 	Kmer        []byte
 	Kmer_rc 	[]byte
+	Kmer_qual	string
 	K           int
 	I           int
 	SWindow		int
@@ -26,6 +28,22 @@ type KmerScanner struct {
 func NewKmerScanner(seq []byte, k int) *KmerScanner {
 	return &KmerScanner{
 		Seq:         seq,
+		Kmer_loc:      0,
+		K:           k,
+		I:           0,
+		SWindow: 	 1,
+		WindowPos:	 0,
+		IsFirstKmer: true,
+		Restarted:   false,
+		IsPrimary:   true,
+	}
+}
+
+//-----------------------------------------------------------------------------
+func NewKmerScannerQual(seq []byte, k int, qual string) *KmerScanner {
+	return &KmerScanner{
+		Seq:         seq,
+		Qual: 		 qual,
 		Kmer_loc:      0,
 		K:           k,
 		I:           0,
@@ -191,7 +209,8 @@ func (s *KmerScanner) ScanOneStrand() bool {
 			}
 		}
 		s.Kmer = s.Seq[s.I : s.K+s.I]
-		
+		s.Kmer_qual = s.Qual[s.I : s.K+s.I]  
+
 		s.I++
 		return true
 	}

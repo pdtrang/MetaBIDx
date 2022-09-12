@@ -60,10 +60,32 @@ func (s *FastqScanner) Scan() bool {
         } 
         if line[0] == '+' {         
             break
-        }       
+        } 
+             
         seq = line
         
     }
+
+    // 3. Read Quality
+    for flag = s.Scanner.Scan(); flag; flag = s.Scanner.Scan() {
+        line = s.Scanner.Bytes()
+        if len(line)==0 { continue }
+        if line[0] == '@' {
+            s.NextHeader = string(line)
+            break
+        } 
+        if line[0] == '+' {         
+            break
+        } 
+
+        if line[0] == 'A' || line[0] == 'T' || line[0] == 'G' || line[0] == 'C' || line[0] == 'N' {
+            break
+        }
+             
+        s.Qual = string(line)
+        
+    }
+
     s.Seq = string(seq)
     // s.Seq = seq
     if err := s.Scanner.Err(); err != nil {
