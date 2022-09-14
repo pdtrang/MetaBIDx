@@ -60,17 +60,20 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 strin
 
 
 func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual string, gidx map[uint16][][]byte, kmer_qual_threshold int) {
-	kmer_scanner := NewKmerScannerQual(read, f.K, qual)
+	if len(qual) != 0 {
 
-	kmer_gid := uint16(0)
-	is_valid_kmer := false
-	for kmer_scanner.ScanOneStrand() {
-		// fmt.Println(string(kmer_scanner.Kmer), kmer_scanner.Kmer_qual)
-		kmer_gid, is_valid_kmer = f.OnePhaseQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.Kmer_qual, kmer_qual_threshold)	
-		
+		kmer_scanner := NewKmerScannerQual(read, f.K, qual)
 
-		if is_valid_kmer {
-			gidx[kmer_gid] = append(gidx[kmer_gid], kmer_scanner.Kmer)
+		kmer_gid := uint16(0)
+		is_valid_kmer := false
+		for kmer_scanner.ScanOneStrand() {
+			// fmt.Println(string(kmer_scanner.Kmer), kmer_scanner.Kmer_qual)
+			kmer_gid, is_valid_kmer = f.OnePhaseQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.Kmer_qual, kmer_qual_threshold)	
+			
+
+			if is_valid_kmer {
+				gidx[kmer_gid] = append(gidx[kmer_gid], kmer_scanner.Kmer)
+			}
 		}
 	}
 
