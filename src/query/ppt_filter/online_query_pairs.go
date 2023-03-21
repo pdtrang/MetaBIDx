@@ -53,15 +53,45 @@ func InitBacteriaMap(f *Filter, upper_threshold float64, lower_threshold float64
 	return bacteria_map
 }
 
-func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
+func ScanSingleReads2Channel(read_file_1 string) chan Read {
 	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
 
 	log.Printf("Opening fastq files")
+	log.Printf("Read 1")
 	fq, err := os.Open(read_file_1)
 	if err != nil {
 		panic(err)
 	}
 
+	scanner := NewFastqScanner(fq)
+
+	numCores := runtime.NumCPU()
+	runtime.GOMAXPROCS(numCores)
+
+	reads_channel := make(chan Read, numCores)
+	go func() {
+		for scanner.Scan() {
+			// fmt.Println(scanner.Header, scanner.Seq, scanner2.Seq)
+			reads_channel <- (*NewRead(scanner.Header, scanner.Seq, "", scanner.Qual, ""))
+		}
+
+		close(reads_channel)
+	}()
+
+	return reads_channel
+}
+
+func ScanPairReads2Channel(read_file_1 string, read_file_2 string) chan Read {
+	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
+
+	log.Printf("Opening fastq files")
+	log.Printf("Read 1")
+	fq, err := os.Open(read_file_1)
+	if err != nil {
+		panic(err)
+	}
+
+	log.Printf("Read 2")
 	fq2, err := os.Open(read_file_2)
 	if err != nil {
 		panic(err)
@@ -84,6 +114,14 @@ func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 	}()
 
 	return reads_channel
+}
+
+func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
+	if read_file_2 == "" {
+		return ScanSingleReads2Channel(read_file_1)
+	} else {
+		return ScanPairReads2Channel(read_file_1, read_file_2)
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -125,8 +163,11 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 
 	wg.Wait()
 
-
-	fmt.Printf("\n%s and %s.\n", read_file_1, read_file_2)
+	if read_file_2 == "" {
+		fmt.Printf("Input: \n%s.\n", read_file_1)
+	} else {
+		fmt.Printf("Inputs: \n%s and %s.\n", read_file_1, read_file_2)
+	}
 	// fmt.Printf("\n%s and %s have %d pairs.\n", read_file_1, read_file_2, c)
 	// log.Printf("Query %d pairs, found %d bacteria.", c, num_bacteria)
 	utils.PrintMemUsage()
