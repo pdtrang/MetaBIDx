@@ -2,7 +2,7 @@ package main
 
 import (
     "./ppt_filter"
-    "log"
+    // "log"
     "flag"
     "fmt"
     "os"
@@ -13,10 +13,8 @@ import (
     "./utils"
     "sync"
     // "sort"
-    "io/ioutil"
-    "path/filepath"
-    "strconv"
-    "errors"
+    // "path/filepath"
+    // "strconv"
 )
 
 type Kmer struct {
@@ -37,38 +35,8 @@ func NewKmer(kmer []byte, idx uint16, header string, loc int, isPrimary bool) *K
     }
 }
 
-func Save_RunInfo(out_filename string, content string) {
-    f, err := os.Create(out_filename)
-
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    defer f.Close()
-
-    _, err2 := f.WriteString(content)
-
-    if err2 != nil {
-        log.Fatal(err2)
-    }
-
-}
-
-func Get_count(count_filename string) int {
-    data, err := ioutil.ReadFile(count_filename)
-    if err != nil {
-        panic(err)
-    }
-
-    // count, _ := strconv.Atoi(strings.Trim(string(data),"\n"))
-    count, _ := strconv.Atoi(strings.Split(string(data), ",")[0])
-
-    return count
-
-}
-
 //-----------------------------------------------------------------------------
-func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int, filter_saved_file string, run_info_folder string) {
+func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
     // Walk through refseq dir 
     fscanner := ppt_filter.NewFileScanner(refseq)
 
@@ -83,20 +51,12 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int, filter_
     maxGoroutines := 1000
     queue := make(chan int, maxGoroutines)
 
-    tmp_dir := "tmp"
-    if _, err := os.Stat(tmp_dir); errors.Is(err, os.ErrNotExist) {
-        err := os.Mkdir(tmp_dir, os.ModePerm)
-        if err != nil {
-            log.Println(err)
-        }
-    }
-
     // Scan reference genomes
     for fidx, filename := range fscanner.Scan() {
-        // kmer_channel := make(chan Kmer)
         wg1_scan_kmers.Add(1)
 
-        go func(fidx int, filename string, mutex *sync.Mutex, kmer_channel chan Kmer, tmp_dir string, run_info_folder string) {
+        go func(fidx int, filename string, mutex *sync.Mutex, kmer_channel chan Kmer) {
+            fmt.Println("Start scanning", filename)
             queue <- 1
             defer wg1_scan_kmers.Done()
 
@@ -106,77 +66,28 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int, filter_
             }
             fa_scanner := ppt_filter.NewFastaScanner(fa)
 
-            name_parts := strings.Split(filename, "/")
-            mutex.Lock()
-            f.Gid[uint16(fidx+1)] = strings.Replace(name_parts[len(name_parts)-1],".fa","",-1)
-            mutex.Unlock()
-
             // Scan through all sequences in the fasta file
-            count := 0
-            out_filename := name_parts[len(name_parts)-1]
-            out_filename = out_filename + ".txt"
-            // out_filename = filepath.Join(tmp_dir, out_filename)
-
-            existing_count := 0
-            curr_count := 0
-            if run_info_folder != "" {
-                // fmt.Println("Get count from file", filepath.Join(run_info_folder, out_filename))
-                if _, err := os.Stat(filepath.Join(run_info_folder, out_filename)); err == nil {
-                    existing_count = Get_count(filepath.Join(run_info_folder, out_filename))
-                    // fmt.Println("Existing count", filename, existing_count)
-                }
-            }
-
-            
-
             for fa_scanner.Scan() {
-                
-                if curr_count <= existing_count {
-                    curr_count += 1
-                    count = curr_count
-                    continue
-                } 
-                
-                // fmt.Println(filename, "Staring from: ", count, fa_scanner.Header)
-
-                // save folder for every 1000 reads
-                if count % 10000 == 0 {
-                    mutex.Lock()
-                    f.Save(filter_saved_file)
-                    Save_RunInfo(filepath.Join(tmp_dir, out_filename), strconv.Itoa(count)+","+fa_scanner.Header[1:]+"\n")
-                    mutex.Unlock()
-                }
-
-                // if run_info_folder == "" {
-                //     if count == 51 {
-                //         break
-                //     }
-                // }
-                
-
-                // f.Gid[uint16(fidx+1)] = fa_scanner.Header[1:]
-            
-                // Sequence header, and seq length            
-                // fmt.Println(uint16(fidx+1), fa_scanner.Header[1:], len(fa_scanner.Seq))
+                name_parts := strings.Split(filename, "/")
                 mutex.Lock()
+                f.Gid[uint16(fidx+1)] = strings.Replace(name_parts[len(name_parts)-1],".fa","",-1)
+                
+                // Sequence header, and seq length            
                 header := fa_scanner.Header[1:]
                 f.SeqLength[header] = len(fa_scanner.Seq)
                 mutex.Unlock()
                 kmer_scanner := ppt_filter.NewKmerScanner(fa_scanner.Seq, k)
 
-                // fmt.Println("Processing: ", string(fa_scanner.Seq))
                 for kmer_scanner.ScanBothStrands() {
                     // fmt.Println(string(kmer_scanner.Kmer), kmer_scanner.IsPrimary)
                     kmer_channel <- (*NewKmer(kmer_scanner.Kmer, uint16(fidx+1), 
                                      fa_scanner.Header[1:], kmer_scanner.Kmer_loc, kmer_scanner.IsPrimary))
                 }
                 
-                count += 1
+
             }
             <- queue
-        }(fidx, filename, mutex, kmer_channel, tmp_dir, run_info_folder)
-
-        // fmt.Printf("%d\n", count)
+        }(fidx, filename, mutex, kmer_channel)
     }
 
     for i:=0; i<numCores; i++ {
@@ -195,37 +106,20 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int, filter_
     close(kmer_channel)
     wg_hash_kmers.Wait()
     
-    fmt.Println("Finish hashing kmers")
-
-
-    // var wg2_sort_kmers sync.WaitGroup
-
-    // fmt.Println("Sort kmers")
-    // for h := range(f.Kmer_pos) {
-    //     wg2_sort_kmers.Add(1)
-
-    //     go func(header string) {
-    //         defer wg2_sort_kmers.Done()
-    //         sort.Ints(f.Kmer_pos[header])
-    //     }(h)
-
-    // }
-
-    // wg2_sort_kmers.Wait()
-    
+    fmt.Println("Finish hashing kmers")  
 }
 
 
 //-----------------------------------------------------------------------------
-func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases int, nlocks int, filter_saved_file string) *ppt_filter.Filter {
-    fmt.Println("Build New Filter")
+func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases int, nlocks int) *ppt_filter.Filter {
+    // fmt.Println("Build New Filter")
     // Create an empty filter
     f := ppt_filter.NewFilter(table_size, k, n_hf, n_phases, nlocks)    
 
     
     // 1st walk
-    fmt.Println("Phase 1...")
-    VerifySignature(f, refseq, k, 1, filter_saved_file, "")
+    // fmt.Println("Phase 1...")
+    VerifySignature(f, refseq, k, 1)
 
     // if n_phases == 2 {
     //     // 2nd walk
@@ -237,18 +131,14 @@ func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases i
 }
 
 //-----------------------------------------------------------------------------
-func BuildNewTable(f *ppt_filter.Filter, refseq string, k int, n_hf int, table_size int64, n_phases int, nlocks int, filter_saved_file string, run_info_folder string) {
-    if run_info_folder == "" {
-        f.InitNewInfo(table_size)
-    }
-
+func BuildNewTable(f *ppt_filter.Filter, refseq string, k int, n_hf int, table_size int64, n_phases int, nlocks int) {
     // 1st walk
-    VerifySignature(f, refseq, k, 1, filter_saved_file, run_info_folder)
+    VerifySignature(f, refseq, k, 1)
 
-    if n_phases == 2 {
-        // 2nd walk
-        VerifySignature(f, refseq, k, 2, filter_saved_file, run_info_folder)
-    }
+    // if n_phases == 2 {
+    //     // 2nd walk
+    //     VerifySignature(f, refseq, k, 2)
+    // }
 
 }
 
@@ -264,23 +154,15 @@ func main() {
     filter_saved_file := flag.String("save", "", "filter saved file")
     power := flag.Int("p", 32, "power")
     N_HASH_FUNCTIONS := flag.Int("n", 2, "number of hash functions")
-    N_PHASES := flag.Int("ph", 2, "number of phases")
+    // N_PHASES := flag.Int("ph", 2, "number of phases")
     N_LOCKS := flag.Int("locks", 50000, "number of mutex locks")
-    run_info_folder := flag.String("run-info", "", "run info folder")
 
-    //
     flag.Parse()
     var FILTER_LEN int64
 
-    // FILTER_LEN = int64(math.Pow(float64(2), float64(24)))
     FILTER_LEN = int64(math.Pow(float64(2), float64(*power)))
-    // FILTER_LEN = int64(*power)
 
-    fmt.Println("Build index with papams:", *K, *N_HASH_FUNCTIONS, *N_PHASES, *N_LOCKS, FILTER_LEN)
-    if *run_info_folder != "" {
-        fmt.Println("Resuming building index.")
-    }
-
+    fmt.Println("Build index with papams:", *K, *N_HASH_FUNCTIONS, 1, *N_LOCKS, FILTER_LEN)
 
     // Time On
     defer utils.TimeConsume(time.Now(), "Run time: ")
@@ -288,30 +170,21 @@ func main() {
     // Build
     if *filter_name == "" {
         fmt.Println("Build filter...")
-        f := BuildNewFilter(*refseq_genomes, *K, *N_HASH_FUNCTIONS, FILTER_LEN, *N_PHASES, *N_LOCKS, *filter_saved_file)
+        f := BuildNewFilter(*refseq_genomes, *K, *N_HASH_FUNCTIONS, FILTER_LEN, 1, *N_LOCKS)
         
+        f.CountSignature()
         f.Summarize()
         f.Save(*filter_saved_file)
-        // fmt.Println(f.Gid)
-        // fmt.Println(f.Kmer_pos)
     } else {
         fmt.Println("Load existing filter...")
         f := ppt_filter.LoadFilter(*filter_name)
         fmt.Println("Build new table...")
-        BuildNewTable(f, *refseq_genomes, f.K, len(f.HashFunction), f.M, f.N_phases, f.NumOfLocks, *filter_saved_file, *run_info_folder)
+        BuildNewTable(f, *refseq_genomes, f.K, len(f.HashFunction), f.M, f.N_phases, f.NumOfLocks)
         
+        f.CountSignature()
         f.Summarize()
         f.Save(*filter_saved_file)
-        // fmt.Println(f.Gid)
     }
-
-    // Print Summary
-    // fmt.Println("Summary")
-    // f.Summarize()
-    // Save
-    // f.Save(*filter_saved_file)
-    // fmt.Println(f.Gid)
-    // log.Printf("Saved: %s.", *filter_saved_file)
 
     // print Memory Usage    
     utils.PrintMemUsage()

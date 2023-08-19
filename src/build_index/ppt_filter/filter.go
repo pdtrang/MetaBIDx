@@ -99,14 +99,14 @@ func (f *Filter) Summarize() {
 	fmt.Println("Number of hash functions: ", len(f.HashFunction))
 	fmt.Println("Kmer length:              ", f.K)
 	fmt.Println("Table size:               ", f.M)
-	fmt.Println("Gid")
-	for key, value := range f.Gid {
-	    fmt.Println(key,":",value)
-	}
-	fmt.Println("Total_signatures")
-	for key, value := range f.Total_signatures {
-	    fmt.Println(key,":",value)
-	}
+	// fmt.Println("Gid")
+	// for key, value := range f.Gid {
+	//     fmt.Println(key,":",value)
+	// }
+	// fmt.Println("Total_signatures")
+	// for key, value := range f.Total_signatures {
+	//     fmt.Println(key,":",value)
+	// }
 }
 
 func (f *Filter) SetTable(table []uint16) {
@@ -504,11 +504,10 @@ func LoadFilterGob(fn string) *Filter {
 func (f *Filter) Save(fn string) {
 	f.SaveFilterGob(fn)
 	_save_table_alone(f.table, path.Join(fn+".table"))
+	
 	// _save_kmerpos_to_json(f.Kmer_pos, path.Join(fn+".json"))
-
 	// comment out
 	// _save_kmerpos_to_binary(f.Kmer_pos, path.Join(fn+"_kmerpos.bin"))
-
 	// _save_hashfunction_to_json(f.HashFunction, path.Join(fn+"_hf.json"))
 }
 
