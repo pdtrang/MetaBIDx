@@ -11,6 +11,19 @@ import (
 	"io"
 )
 
+func WriteResult(out_filename string, text string) {
+	f, err := os.OpenFile(out_filename, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+	    panic(err)
+	}
+
+	defer f.Close()
+
+	if _, err = f.WriteString(text); err != nil {
+	    panic(err)
+	}
+}
+
 func SaveSignatures2(f *Filter, signatures []int64, idx uint16, bacteria_map map[uint16]*Bacteria, start_time time.Time) int {
 	bac_found := 0
 	bacteria_map[idx].Mutex.Lock()

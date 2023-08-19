@@ -57,7 +57,7 @@ func ScanSingleReads2Channel(read_file_1 string) chan Read {
 	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
 
 	log.Printf("Opening fastq files")
-	log.Printf("Read 1")
+	log.Printf("Scanning", read_file_1)
 	fq, err := os.Open(read_file_1)
 	if err != nil {
 		panic(err)
@@ -85,13 +85,13 @@ func ScanPairReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
 
 	log.Printf("Opening fastq files")
-	log.Printf("Read 1")
+	log.Printf("Scanning", read_file_1)
 	fq, err := os.Open(read_file_1)
 	if err != nil {
 		panic(err)
 	}
 
-	log.Printf("Read 2")
+	log.Printf("Scanning", read_file_2)
 	fq2, err := os.Open(read_file_2)
 	if err != nil {
 		panic(err)
@@ -128,7 +128,7 @@ func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 // Online Query for paired-end reads
 //-----------------------------------------------------------------------------
 func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string, out_filename string, strategy string, level string, kmer_qual int) {
-	defer utils.TimeConsume(time.Now(), "Run time - parallel: ")
+	// defer utils.TimeConsume(time.Now(), "Run time - parallel: ")
 
 	fmt.Println("-----------------PARALLEL QUERY--------------------")
 
@@ -154,7 +154,7 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 
 				} else if f.N_phases == 1 {
 					// fmt.Println(read.header)
-					f.OnePhaseQuery([]byte(read.read1), []byte(read.read2), read.qual1, read.qual2 , read.header, start_time, strategy, kmer_qual)		
+					f.OnePhaseQuery([]byte(read.read1), []byte(read.read2), read.qual1, read.qual2 , read.header, start_time, strategy, kmer_qual, out_filename)		
 				}
 
 			}
@@ -170,6 +170,7 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 	}
 	// fmt.Printf("\n%s and %s have %d pairs.\n", read_file_1, read_file_2, c)
 	// log.Printf("Query %d pairs, found %d bacteria.", c, num_bacteria)
+	fmt.Printf("Output: %s.\n", out_filename)
 	utils.PrintMemUsage()
 
 }

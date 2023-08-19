@@ -2,13 +2,13 @@ package ppt_filter
 
 import (
 	"time"
-	"fmt"
+	//"fmt"
 	//"os"
 	// "sync"
 )
 
-func (f *Filter) OnePhaseQuery(read_1 []byte, read_2 []byte, qual1 string, qual2 string, header string, start_time time.Time, strategy string, kmer_qual_threshold int) {
-	f.OnePhaseMajorityQuery(read_1, read_2, qual1, qual2, header, start_time, kmer_qual_threshold)
+func (f *Filter) OnePhaseQuery(read_1 []byte, read_2 []byte, qual1 string, qual2 string, header string, start_time time.Time, strategy string, kmer_qual_threshold int, out_filename string) {
+	f.OnePhaseMajorityQuery(read_1, read_2, qual1, qual2, header, start_time, kmer_qual_threshold, out_filename)
 
 }
 
@@ -36,7 +36,7 @@ func FindMajority_GID(gidx map[uint16][][]byte) uint16 {
 	return uint16(0)
 }
 
-func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 string, qual2 string, header string, start_time time.Time, kmer_qual_threshold int) {
+func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 string, qual2 string, header string, start_time time.Time, kmer_qual_threshold int, out_filename string) {
 	gidx := make(map[uint16][][]byte) // map to keep all the hit kmers for each genome
 
 	f.OnePhaseMajorityQueryRead(read_1, qual1, gidx, kmer_qual_threshold)
@@ -49,13 +49,17 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 strin
 
 	if idx != uint16(0) {
 		// fmt.Println("Read ", string(read_1), "|", f.Gid[idx])
-		fmt.Println("Read ", header, "|", f.Gid[idx])
-
+		// fmt.Println("Read ", header, "|", f.Gid[idx])
+		text := header + " | " + f.Gid[idx] + "\n"
+		WriteResult(out_filename, text) 
 	} else {
-		fmt.Println("Read ", header, "|", idx," |unclassified")
+		// fmt.Println("Read ", header, "|", idx," |unclassified")
 		// fmt.Println("Read ", string(read_1), "|", idx," |unclassified")
 		// return 0
+		text := header + "| unclassified\n"
+		WriteResult(out_filename, text)
 	}
+
 }
 
 
