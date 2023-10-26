@@ -156,7 +156,8 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 			for read := range(reads_channel){
 				// fmt.Println(read.read1, read.read2)
 				if f.N_phases == 2 {
-					f.TwoPhaseQuery(read.read1, read.read2, start_time, strategy, level)
+					// skip two phases for now
+					//f.TwoPhaseQuery(read.read1, read.read2, start_time, strategy, level)
 
 				} else if f.N_phases == 1 {
 					// fmt.Println(read.header)
