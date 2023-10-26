@@ -148,7 +148,8 @@ func (h *LinearHash) ComputeKmer(kmer []byte) int64 {
             base = big.NewInt(3)
         } else {
             fmt.Println(string(kmer))
-            panic("Unknown character: " + string(kmer[i]))
+	    //return int64(-1)
+            panic("ComputeKmer - Unknown character: " + string(kmer[i]))
         }
         cur_term := big.NewInt(0)
         cur_term.Mul(base, h.Exponents[i])
@@ -211,6 +212,11 @@ func (h *LinearHash) HashKmer(kmer []byte) int64 {
     if len(kmer) != h.K {
         panic("Unmatched k-mer length")
     }    
+    //i := h.ComputeKmer(kmer)
+    //if i == int64(-1) {
+    //    return i
+    //}
+    //return h.HashInt64(i)
     return h.HashInt64(h.ComputeKmer(kmer))
 }
 

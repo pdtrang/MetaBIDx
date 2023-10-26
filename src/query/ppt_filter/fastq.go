@@ -9,8 +9,8 @@ import (
 type FastqScanner struct {
     Header     string
     NextHeader string
-    Seq        string
-    Qual       string
+    Seq        []byte
+    Qual       []byte
     Finished   bool
     Scanner    *bufio.Scanner
 }
@@ -23,6 +23,7 @@ func NewFastqScanner(r io.Reader) *FastqScanner {
 
 //-----------------------------------------------------------------------------
 func (s *FastqScanner) Scan() bool {
+//	defer Timer()()
     if s.Finished {
         return false
     }
@@ -46,7 +47,7 @@ func (s *FastqScanner) Scan() bool {
             return false
         }
     } else {
-        s.Header = s.NextHeader
+        s.Header = string(s.NextHeader)
     }
 
     // 2. Read Fastq sequence
@@ -57,36 +58,36 @@ func (s *FastqScanner) Scan() bool {
         if line[0] == '@' {
             s.NextHeader = string(line)
             break
-        } 
-        if line[0] == '+' {         
+        }
+        if line[0] == '+' {
             break
-        } 
-             
+        }
         seq = line
-        
+
     }
 
     // 3. Read Quality
+    var qual []byte
     for flag = s.Scanner.Scan(); flag; flag = s.Scanner.Scan() {
-        line = s.Scanner.Bytes()
+       line = s.Scanner.Bytes()
         if len(line)==0 { continue }
         if line[0] == '@' {
             s.NextHeader = string(line)
             break
-        } 
-        if line[0] == '+' {         
+        }
+        if line[0] == '+' {
             break
-        } 
+        }
 
         if line[0] == 'A' || line[0] == 'T' || line[0] == 'G' || line[0] == 'C' || line[0] == 'N' {
             break
         }
-             
-        s.Qual = string(line)
-        
+        qual = line
+
     }
 
-    s.Seq = string(seq)
+    s.Seq = seq
+    s.Qual = qual
     // s.Seq = seq
     if err := s.Scanner.Err(); err != nil {
         log.Fatal(err)

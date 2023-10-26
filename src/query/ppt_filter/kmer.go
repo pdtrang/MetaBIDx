@@ -10,11 +10,11 @@ import (
 
 type KmerScanner struct {
 	Seq         []byte
-	Qual		string
+	Qual		[]byte
 	Kmer_loc      int // current location of Kmer
 	Kmer        []byte
 	Kmer_rc 	[]byte
-	Kmer_qual	string
+	Kmer_qual	[]byte
 	K           int
 	I           int
 	SWindow		int
@@ -40,7 +40,7 @@ func NewKmerScanner(seq []byte, k int) *KmerScanner {
 }
 
 //-----------------------------------------------------------------------------
-func NewKmerScannerQual(seq []byte, k int, qual string) *KmerScanner {
+func NewKmerScannerQual(seq []byte, k int, qual []byte) *KmerScanner {
 	return &KmerScanner{
 		Seq:         seq,
 		Qual: 		 qual,

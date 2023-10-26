@@ -1,8 +1,8 @@
 package main
 
 import (
-	"./ppt_filter"
-	"./utils"
+	"query/ppt_filter"
+	"query/utils"
 	"fmt"
 	"flag"
 	"log"
@@ -35,19 +35,23 @@ func main() {
 	// fmt.Println(f.Gid)
 	// f.Summarize()	
 	log.Println("Finish loading filter.")
-	fmt.Println(f.K)
+	//fmt.Println(f.K)
 
 	// fmt.Println(*read_1, *read_2, *level, *strategy)
 	log.Printf(*out)
+	query_results := ppt_filter.SafeMap{
+		Map: make(map[string]string),
+	}
 	if *read_2 == "" {
 		// f.OnlineSingleQuery(*read_1, *out, *strategy, *level)	
-		f.OnlinePairQuery_Threads(*read_1, "", *out, *strategy, *level, *kmer_qual)
+		f.OnlinePairQuery_Threads(*read_1, "", query_results, *strategy, *level, *kmer_qual)
 	} else {
-		f.OnlinePairQuery_Threads(*read_1, *read_2, *out, *strategy, *level, *kmer_qual)
+		f.OnlinePairQuery_Threads(*read_1, *read_2, query_results, *strategy, *level, *kmer_qual)
 		// f.OnlinePairQuery_Single(*read_1, *read_2, *out, *strategy, upper_threshold, lower_threshold, *analysis, *level)
 	}
 
-
+	fmt.Println("Writing Output to: ", *out)
+	//ppt_filter.WriteResults(*out, query_results)
 	// print Memory Usage    
 	utils.PrintMemUsage()
 
