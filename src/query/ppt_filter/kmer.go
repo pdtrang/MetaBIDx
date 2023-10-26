@@ -150,82 +150,10 @@ func (s *KmerScanner) ScanBothStrands() bool {
 	}
 }
 
-func (s *KmerScanner) ScanOne() bool {
-	
-	if s.I >= len(s.Seq)-s.K+1 || s.K > len(s.Seq) {
-		s.I = len(s.Seq) - s.K
-		s.IsFirstKmer = true
-		s.Restarted = false
-		//s.IsPrimary = false
-		return false
-		// do not return false because we need to go to complementary strand.
-	} else {
-		if s.I == 0 || s.Restarted {
-			s.IsFirstKmer = true
-			s.Restarted = false
-		} else {
-			s.IsFirstKmer = false
-		}
-		for i := s.I; i < s.K+s.I; i++ {
-			if s.Seq[i] != 'A' && s.Seq[i] != 'C' && s.Seq[i] != 'G' && s.Seq[i] != 'T' {
-				s.I = i + 1
-				s.Restarted = true
-				return s.ScanOne()
-			}
-		}
-		s.Kmer = s.Seq[s.I : s.K+s.I]
-		s.Kmer_qual = s.Qual[s.I : s.K+s.I]
-		s.Kmer_loc = s.I
-
-		s.I++
-		return true
-	}
-	
-}
-
-func (s *KmerScanner) ScanBothStrandsModified() bool {
-	if s.IsPrimary {
-		if s.I >= len(s.Seq)-s.K+1 || s.K > len(s.Seq) {
-			s.I = len(s.Seq) - s.K
-			s.IsFirstKmer = true
-			s.Restarted = false
-			// s.IsPrimary = false
-			// do not return false because we need to go to complementary strand.
-			return false
-		} else {
-			if s.I == 0 || s.Restarted {
-				s.IsFirstKmer = true
-				s.Restarted = false
-			} else {
-				s.IsFirstKmer = false
-			}
-			for i := s.I; i < s.K+s.I; i++ {
-				if s.Seq[i] != 'A' && s.Seq[i] != 'C' && s.Seq[i] != 'G' && s.Seq[i] != 'T' {
-					s.I = i + 1
-					s.Restarted = true
-					return s.ScanBothStrandsModified()
-				}
-			}
-			s.Kmer = s.Seq[s.I : s.K+s.I]
-			// fmt.Println("Primary", string(s.Kmer), s.I)
-			s.Kmer_loc = s.I
-			s.I++
-			s.IsPrimary = false
-			return true
-		}
-	}
-
-	s.Kmer_rc = s.ReverseComplement(s.Kmer)
-	s.IsPrimary = true
-	return true
-}
 
 func (s *KmerScanner) ScanOneStrand() bool {
 
 	if s.I >= len(s.Seq)-s.K+1 || s.K > len(s.Seq) {
-		s.I = len(s.Seq) - s.K
-		s.IsFirstKmer = true
-		s.Restarted = false
 		return false
 	} else {
 		if s.I == 0 || s.Restarted {
@@ -234,13 +162,13 @@ func (s *KmerScanner) ScanOneStrand() bool {
 		} else {
 			s.IsFirstKmer = false
 		}
-		for i := s.I; i < s.K+s.I; i++ {
-			if s.Seq[i] != 'A' && s.Seq[i] != 'C' && s.Seq[i] != 'G' && s.Seq[i] != 'T' {
-				s.I = i + 1
-				s.Restarted = true
-				return s.ScanOneStrand()
-			}
-		}
+		// for i := s.I; i < s.K+s.I; i++ {
+		// 	if s.Seq[i] != 'A' && s.Seq[i] != 'C' && s.Seq[i] != 'G' && s.Seq[i] != 'T' {
+		// 		s.I = i + 1
+		// 		s.Restarted = true
+		// 		return s.ScanOneStrand()
+		// 	}
+		// }
 		s.Kmer = s.Seq[s.I : s.K+s.I]
 		s.Kmer_qual = s.Qual[s.I : s.K+s.I]
 		s.Kmer_loc = s.I
