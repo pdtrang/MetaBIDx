@@ -49,6 +49,6 @@ func main() {
 
 
 	// print Memory Usage    
-	// utils.PrintMemUsage()
+	utils.PrintMemUsage()
 
 }
