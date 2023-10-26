@@ -310,19 +310,6 @@ func (h *LinearHash) SlidingHashKmer(kmer []byte, is_first_kmer bool) int64 {
 }
 
 //-----------------------------------------------------------------------------
-func (h *LinearHash) SlidingHashKmerModified(kmer []byte, is_first_kmer bool, isPrimary bool) int64 {
-    if len(kmer) != h.K {
-        panic("Unmatched k-mer length")
-    }
-    // fmt.Println("\thashing", string(kmer), is_first_kmer)
-    if is_first_kmer {
-        return h.HashKmerModified(kmer, isPrimary)
-    }
-    
-    return h.HashInt64(h.SlidingKmerModified(kmer, is_first_kmer, isPrimary))
-}
-
-//-----------------------------------------------------------------------------
 func (h *LinearHash) HashInt64(x int64) int64 {
     value := big.NewInt(0)
     value.Mul(h.A, big.NewInt(x))
