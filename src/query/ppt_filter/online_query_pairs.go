@@ -15,13 +15,13 @@ const Empty = uint16(0)
 
 type Read struct {
 	header string
-	read1 []byte
+	read1 string
 	qual1 []byte
-	read2 []byte
+	read2 string
 	qual2 []byte
 }
 
-func NewRead(header string, read1 []byte, read2 []byte, qual1 []byte, qual2 []byte) *Read {
+func NewRead(header string, read1 string, read2 string, qual1 []byte, qual2 []byte) *Read {
 	return &Read{
 		header:	 header,
 		read1:   read1,
@@ -72,7 +72,7 @@ func ScanSingleReads2Channel(read_file_1 string) chan Read {
 	go func() {
 		for scanner.Scan() {
 			// fmt.Println(scanner.Header, scanner.Seq, scanner2.Seq)
-			reads_channel <- (*NewRead(scanner.Header, scanner.Seq, []byte(""), scanner.Qual, []byte("")))
+			reads_channel <- (*NewRead(scanner.Header, scanner.Seq, "", scanner.Qual, []byte("")))
 		}
 
 		close(reads_channel)
@@ -160,7 +160,7 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 
 				} else if f.N_phases == 1 {
 					// fmt.Println(read.header)
-					species := f.OnePhaseQuery(read.read1, read.read2, read.qual1, read.qual2 , read.header, start_time, strategy, kmer_qual)
+					species := f.OnePhaseQuery([]byte(read.read1), []byte(read.read2), read.qual1, read.qual2 , read.header, start_time, strategy, kmer_qual)
 					query_results.Add(read.header, species)
 				}
 

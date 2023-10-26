@@ -144,9 +144,9 @@ func isGoodKmer(kmer_qual []byte, kmer_qual_threshold int) bool {
 
 func (f *Filter) OnePhaseQueryHashKmer(kmer []byte, kmer_qual []byte, kmer_qual_threshold int) (uint16, bool) {
 	// check kmer quality 
-	//if !isGoodKmer(kmer_qual, kmer_qual_threshold){
-	//	return uint16(0), false
-	//}
+	if !isGoodKmer(kmer_qual, kmer_qual_threshold){
+		return uint16(0), false
+	}
 
 	// continue query if it is a good kmer
 	gid_map := make(map[uint16]int)
