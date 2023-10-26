@@ -147,9 +147,9 @@ func (h *LinearHash) ComputeKmer(kmer []byte) int64 {
         } else if kmer[i] == 'T' {
             base = big.NewInt(3)
         } else {
-            fmt.Println(string(kmer))
+            // fmt.Println(string(kmer))
 	    //return int64(-1)
-            panic("ComputeKmer - Unknown character: " + string(kmer[i]))
+            panic("ComputeKmer: ", string(kmer), " ------ Unknown character: " + string(kmer[i]))
         }
         cur_term := big.NewInt(0)
         cur_term.Mul(base, h.Exponents[i])
@@ -161,49 +161,6 @@ func (h *LinearHash) ComputeKmer(kmer []byte) int64 {
         }
     }
     h.PrevValue = value
-    return value.Int64() % h.M
-}
-
-
-func (h *LinearHash) ComputeKmerModified(kmer []byte, isPrimary bool) int64 {
-    if len(kmer) != h.K {
-        panic("Unmatched k-mer length")
-    }
-    var base *big.Int
-    value := big.NewInt(0)
-    for i := 0; i < len(kmer); i++ {
-        if kmer[i] == 'A' {
-            base = big.NewInt(0)
-        } else if kmer[i] == 'C' {
-            base = big.NewInt(1)
-        } else if kmer[i] == 'G' {
-            base = big.NewInt(2)
-        } else if kmer[i] == 'T' {
-            base = big.NewInt(3)
-        } else {
-            panic("Unknown character: " + string(kmer[i]))
-        }
-        cur_term := big.NewInt(0)
-        cur_term.Mul(base, h.Exponents[i])
-        cur_term.Mod(cur_term, h.P)
-        value.Add(value, cur_term)
-        value.Mod(value, h.P)
-        if i == 0 {
-            if isPrimary {
-                h.Term0 = cur_term    
-            } else {
-                h.Term0_rc = cur_term
-            }
-            
-        }
-    }
-
-    if isPrimary {
-        h.PrevValue = value    
-    } else {
-        h.PrevValue_rc = value
-    }
-    
     return value.Int64() % h.M
 }
 
