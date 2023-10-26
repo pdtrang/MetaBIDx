@@ -11,14 +11,10 @@ import (
 type KmerScanner struct {
 	Seq         []byte
 	Qual		[]byte
-	Kmer_loc      int // current location of Kmer
 	Kmer        []byte
-	Kmer_rc 	[]byte
 	Kmer_qual	[]byte
 	K           int
 	I           int
-	SWindow		int
-	WindowPos	int
 	IsFirstKmer bool
 	Restarted   bool // when encountered non A,C,G,T character, must compute kmer
 	IsPrimary   bool
@@ -28,11 +24,8 @@ type KmerScanner struct {
 func NewKmerScanner(seq []byte, k int) *KmerScanner {
 	return &KmerScanner{
 		Seq:         seq,
-		Kmer_loc:      0,
 		K:           k,
 		I:           0,
-		SWindow: 	 1,
-		WindowPos:	 0,
 		IsFirstKmer: true,
 		Restarted:   false,
 		IsPrimary:   true,
@@ -44,39 +37,8 @@ func NewKmerScannerQual(seq []byte, k int, qual []byte) *KmerScanner {
 	return &KmerScanner{
 		Seq:         seq,
 		Qual: 		 qual,
-		Kmer_loc:      0,
 		K:           k,
 		I:           0,
-		SWindow: 	 1,
-		WindowPos:	 0,
-		IsFirstKmer: true,
-		Restarted:   false,
-		IsPrimary:   true,
-	}
-}
-
-//-----------------------------------------------------------------------------
-func NewKmerScannerSkip(seq []byte, k int, swindow int) *KmerScanner {
-	return &KmerScanner{
-		Seq:         seq,
-		K:           k,
-		I:           0,
-		SWindow: 	 swindow,
-		WindowPos: 	 0,
-		IsFirstKmer: true,
-		Restarted:   false,
-		IsPrimary:   true,
-	}
-}
-
-//-----------------------------------------------------------------------------
-func NewKmerScannerAtIndex(seq []byte, k int, swindow int, index int) *KmerScanner {
-	return &KmerScanner{
-		Seq:         seq,
-		K:           k,
-		I:           index,
-		SWindow: 	 swindow,
-		WindowPos: 	 0,
 		IsFirstKmer: true,
 		Restarted:   false,
 		IsPrimary:   true,
@@ -117,7 +79,6 @@ func (s *KmerScanner) ScanBothStrands() bool {
 			}
 			s.Kmer = s.Seq[s.I : s.K+s.I]
 			// fmt.Println("Primary", string(s.Kmer), s.I)
-			s.Kmer_loc = s.I
 			s.I++
 			return true
 		}
@@ -144,7 +105,6 @@ func (s *KmerScanner) ScanBothStrands() bool {
 		}
 		s.Kmer = s.ReverseComplement(s.Seq[s.I : s.K+s.I])
 		// fmt.Println("Reverse", string(s.Kmer), s.I)
-		s.Kmer_loc = s.I
 		s.I--
 		return true
 	}
@@ -155,13 +115,13 @@ func (s *KmerScanner) ScanOneStrand() bool {
 
 	if s.I >= len(s.Seq)-s.K+1 || s.K > len(s.Seq) {
 		return false
-	} else {
-		s.Kmer = s.Seq[s.I : s.K+s.I]
-		s.Kmer_qual = s.Qual[s.I : s.K+s.I]
+	} 
 
-		s.I++
-		return true
-	}
+	s.Kmer = s.Seq[s.I : s.K+s.I]
+	s.Kmer_qual = s.Qual[s.I : s.K+s.I]
+
+	s.I++
+	return true
 }
 
 
