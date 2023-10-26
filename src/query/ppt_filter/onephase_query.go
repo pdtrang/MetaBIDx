@@ -72,39 +72,6 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 []byt
 	}
 }
 
-func (f *Filter) OnePhaseMajorityQuery_QuickStop(read_1 []byte, read_2 []byte, qual1 []byte, qual2 []byte, header string, start_time time.Time, kmer_qual_threshold int, query_results SafeMap) {
-	gidx1 := make(map[uint16][][]byte)
-	idx1 := f.OnePhaseMajorityQueryRead_QuickStop(read_1, qual1, gidx1, kmer_qual_threshold)
-	gidx2 := make(map[uint16][][]byte)
-	idx2 := f.OnePhaseMajorityQueryRead_QuickStop(read_2, qual2, gidx2, kmer_qual_threshold)
-	if idx1 != uint16(0) && idx1 == idx2 {
-		// return f.Gid[idx1]
-	} else {
-		// unclassified
-	}
-}
-
-func (f *Filter) OnePhaseMajorityQueryRead_QuickStop(read []byte, qual []byte, gidx map[uint16][][]byte, kmer_qual_threshold int) uint16 {
-	if len(qual) != 0 {
-		kmer_scanner := NewKmerScannerQual(read, f.K, qual)
-		
-		kmer_gid := uint16(0)
-		is_valid_kmer := false
-		for kmer_scanner.ScanOneStrand() {
-			kmer_gid, is_valid_kmer = f.OnePhaseQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.Kmer_qual, kmer_qual_threshold)
-			
-			if is_valid_kmer {
-				gidx[kmer_gid] = append(gidx[kmer_gid], kmer_scanner.Kmer)
-			}
-			if len(gidx[kmer_gid]) > ((len(read)-f.K+1)/2) {
-				return kmer_gid
-				break 
-			}
-		}
-	}
-	return uint16(0)
-}
-
 func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx map[uint16][][]byte, kmer_qual_threshold int) {
 	if len(qual) != 0 {
 
@@ -112,11 +79,9 @@ func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx map[ui
 
 		kmer_gid := uint16(0)
 		is_valid_kmer := false
-		//fmt.Println("ONLY read: ", string(read), "     END \n")
 		for kmer_scanner.ScanOneStrand() {
 			//fmt.Println(string(read), "kmer: ", string(kmer_scanner.Kmer), string(kmer_scanner.Kmer_qual))
 			kmer_gid, is_valid_kmer = f.OnePhaseQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.Kmer_qual, kmer_qual_threshold)	
-			
 
 			if is_valid_kmer {
 				gidx[kmer_gid] = append(gidx[kmer_gid], kmer_scanner.Kmer)
@@ -184,7 +149,7 @@ func (f *Filter) OnePhaseQueryHashKmer(kmer []byte, kmer_qual []byte, kmer_qual_
 	//}
 
 	// continue query if it is a good kmer
-	//fmt.Println(string(kmer), string(kmer_qual))
+	fmt.Println("before Hash", string(kmer), string(kmer_qual))
 	gid_map := make(map[uint16]int)
 	for i := 0; i < len(f.HashFunction); i++ {
 		j := f.HashFunction[i].HashKmer(kmer)
