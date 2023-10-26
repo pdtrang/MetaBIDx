@@ -132,6 +132,7 @@ func (h *LinearHash) SetK(k int) {
 
 //-----------------------------------------------------------------------------
 func (h *LinearHash) ComputeKmer(kmer []byte) int64 {
+    fmt.Println("---Compute Kmer: ", string(kmer))
     if len(kmer) != h.K {
         panic("Unmatched k-mer length")
     }
@@ -166,6 +167,7 @@ func (h *LinearHash) ComputeKmer(kmer []byte) int64 {
 
 //-----------------------------------------------------------------------------
 func (h *LinearHash) HashKmer(kmer []byte) int64 {
+    fmt.Println("HashKmer func: ", string(kmer))
     if len(kmer) != h.K {
         panic("Unmatched k-mer length")
     }    

@@ -149,10 +149,9 @@ func (f *Filter) OnePhaseQueryHashKmer(kmer []byte, kmer_qual []byte, kmer_qual_
 	//}
 
 	// continue query if it is a good kmer
-	fmt.Println("before Hash", string(kmer), string(kmer_qual))
 	gid_map := make(map[uint16]int)
 	for i := 0; i < len(f.HashFunction); i++ {
-		fmt.Println("---Call HashKmer - kmer: ", string(kmer))
+		fmt.Println("---Call HashKmer - kmer: ", string(kmer), string(kmer_qual))
 		j := f.HashFunction[i].HashKmer(kmer)
 		if j == int64(-1) {
 			return uint16(0), false
