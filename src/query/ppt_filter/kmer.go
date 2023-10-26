@@ -209,7 +209,8 @@ func (s *KmerScanner) ScanOneStrand() bool {
 			}
 		}
 		s.Kmer = s.Seq[s.I : s.K+s.I]
-		s.Kmer_qual = s.Qual[s.I : s.K+s.I]  
+		s.Kmer_qual = s.Qual[s.I : s.K+s.I]
+		s.Kmer_loc = s.I
 
 		s.I++
 		return true
