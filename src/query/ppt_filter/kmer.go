@@ -39,8 +39,6 @@ func NewKmerScannerQual(seq []byte, k int, qual []byte) *KmerScanner {
 		Qual: 		 qual,
 		K:           k,
 		I:           0,
-		IsFirstKmer: true,
-		Restarted:   false,
 		IsPrimary:   true,
 	}
 }
