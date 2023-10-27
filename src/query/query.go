@@ -51,7 +51,7 @@ func main() {
 	}
 
 	fmt.Println("Writing Output to: ", *out)
-	//ppt_filter.WriteResults(*out, query_results)
+	ppt_filter.WriteResults(*out, query_results)
 	// print Memory Usage    
 	utils.PrintMemUsage()
 
