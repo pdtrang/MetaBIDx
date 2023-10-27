@@ -2,7 +2,7 @@ package ppt_filter
 
 import (
 	"time"
-	// "fmt"
+	"fmt"
 	//"os"
 	// "sync"
 )
@@ -44,7 +44,6 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 []byt
 
 	f.OnePhaseMajorityQueryRead(read_1, qual1, gidx, kmer_qual_threshold)
 
-	// if string(read_2) != "" {
 	if len(read_2) > 0 {
 		f.OnePhaseMajorityQueryRead(read_2, qual2, gidx, kmer_qual_threshold)
 	}
@@ -86,6 +85,8 @@ func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx map[ui
 				continue
 			}
 
+			fmt.Println("Query ", "kmer: ", string(kmer_scanner.Kmer), "  kmer_qual: ",string(kmer_scanner.Kmer_qual))
+			// continue query if it is a good kmer
 			kmer_gid, is_valid_kmer = f.OnePhaseQueryHashKmer(kmer_scanner.Kmer)	
 
 			if is_valid_kmer {
@@ -123,18 +124,6 @@ func CheckMajorityHashValues(gid_map map[uint16]int, num_hash int) (uint16, bool
 }
 
 func isGoodKmer(kmer_qual []byte, kmer_qual_threshold int) bool {
-	//runes := []rune(kmer_qual)
-	//total := 0
-	//for i := 0; i < len(runes); i++ {
-	//	r := runes[i] - 33
-	//	total += int(r)
-	//}
-	//mean_qual := total/len(kmer_qual)
-	//if mean_qual < kmer_qual_threshold {
-	//	return false
-	//}
-	//return true
-
 	total := 0
 	for i := 0; i < len(kmer_qual); i++ {
 		r := kmer_qual[i] - 33
@@ -148,12 +137,6 @@ func isGoodKmer(kmer_qual []byte, kmer_qual_threshold int) bool {
 }
 
 func (f *Filter) OnePhaseQueryHashKmer(kmer []byte) (uint16, bool) {
-	// // check kmer quality 
-	// if !isGoodKmer(kmer_qual, kmer_qual_threshold){
-	// 	return uint16(0), false
-	// }
-
-	// continue query if it is a good kmer
 	gid_map := make(map[uint16]int)
 	for i := 0; i < len(f.HashFunction); i++ {
 		// fmt.Println("---Call HashKmer - kmer: ", string(kmer), string(kmer_qual))
