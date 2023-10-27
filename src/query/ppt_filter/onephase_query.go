@@ -81,7 +81,12 @@ func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx map[ui
 		is_valid_kmer := false
 		for kmer_scanner.ScanOneStrand() {
 			//fmt.Println(string(read), "kmer: ", string(kmer_scanner.Kmer), string(kmer_scanner.Kmer_qual))
-			kmer_gid, is_valid_kmer = f.OnePhaseQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.Kmer_qual, kmer_qual_threshold)	
+			// check kmer quality 
+			if !isGoodKmer(kmer_scanner.Kmer_qual, kmer_qual_threshold){
+				continue
+			}
+
+			kmer_gid, is_valid_kmer = f.OnePhaseQueryHashKmer(kmer_scanner.Kmer)	
 
 			if is_valid_kmer {
 				gidx[kmer_gid] = append(gidx[kmer_gid], kmer_scanner.Kmer)
@@ -142,11 +147,11 @@ func isGoodKmer(kmer_qual []byte, kmer_qual_threshold int) bool {
 	return true
 }
 
-func (f *Filter) OnePhaseQueryHashKmer(kmer []byte, kmer_qual []byte, kmer_qual_threshold int) (uint16, bool) {
-	// check kmer quality 
-	if !isGoodKmer(kmer_qual, kmer_qual_threshold){
-		return uint16(0), false
-	}
+func (f *Filter) OnePhaseQueryHashKmer(kmer []byte) (uint16, bool) {
+	// // check kmer quality 
+	// if !isGoodKmer(kmer_qual, kmer_qual_threshold){
+	// 	return uint16(0), false
+	// }
 
 	// continue query if it is a good kmer
 	gid_map := make(map[uint16]int)
