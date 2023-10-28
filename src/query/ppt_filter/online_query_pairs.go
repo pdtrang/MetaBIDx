@@ -31,28 +31,9 @@ func NewRead(header []byte, read1 []byte, read2 []byte, qual1 []byte, qual2 []by
 	}
 }
 
-func InitBacteriaMap(f *Filter, upper_threshold float64, lower_threshold float64) map[uint16]*Bacteria {
-	defer utils.TimeConsume(time.Now(), "Run time - InitBacteriaMap: ")
-
-	bacteria_map := make(map[uint16]*Bacteria)
-	
-	for k, v := range f.Total_signatures {
-		if k != Empty && k != Dirty {
-			// fmt.Println("k: ", k)
-			bacteria_map[k] = NewBacteria(k, float64(v) * upper_threshold, float64(v) * lower_threshold)
-		}
-	}
-
-	real_num_bacteria := 0
-	for i := range bacteria_map {
-		if bacteria_map[i].UpperThreshold > 0 {
-			real_num_bacteria += 1
-		}
-	}
-
-	return bacteria_map
-}
-
+//-----------------------------------------------------------------------------
+// Scan single reads to channel
+//-----------------------------------------------------------------------------
 func ScanSingleReads2Channel(read_file_1 string) chan Read {
 	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
 
@@ -81,6 +62,9 @@ func ScanSingleReads2Channel(read_file_1 string) chan Read {
 	return reads_channel
 }
 
+//-----------------------------------------------------------------------------
+// Scan pair reads to channel
+//-----------------------------------------------------------------------------
 func ScanPairReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
 
@@ -128,7 +112,7 @@ func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 }
 
 //-----------------------------------------------------------------------------
-// Online Query for paired-end reads
+// Query
 //-----------------------------------------------------------------------------
 func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string, query_results SafeMap, strategy string, level string, kmer_qual int) {
 	// defer utils.TimeConsume(time.Now(), "Run time - parallel: ")
@@ -162,13 +146,7 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 				} else if f.N_phases == 1 {
 					// fmt.Println(read.header)
 					fmt.Println("PairQuery-Threads ", "\n read1: ", string(read.read1), "\n read2: ", string(read.read2), "\n qual1: ", string(read.qual1), "\n qual2: ", string(read.qual2))
-					read_1 := read.read1
-					read_2 := read.read2
-					qual_1 := read.qual1
-					qual_2 := read.qual2
-					hdr := read.header
-					species := f.OnePhaseQuery(read_1, read_2, qual_1, qual_2 , hdr, start_time, strategy, kmer_qual)
-					//species := f.OnePhaseQuery(read.read1, read.read2, read.qual1, read.qual2 , read.header, start_time, strategy, kmer_qual)
+					species := f.OnePhaseQuery(read.read1, read.read2, read.qual1, read.qual2 , read.header, start_time, strategy, kmer_qual)
 					query_results.Add(string(read.header), species)
 				}
 

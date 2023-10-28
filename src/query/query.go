@@ -28,27 +28,15 @@ func main() {
 
 	// Load filter
 	log.Printf("Load filter")
-	
 	f = ppt_filter.Load(*filter_saved_file)
-	
-	// fmt.Println(f)
-	// fmt.Println(f.Gid)
-	// f.Summarize()	
 	log.Println("Finish loading filter.")
-	//fmt.Println(f.K)
 
-	// fmt.Println(*read_1, *read_2, *level, *strategy)
 	log.Printf(*out)
 	query_results := ppt_filter.SafeMap{
 		Map: make(map[string]string),
 	}
-	if *read_2 == "" {
-		// f.OnlineSingleQuery(*read_1, *out, *strategy, *level)	
-		f.OnlinePairQuery_Threads(*read_1, "", query_results, *strategy, *level, *kmer_qual)
-	} else {
-		f.OnlinePairQuery_Threads(*read_1, *read_2, query_results, *strategy, *level, *kmer_qual)
-		// f.OnlinePairQuery_Single(*read_1, *read_2, *out, *strategy, upper_threshold, lower_threshold, *analysis, *level)
-	}
+
+	f.OnlinePairQuery_Threads(*read_1, *read_2, query_results, *strategy, *level, *kmer_qual)
 
 	fmt.Println("Writing Output to: ", *out)
 	ppt_filter.WriteResults(*out, query_results)

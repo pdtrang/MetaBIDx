@@ -43,72 +43,7 @@ func NewKmerScannerQual(seq []byte, k int, qual []byte) *KmerScanner {
 	}
 }
 
-func (s *KmerScanner) Scan() bool {
-	return s.ScanBothStrands()
-}
-
-
 //-----------------------------------------------------------------------------
-// (1) Scan k-mers from the primary strand from left to right, then
-// (2) Scan k-mers from the complementary strand from right to left.
-// Skip k-mers that contain characters other than A, C, G, T.
-//-----------------------------------------------------------------------------
-func (s *KmerScanner) ScanBothStrands() bool {
-	if s.IsPrimary {
-		if s.I >= len(s.Seq)-s.K+1 || s.K > len(s.Seq) {
-			s.I = len(s.Seq) - s.K
-			s.IsFirstKmer = true
-			s.Restarted = false
-			s.IsPrimary = false
-			// do not return false because we need to go to complementary strand.
-		} else {
-			if s.I == 0 || s.Restarted {
-				s.IsFirstKmer = true
-				s.Restarted = false
-			} else {
-				s.IsFirstKmer = false
-			}
-			for i := s.I; i < s.K+s.I; i++ {
-				if s.Seq[i] != 'A' && s.Seq[i] != 'C' && s.Seq[i] != 'G' && s.Seq[i] != 'T' {
-					s.I = i + 1
-					s.Restarted = true
-					return s.ScanBothStrands()
-				}
-			}
-			s.Kmer = s.Seq[s.I : s.K+s.I]
-			// fmt.Println("Primary", string(s.Kmer), s.I)
-			s.I++
-			return true
-		}
-	}
-	if s.I < 0 || s.K > len(s.Seq) {
-		s.I = 0
-		s.IsFirstKmer = false
-		s.Restarted = false
-		s.IsPrimary = true
-		return false
-	} else {
-		if s.I == len(s.Seq)-s.K || s.Restarted {
-			s.IsFirstKmer = true
-			s.Restarted = false
-		} else {
-			s.IsFirstKmer = false
-		}
-		for i := s.K + s.I - 1; i >= s.I; i-- {
-			if s.Seq[i] != 'A' && s.Seq[i] != 'C' && s.Seq[i] != 'G' && s.Seq[i] != 'T' {
-				s.I = i - s.K
-				s.Restarted = true
-				return s.ScanBothStrands()
-			}
-		}
-		s.Kmer = s.ReverseComplement(s.Seq[s.I : s.K+s.I])
-		// fmt.Println("Reverse", string(s.Kmer), s.I)
-		s.I--
-		return true
-	}
-}
-
-
 func (s *KmerScanner) ScanOneStrand() bool {
 
 	if s.I >= len(s.Seq)-s.K+1 || s.K > len(s.Seq) {
@@ -123,27 +58,6 @@ func (s *KmerScanner) ScanOneStrand() bool {
 	return true
 }
 
-
-//-----------------------------------------------------------------------------
-func (s *KmerScanner) ReverseComplement(dna []byte) []byte {
-	r := make([]byte, len(dna))
-	var c byte
-	for i := 0; i < len(dna); i++ {
-		c = dna[len(dna)-i-1]
-		if c == 'A' {
-			r[i] = 'T'
-		} else if c == 'C' {
-			r[i] = 'G'
-		} else if c == 'G' {
-			r[i] = 'C'
-		} else if c == 'T' {
-			r[i] = 'A'
-		} else {
-			panic("Unknown character: " + string(c))
-		}
-	}
-	return r
-}
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -227,28 +141,6 @@ func kmer_to_dec_rc(kmer []byte) int {
 }
 
 //-----------------------------------------------------------------------------
-func ReverseComplement(s string) string {
-	r := make([]byte, len(s))
-	var c byte
-	for i := 0; i < len(s); i++ {
-		c = s[len(s)-i-1]
-		if c == 'A' {
-			r[i] = 'T'
-		} else if c == 'C' {
-			r[i] = 'G'
-		} else if c == 'G' {
-			r[i] = 'C'
-		} else if c == 'T' {
-			r[i] = 'A'
-		} else {
-			panic("Unknown character: " + string(c))
-		}
-	}
-	return string(r)
-}
-
-
-//-----------------------------------------------------------------------------
 func DecToKmer(x int, K int) string {
 	y := make([]byte, K)
 	for i := K - 1; i >= 0; i-- {
@@ -266,4 +158,25 @@ func DecToKmer(x int, K int) string {
 		x = (x - base) >> 2
 	}
 	return string(y)
+}
+
+//-----------------------------------------------------------------------------
+func (s *KmerScanner) ReverseComplement(dna []byte) []byte {
+	r := make([]byte, len(dna))
+	var c byte
+	for i := 0; i < len(dna); i++ {
+		c = dna[len(dna)-i-1]
+		if c == 'A' {
+			r[i] = 'T'
+		} else if c == 'C' {
+			r[i] = 'G'
+		} else if c == 'G' {
+			r[i] = 'C'
+		} else if c == 'T' {
+			r[i] = 'A'
+		} else {
+			panic("Unknown character: " + string(c))
+		}
+	}
+	return r
 }

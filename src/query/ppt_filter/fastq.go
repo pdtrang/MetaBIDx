@@ -42,7 +42,7 @@ func (s *FastqScanner) Scan() bool {
         if err := s.Scanner.Err(); err != nil {
             log.Fatal(err)
         }
-        // This happens when the file has no FASTA sequence
+        // This happens when the file has no sequence
         if flag == false {
             return false
         }

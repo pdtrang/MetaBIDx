@@ -13,9 +13,9 @@ func (f *Filter) OnePhaseQuery(read_1 []byte, read_2 []byte, qual1 []byte, qual2
 	return f.OnePhaseMajorityQuery(read_1, read_2, qual1, qual2, header, start_time, kmer_qual_threshold)
 }
 
-//////////////////////////////////////////////////////////////
+//-----------------------------------------------------------------------------
 // Majority
-//////////////////////////////////////////////////////////////
+//-----------------------------------------------------------------------------
 func FindMajority_GID(gidx map[uint16][][]byte) uint16 {
 	// fmt.Println("Find majority GID", gidx)
 	maxCount := 0
@@ -73,7 +73,7 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 []byt
 
 func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx map[uint16][][]byte, kmer_qual_threshold int) {
 	if len(qual) != 0 {
-		fmt.Println("\nOnePhaseMajQueryRead - before loop ", string(read), string(qual))
+		fmt.Println("\nOnePhaseMajQueryRead - func inputs", " read ", string(read), " qual ", string(qual))
 
 		kmer_scanner := NewKmerScannerQual(read, f.K, qual)
 		fmt.Println("OnePhaseMajQueryRead - before loop ", string(kmer_scanner.Seq), string(kmer_scanner.Qual))
@@ -104,7 +104,6 @@ func CheckMajorityHashValues(gid_map map[uint16]int, num_hash int) (uint16, bool
 	for key, value := range gid_map {
 		if key != Dirty {
 			if value == num_hash {
-				// fmt.Println("Valid kmer", gid_map, key, value)
 				return key, true
 			}
 
@@ -140,7 +139,7 @@ func isGoodKmer(kmer_qual []byte, kmer_qual_threshold int) bool {
 func (f *Filter) OnePhaseQueryHashKmer(kmer []byte) (uint16, bool) {
 	gid_map := make(map[uint16]int)
 	for i := 0; i < len(f.HashFunction); i++ {
-		// fmt.Println("---Call HashKmer - kmer: ", string(kmer), string(kmer_qual))
+		// fmt.Println("HashKmer - kmer: ", string(kmer))
 		j := f.HashFunction[i].HashKmer(kmer)
 		if j == int64(-1) {
 			return uint16(0), false

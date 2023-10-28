@@ -149,7 +149,6 @@ func (h *LinearHash) ComputeKmer(kmer []byte) int64 {
             base = big.NewInt(3)
         } else {
             // fmt.Println(string(kmer))
-	    //return int64(-1)
             panic("ComputeKmer: " + string(kmer) + " ------ Unknown character: " + string(kmer[i]))
         }
         cur_term := big.NewInt(0)
@@ -171,144 +170,8 @@ func (h *LinearHash) HashKmer(kmer []byte) int64 {
     if len(kmer) != h.K {
         panic("Unmatched k-mer length")
     }    
-    //i := h.ComputeKmer(kmer)
-    //if i == int64(-1) {
-    //    return i
-    //}
-    //return h.HashInt64(i)
+
     return h.HashInt64(h.ComputeKmer(kmer))
-}
-
-
-//-----------------------------------------------------------------------------
-func (h *LinearHash) SlidingKmer(kmer []byte, is_first_kmer bool) int64 {
-    if len(kmer) != h.K {
-        panic("Unmatched k-mer length")
-    }
-    // fmt.Println("\t", string(kmer), is_first_kmer)
-    if is_first_kmer {
-        return h.ComputeKmer(kmer)
-    }
-    // fmt.Println("\t", h.Term0, h.PrevValue)
-
-    value := big.NewInt(0)
-    value.Sub(h.PrevValue, h.Term0)
-    value.Mod(value, h.P)
-    value.Mul(value, h.Base)
-    if kmer[len(kmer)-1] == 'A' {
-        value.Add(value, big.NewInt(0))
-    } else if kmer[len(kmer)-1] == 'C' {
-        value.Add(value, big.NewInt(1))
-    } else if kmer[len(kmer)-1] == 'G' {
-        value.Add(value, big.NewInt(2))
-    } else if kmer[len(kmer)-1] == 'T' {
-        value.Add(value, big.NewInt(3))
-    } else {
-        panic("Unknown character: " + string(kmer[len(kmer)-1]))
-    }
-    value.Mod(value, h.P)
-    h.PrevValue = value
-
-    if kmer[0] == 'A' {
-        h.Term0 = big.NewInt(0)
-    } else if kmer[0] == 'C' {
-        h.Term0.Mul(big.NewInt(1), h.Exponents[0])
-    } else if kmer[0] == 'G' {
-        h.Term0.Mul(big.NewInt(2), h.Exponents[0])
-        h.Term0.Mod(h.Term0, h.P)
-    } else if kmer[0] == 'T' {
-        h.Term0.Mul(big.NewInt(3), h.Exponents[0])
-        h.Term0.Mod(h.Term0, h.P)
-    }
-    return value.Int64() % h.M
-}
-
-//-----------------------------------------------------------------------------
-func (h *LinearHash) SlidingKmerModified(kmer []byte, is_first_kmer bool, isPrimary bool) int64 {
-    if len(kmer) != h.K {
-        panic("Unmatched k-mer length")
-    }
-    // fmt.Println("\t", string(kmer), is_first_kmer)
-    if is_first_kmer {
-        return h.ComputeKmer(kmer)
-    }
-    // fmt.Println("\t", h.Term0, h.PrevValue)
-
-    value := big.NewInt(0)
-    if isPrimary {
-        value.Sub(h.PrevValue, h.Term0)
-        value.Mod(value, h.P)
-        value.Mul(value, h.Base)
-        if kmer[len(kmer)-1] == 'A' {
-            value.Add(value, big.NewInt(0))
-        } else if kmer[len(kmer)-1] == 'C' {
-            value.Add(value, big.NewInt(1))
-        } else if kmer[len(kmer)-1] == 'G' {
-            value.Add(value, big.NewInt(2))
-        } else if kmer[len(kmer)-1] == 'T' {
-            value.Add(value, big.NewInt(3))
-        } else {
-            panic("Unknown character: " + string(kmer[len(kmer)-1]))
-        }
-        value.Mod(value, h.P)
-        h.PrevValue = value
-
-        if kmer[0] == 'A' {
-            h.Term0 = big.NewInt(0)
-        } else if kmer[0] == 'C' {
-            h.Term0.Mul(big.NewInt(1), h.Exponents[0])
-        } else if kmer[0] == 'G' {
-            h.Term0.Mul(big.NewInt(2), h.Exponents[0])
-            h.Term0.Mod(h.Term0, h.P)
-        } else if kmer[0] == 'T' {
-            h.Term0.Mul(big.NewInt(3), h.Exponents[0])
-            h.Term0.Mod(h.Term0, h.P)
-        }
-    } else {
-        value.Sub(h.PrevValue_rc, h.Term0_rc)
-        value.Mod(value, h.P)
-        value.Mul(value, h.Base)
-        if kmer[len(kmer)-1] == 'A' {
-            value.Add(value, big.NewInt(0))
-        } else if kmer[len(kmer)-1] == 'C' {
-            value.Add(value, big.NewInt(1))
-        } else if kmer[len(kmer)-1] == 'G' {
-            value.Add(value, big.NewInt(2))
-        } else if kmer[len(kmer)-1] == 'T' {
-            value.Add(value, big.NewInt(3))
-        } else {
-            panic("Unknown character: " + string(kmer[len(kmer)-1]))
-        }
-        value.Mod(value, h.P)
-        h.PrevValue_rc = value
-
-        if kmer[0] == 'A' {
-            h.Term0_rc = big.NewInt(0)
-        } else if kmer[0] == 'C' {
-            h.Term0_rc.Mul(big.NewInt(1), h.Exponents[0])
-        } else if kmer[0] == 'G' {
-            h.Term0_rc.Mul(big.NewInt(2), h.Exponents[0])
-            h.Term0_rc.Mod(h.Term0, h.P)
-        } else if kmer[0] == 'T' {
-            h.Term0_rc.Mul(big.NewInt(3), h.Exponents[0])
-            h.Term0_rc.Mod(h.Term0, h.P)
-        }
-    }
-    
-    return value.Int64() % h.M
-}
-
-//-----------------------------------------------------------------------------
-func (h *LinearHash) SlidingHashKmer(kmer []byte, is_first_kmer bool) int64 {
-    if len(kmer) != h.K {
-        panic("Unmatched k-mer length")
-    }
-    // fmt.Println("\t", string(kmer), is_first_kmer)
-    if is_first_kmer {
-        return h.HashKmer(kmer)
-    }
-    
-    return h.HashInt64(h.SlidingKmer(kmer, is_first_kmer))
 }
 
 //-----------------------------------------------------------------------------
