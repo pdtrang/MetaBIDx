@@ -35,7 +35,9 @@ func (s *FastqScanner) Scan() bool {
             line = s.Scanner.Bytes()
             if len(line)==0 { continue }
             if line[0] == '@' {
-                s.Header = line
+                s.Header = make([]byte, len(line))
+                copy(s.Header, line)
+                // s.Header = line
                 break
             }
         }
@@ -47,7 +49,9 @@ func (s *FastqScanner) Scan() bool {
             return false
         }
     } else {
-        s.Header = s.NextHeader
+        // s.Header = s.NextHeader
+        s.Header = make([]byte, len(s.NextHeader))
+        copy(s.Header, s.NextHeader)
     }
 
     // 2. Read Fastq sequence
@@ -56,13 +60,16 @@ func (s *FastqScanner) Scan() bool {
         line = s.Scanner.Bytes()
         if len(line)==0 { continue }
         if line[0] == '@' {
-            s.NextHeader = line
+            // s.NextHeader = line
+            s.NextHeader = make([]byte, len(line))
+            copy(s.NextHeader, line)
             break
         }
         if line[0] == '+' {
             break
         }
         seq = line
+        copy(seq, line)
 
     }
 
@@ -82,7 +89,8 @@ func (s *FastqScanner) Scan() bool {
         if line[0] == 'A' || line[0] == 'T' || line[0] == 'G' || line[0] == 'C' || line[0] == 'N' {
             break
         }
-        qual = line
+        // qual = line
+        copy(qual, line)
 
     }
     s.Seq = make([]byte, len(seq))
