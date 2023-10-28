@@ -139,7 +139,7 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 	// StartProfile()
 	//defer Timer()()
 
-	mut2 sync.Mutex
+	var mut2 sync.Mutex
 
 	for i:=0; i<numCores; i++ {
 		wg.Add(1)
