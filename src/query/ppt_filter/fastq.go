@@ -35,9 +35,9 @@ func (s *FastqScanner) Scan() bool {
             line = s.Scanner.Bytes()
             if len(line)==0 { continue }
             if line[0] == '@' {
-                s.Header = make([]byte, len(line))
-                copy(s.Header, line)
-                // s.Header = line
+                // s.Header = make([]byte, len(line))
+                // copy(s.Header, line)
+                s.Header = line
                 break
             }
         }
@@ -60,9 +60,9 @@ func (s *FastqScanner) Scan() bool {
         line = s.Scanner.Bytes()
         if len(line)==0 { continue }
         if line[0] == '@' {
-            // s.NextHeader = line
-            s.NextHeader = make([]byte, len(line))
-            copy(s.NextHeader, line)
+            s.NextHeader = line
+            // s.NextHeader = make([]byte, len(line))
+            // copy(s.NextHeader, line)
             break
         }
         if line[0] == '+' {
@@ -79,9 +79,9 @@ func (s *FastqScanner) Scan() bool {
        line = s.Scanner.Bytes()
         if len(line)==0 { continue }
         if line[0] == '@' {
-            // s.NextHeader = line
-            s.NextHeader = make([]byte, len(line))
-            copy(s.NextHeader, line)
+            s.NextHeader = line
+            // s.NextHeader = make([]byte, len(line))
+            // copy(s.NextHeader, line)
             break
         }
         if line[0] == '+' {
