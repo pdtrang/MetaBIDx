@@ -125,7 +125,7 @@ func ScanPairReads2Channel(read_file_1 string, read_file_2 string) ReadChan {
 	return reads_channel
 }
 
-func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
+func ScanReads2Channel(read_file_1 string, read_file_2 string) ReadChan {
 	if len(read_file_2) == 0 {
 		return ScanSingleReads2Channel(read_file_1)
 	} else {
@@ -143,7 +143,11 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 
 	numCores := runtime.NumCPU()
 	runtime.GOMAXPROCS(numCores)
-	reads_channel := make(chan Read, numCores)
+	
+	reads_channel := ReadChan{
+		channel: make(chan Read, numCores),
+	}
+	// reads_channel := make(chan Read, numCores)
 	reads_channel = ScanReads2Channel(read_file_1, read_file_2)
 
 	var wg sync.WaitGroup
