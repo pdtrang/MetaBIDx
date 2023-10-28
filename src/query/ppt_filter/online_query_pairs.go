@@ -73,7 +73,7 @@ func ScanSingleReads2Channel(read_file_1 string) ReadChan {
 			reads_channel.Mut.Unlock()
 		}
 
-		close(reads_channel)
+		close(reads_channel.channel)
 	}()
 
 	return reads_channel
@@ -119,7 +119,7 @@ func ScanPairReads2Channel(read_file_1 string, read_file_2 string) ReadChan {
 			reads_channel.Mut.Unlock()
 		}
 
-		close(reads_channel)
+		close(reads_channel.channel)
 	}()
 
 	return reads_channel
@@ -163,7 +163,7 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 
 		go func() {
 			defer wg.Done()
-			for read := range(reads_channel){
+			for read := range(reads_channel.channel){
 				// fmt.Println(read.read1, read.read2)
 				if f.N_phases == 2 {
 					// skip two phases for now
