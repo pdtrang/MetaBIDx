@@ -7,8 +7,8 @@ import (
 )
 
 type FastqScanner struct {
-    Header     string
-    NextHeader string
+    Header     []byte
+    NextHeader []byte
     Seq        []byte
     Qual       []byte
     Finished   bool
@@ -30,12 +30,12 @@ func (s *FastqScanner) Scan() bool {
     var line []byte
     var flag bool
     // 1. Read Fasta header
-    if s.NextHeader == "" {
+    if len(s.NextHeader) == 0 {
         for flag = s.Scanner.Scan(); flag; flag = s.Scanner.Scan() {
             line = s.Scanner.Bytes()
             if len(line)==0 { continue }
             if line[0] == '@' {
-                s.Header = string(line)
+                s.Header = line
                 break
             }
         }
@@ -47,7 +47,7 @@ func (s *FastqScanner) Scan() bool {
             return false
         }
     } else {
-        s.Header = string(s.NextHeader)
+        s.Header = s.NextHeader
     }
 
     // 2. Read Fastq sequence
@@ -56,7 +56,7 @@ func (s *FastqScanner) Scan() bool {
         line = s.Scanner.Bytes()
         if len(line)==0 { continue }
         if line[0] == '@' {
-            s.NextHeader = string(line)
+            s.NextHeader = line
             break
         }
         if line[0] == '+' {
@@ -72,7 +72,7 @@ func (s *FastqScanner) Scan() bool {
        line = s.Scanner.Bytes()
         if len(line)==0 { continue }
         if line[0] == '@' {
-            s.NextHeader = string(line)
+            s.NextHeader = line
             break
         }
         if line[0] == '+' {
@@ -87,6 +87,8 @@ func (s *FastqScanner) Scan() bool {
     }
     s.Seq = make([]byte, len(seq))
     s.Qual = make([]byte, len(qual))
+    copy(s.Seq, seq)
+    copy(s.Qual, qual)
     // s.Seq = seq
     // s.Qual = qual
     if err := s.Scanner.Err(); err != nil {

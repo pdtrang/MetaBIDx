@@ -2,12 +2,12 @@ package ppt_filter
 
 import (
 	"time"
-	// "fmt"
+	"fmt"
 	//"os"
 	// "sync"
 )
 
-func (f *Filter) OnePhaseQuery(read_1 []byte, read_2 []byte, qual1 []byte, qual2 []byte, header string, start_time time.Time, strategy string, kmer_qual_threshold int) string {
+func (f *Filter) OnePhaseQuery(read_1 []byte, read_2 []byte, qual1 []byte, qual2 []byte, header []byte, start_time time.Time, strategy string, kmer_qual_threshold int) string {
 	//StartProfile()
 	//defer Timer()()
 	return f.OnePhaseMajorityQuery(read_1, read_2, qual1, qual2, header, start_time, kmer_qual_threshold)
@@ -37,7 +37,7 @@ func FindMajority_GID(gidx map[uint16][][]byte) uint16 {
 	return uint16(0)
 }
 
-func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 []byte, qual2 []byte, header string, start_time time.Time, kmer_qual_threshold int) string {
+func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 []byte, qual2 []byte, header []byte, start_time time.Time, kmer_qual_threshold int) string {
 	//defer Timer()()
 	//fmt.Println("Read ", header)
 	gidx := make(map[uint16][][]byte) // map to keep all the hit kmers for each genome
@@ -73,9 +73,10 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 []byt
 
 func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx map[uint16][][]byte, kmer_qual_threshold int) {
 	if len(qual) != 0 {
+		fmt.Println("\nOnePhaseMajQueryRead - before loop ", string(read), string(qual))
 
 		kmer_scanner := NewKmerScannerQual(read, f.K, qual)
-
+		fmt.Println("OnePhaseMajQueryRead - before loop ", string(kmer_scanner.Seq), string(kmer_scanner.Qual))
 		kmer_gid := uint16(0)
 		is_valid_kmer := false
 		for kmer_scanner.ScanOneStrand() {
@@ -85,7 +86,7 @@ func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx map[ui
 				continue
 			}
 
-			// fmt.Println("Query ", string(read), "   kmer: ", string(kmer_scanner.Kmer), "  kmer_qual: ",string(kmer_scanner.Kmer_qual))
+			fmt.Println("OnePhaseMajQueryRead ", string(read), "   kmer: ", string(kmer_scanner.Kmer), "  kmer_qual: ",string(kmer_scanner.Kmer_qual))
 			// continue query if it is a good kmer
 			kmer_gid, is_valid_kmer = f.OnePhaseQueryHashKmer(kmer_scanner.Kmer)	
 
