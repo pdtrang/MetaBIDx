@@ -19,6 +19,13 @@ type Read struct {
 	qual1 []byte
 	read2 []byte
 	qual2 []byte
+	mut    sync.Mutex
+}
+
+func (r *Read) GetValue() ([]byte, []byte, []byte, []byte, []byte) {
+	r.mut.Lock()
+	defer r.mut.Unlock()
+	return r.read1, r.read2, r.qual1, r.qual2 , r.header
 }
 
 func NewRead(header []byte, read1 []byte, read2 []byte, qual1 []byte, qual2 []byte) *Read {
@@ -145,8 +152,9 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 
 				} else if f.N_phases == 1 {
 					// fmt.Println(read.header)
-					fmt.Println("PairQuery-Threads ", "\n read1: ", string(read.read1), "\n read2: ", string(read.read2), "\n qual1: ", string(read.qual1), "\n qual2: ", string(read.qual2))
-					species := f.OnePhaseQuery(read.read1, read.read2, read.qual1, read.qual2 , read.header, start_time, strategy, kmer_qual)
+					fmt.Println("\nPairQuery-Threads ", "\n read1: ", string(read.read1), "\n read2: ", string(read.read2), "\n qual1: ", string(read.qual1), "\n qual2: ", string(read.qual2))
+					read1, read2, qual1, qual2, header = read.GetValue()
+					species := f.OnePhaseQuery(read1, read2, qual1, qual2 , header, start_time, strategy, kmer_qual)
 					query_results.Add(string(read.header), species)
 				}
 
