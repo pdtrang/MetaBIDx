@@ -49,9 +49,9 @@ func (s *FastqScanner) Scan() bool {
             return false
         }
     } else {
-        // s.Header = s.NextHeader
-        s.Header = make([]byte, len(s.NextHeader))
-        copy(s.Header, s.NextHeader)
+        s.Header = s.NextHeader
+        // s.Header = make([]byte, len(s.NextHeader))
+        // copy(s.Header, s.NextHeader)
     }
 
     // 2. Read Fastq sequence
@@ -68,8 +68,8 @@ func (s *FastqScanner) Scan() bool {
         if line[0] == '+' {
             break
         }
-        // seq = line
-        copy(seq, line)
+        seq = line
+        // copy(seq, line)
 
     }
 
@@ -91,8 +91,8 @@ func (s *FastqScanner) Scan() bool {
         if line[0] == 'A' || line[0] == 'T' || line[0] == 'G' || line[0] == 'C' || line[0] == 'N' {
             break
         }
-        // qual = line
-        copy(qual, line)
+        qual = line
+        // copy(qual, line)
 
     }
     s.Seq = make([]byte, len(seq))
