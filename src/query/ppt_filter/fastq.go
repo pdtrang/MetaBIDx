@@ -68,7 +68,7 @@ func (s *FastqScanner) Scan() bool {
         if line[0] == '+' {
             break
         }
-        seq = line
+        // seq = line
         copy(seq, line)
 
     }
@@ -79,7 +79,9 @@ func (s *FastqScanner) Scan() bool {
        line = s.Scanner.Bytes()
         if len(line)==0 { continue }
         if line[0] == '@' {
-            s.NextHeader = line
+            // s.NextHeader = line
+            s.NextHeader = make([]byte, len(line))
+            copy(s.NextHeader, line)
             break
         }
         if line[0] == '+' {
