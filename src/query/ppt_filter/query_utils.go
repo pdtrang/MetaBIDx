@@ -1,10 +1,10 @@
-package utils
+package ppt_filter
 
 import (
 	"fmt"
 	"os"
 	"bufio"
-	"query/ppt_filter"
+	"query/utils"
 )
 
 func WriteResults(out_filename string, query_results ppt_filter.SafeMap) {
