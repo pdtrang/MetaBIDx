@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"os"
 	"bufio"
-	"query/utils"
 )
 
-func WriteResults(out_filename string, query_results ppt_filter.SafeMap) {
+func WriteResults(out_filename string, query_results SafeMap) {
 	f, err := os.OpenFile(out_filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		panic(err)

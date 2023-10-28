@@ -7,6 +7,8 @@ import (
 	// "sync"
 )
 
+const Dirty = uint16(65534)
+
 func (f *Filter) OnePhaseQuery(read_1 []byte, read_2 []byte, qual1 []byte, qual2 []byte, header []byte, start_time time.Time, strategy string, kmer_qual_threshold int) string {
 	//StartProfile()
 	//defer Timer()()
