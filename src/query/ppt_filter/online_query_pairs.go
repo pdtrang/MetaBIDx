@@ -22,6 +22,11 @@ type Read struct {
 	mut    sync.Mutex
 }
 
+type ReadChan struct {
+	Mut sync.Mutex
+	channel chan Read
+}
+
 func (r *Read) GetValue() ([]byte, []byte, []byte, []byte, []byte) {
 	r.mut.Lock()
 	defer r.mut.Unlock()
@@ -41,7 +46,7 @@ func NewRead(header []byte, read1 []byte, read2 []byte, qual1 []byte, qual2 []by
 //-----------------------------------------------------------------------------
 // Scan single reads to channel
 //-----------------------------------------------------------------------------
-func ScanSingleReads2Channel(read_file_1 string) chan Read {
+func ScanSingleReads2Channel(read_file_1 string) ReadChan {
 	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
 
 	log.Printf("Opening fastq files")
@@ -56,11 +61,16 @@ func ScanSingleReads2Channel(read_file_1 string) chan Read {
 	numCores := runtime.NumCPU()
 	runtime.GOMAXPROCS(numCores)
 
-	reads_channel := make(chan Read, numCores)
+	reads_channel := ReadChan{
+		channel: make(chan Read, numCores),
+	}
+	// reads_channel := make(chan Read, numCores)
 	go func() {
 		for scanner.Scan() {
 			// fmt.Println(scanner.Header, scanner.Seq, scanner2.Seq)
-			reads_channel <- (*NewRead(scanner.Header, scanner.Seq, []byte(""), scanner.Qual, []byte("")))
+			reads_channel.Mut.Lock()
+			reads_channel.channel <- (*NewRead(scanner.Header, scanner.Seq, []byte(""), scanner.Qual, []byte("")))
+			reads_channel.Mut.Unlock()
 		}
 
 		close(reads_channel)
@@ -72,7 +82,7 @@ func ScanSingleReads2Channel(read_file_1 string) chan Read {
 //-----------------------------------------------------------------------------
 // Scan pair reads to channel
 //-----------------------------------------------------------------------------
-func ScanPairReads2Channel(read_file_1 string, read_file_2 string) chan Read {
+func ScanPairReads2Channel(read_file_1 string, read_file_2 string) ReadChan {
 	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
 
 	log.Printf("Opening fastq files")
@@ -94,14 +104,19 @@ func ScanPairReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 	numCores := runtime.NumCPU()
 	runtime.GOMAXPROCS(numCores)
 
-	reads_channel := make(chan Read, numCores)
+	reads_channel := ReadChan{
+		channel: make(chan Read, numCores),
+	}
+	// reads_channel := make(chan Read, numCores)
 	go func() {
 		for scanner.Scan() && scanner2.Scan() {
 			// fmt.Println(scanner.Header, scanner.Seq, scanner2.Seq)
 			// fmt.Println(scanner.Header)
 			// fmt.Println(string(scanner.Seq), string(scanner.Qual))
 			// fmt.Println(string(scanner2.Seq), string(scanner2.Qual))
-			reads_channel <- (*NewRead(scanner.Header, scanner.Seq, scanner2.Seq, scanner.Qual, scanner2.Qual))
+			reads_channel.Mut.Lock()
+			reads_channel.channel <- (*NewRead(scanner.Header, scanner.Seq, scanner2.Seq, scanner.Qual, scanner2.Qual))
+			reads_channel.Mut.Unlock()
 		}
 
 		close(reads_channel)
@@ -139,8 +154,6 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 	// StartProfile()
 	//defer Timer()()
 
-	var mut2 sync.Mutex
-
 	for i:=0; i<numCores; i++ {
 		wg.Add(1)
 
@@ -154,13 +167,13 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 
 				} else if f.N_phases == 1 {
 					// fmt.Println(read.header)
-					mut2.Lock()
+					reads_channel.Mut.Lock()
 					fmt.Println("\nPairQuery-Threads ", "\n read1: ", string(read.read1), "\n read2: ", string(read.read2), "\n qual1: ", string(read.qual1), "\n qual2: ", string(read.qual2))
 					read1, read2, qual1, qual2, header := read.GetValue()
 					fmt.Println("\nPairQuery-Threads - GetValue", "\n read1: ", string(read1), "\n read2: ", string(read2), "\n qual1: ", string(qual1), "\n qual2: ", string(qual2))
 					species := f.OnePhaseQuery(read1, read2, qual1, qual2 , header, start_time, strategy, kmer_qual)
 					query_results.Add(string(read.header), species)
-					mut2.Unlock()
+					reads_channel.Mut.Unlock()
 				}
 
 			}
