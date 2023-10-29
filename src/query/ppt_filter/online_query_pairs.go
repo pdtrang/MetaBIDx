@@ -88,7 +88,7 @@ func ScanPairReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 	runtime.GOMAXPROCS(numCores)
 
 	reads_channel := make(chan Read, numCores)
-	go func() {
+	// go func() {
 		for scanner.Scan() && scanner2.Scan() {
 			// fmt.Println(scanner.Header, scanner.Seq, scanner2.Seq)
 			// fmt.Println(scanner.Header)
@@ -98,7 +98,7 @@ func ScanPairReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 		}
 
 		close(reads_channel)
-	}()
+	// }()
 
 	return reads_channel
 }
