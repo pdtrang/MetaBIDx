@@ -9,6 +9,7 @@ import (
 	// "strings"
 	"runtime"
 	"sync"
+	"bufio"
 )
 
 const Empty = uint16(0)
@@ -148,11 +149,11 @@ func ReadFastqPair(filename1 string, filename2 string, reads chan<- Read) {
         // scanner2.Scan()
 
         read := Read{
-            Header: header1,
-            Read1:  read1,
-            Qual1:  qual1,
-            Read2:  read2,
-            Qual2:  qual2,
+            header: header1,
+            read1:  read1,
+            qual1:  qual1,
+            read2:  read2,
+            qual2:  qual2,
         }
 
         reads <- read
