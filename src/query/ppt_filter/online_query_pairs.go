@@ -103,6 +103,64 @@ func ScanPairReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 	return reads_channel
 }
 
+func ReadFastqPair(filename1 string, filename2 string, reads chan<- Read) {
+    file1, err := os.Open(filename1)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer file1.Close()
+
+    file2, err := os.Open(filename2)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer file2.Close()
+
+    scanner1 := bufio.NewScanner(file1)
+    scanner2 := bufio.NewScanner(file2)
+
+    for {
+        scanned1 := scanner1.Scan()
+        scanned2 := scanner2.Scan()
+
+        if !scanned1 && !scanned2 {
+            break
+        }
+
+        if !scanned1 || !scanned2 {
+            log.Fatal("Mismatched number of lines in the input files")
+        }
+
+        header1 := scanner1.Bytes()[1:]
+        scanner1.Scan()
+        read1 := scanner1.Bytes()
+        scanner1.Scan()
+        scanner1.Scan() // Skip the + line
+        qual1 := scanner1.Bytes()
+        // scanner1.Scan()
+
+        _ = scanner2.Bytes()[1:]
+        scanner2.Scan()
+        read2 := scanner2.Bytes()
+        scanner2.Scan()
+        scanner2.Scan() // Skip the + line
+        qual2 := scanner2.Bytes()
+        // scanner2.Scan()
+
+        read := Read{
+            Header: header1,
+            Read1:  read1,
+            Qual1:  qual1,
+            Read2:  read2,
+            Qual2:  qual2,
+        }
+
+        reads <- read
+    }
+
+    close(reads)
+}
+
 func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 	if len(read_file_2) == 0 {
 		return ScanSingleReads2Channel(read_file_1)
@@ -123,7 +181,8 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 	runtime.GOMAXPROCS(numCores)
 	
 	reads_channel := make(chan Read, numCores)
-	reads_channel = ScanReads2Channel(read_file_1, read_file_2)
+	// reads_channel = ScanReads2Channel(read_file_1, read_file_2)
+	ReadFastqPair(read_file_1, read_file_2, reads_channel)
 
 	var wg sync.WaitGroup
 	start_time := time.Now()
