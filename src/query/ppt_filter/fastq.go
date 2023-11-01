@@ -91,7 +91,7 @@ func (s *FastqScanner) Scan() bool {
         if line[0] == 'A' || line[0] == 'T' || line[0] == 'G' || line[0] == 'C' || line[0] == 'N' {
             break
         }
-        qual = line
+        s.Qual = line
         // copy(qual, line)
 
     }
@@ -100,7 +100,7 @@ func (s *FastqScanner) Scan() bool {
     // copy(s.Seq, seq)
     // copy(s.Qual, qual)
     s.Seq = string(seq)
-    s.Qual = string(qual)
+    // s.Qual = string(qual)
     if err := s.Scanner.Err(); err != nil {
         log.Fatal(err)
     }
