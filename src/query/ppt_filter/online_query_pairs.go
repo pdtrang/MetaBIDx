@@ -150,7 +150,8 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 					fmt.Println("\nPairQuery-Threads ", "\n read1: ", read.read1, "\n read2: ", read.read2, "\n qual1: ", read.qual1, "\n qual2: ", read.qual2)
 					species := f.OnePhaseQuery([]byte(read.read1), []byte(read.read2), []byte(read.qual1), []byte(read.qual2) , []byte(read.header), start_time, strategy, kmer_qual)
 					// query_results.Add(string(read.header), species)
-					// query_results.Add(read.header, species)					
+					// query_results.Add(read.header, species)
+					fmt.Println(read.header, species)					
 				}
 
 			}
