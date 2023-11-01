@@ -30,7 +30,7 @@ func (s *FastqScanner) Scan() bool {
     var line []byte
     var flag bool
     // 1. Read Fasta header
-    if len(s.NextHeader) == 0 {
+    if s.NextHeader == "" {
         for flag = s.Scanner.Scan(); flag; flag = s.Scanner.Scan() {
             line = s.Scanner.Bytes()
             if len(line)==0 { continue }
