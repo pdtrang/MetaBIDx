@@ -74,7 +74,7 @@ func (s *FastqScanner) Scan() bool {
     }
 
     // 3. Read Quality
-    var qual []byte
+    // var qual []byte
     for flag = s.Scanner.Scan(); flag; flag = s.Scanner.Scan() {
        line = s.Scanner.Bytes()
         if len(line)==0 { continue }
@@ -91,7 +91,7 @@ func (s *FastqScanner) Scan() bool {
         if line[0] == 'A' || line[0] == 'T' || line[0] == 'G' || line[0] == 'C' || line[0] == 'N' {
             break
         }
-        s.Qual = line
+        s.Qual = string(line)
         // copy(qual, line)
 
     }
