@@ -7,10 +7,10 @@ import (
 )
 
 type FastqScanner struct {
-    Header     []byte
-    NextHeader []byte
-    Seq        []byte
-    Qual       []byte
+    Header     string
+    NextHeader string
+    Seq        string
+    Qual       string
     Finished   bool
     Scanner    *bufio.Scanner
 }
@@ -37,7 +37,7 @@ func (s *FastqScanner) Scan() bool {
             if line[0] == '@' {
                 // s.Header = make([]byte, len(line))
                 // copy(s.Header, line)
-                s.Header = line
+                s.Header = string(line)
                 break
             }
         }
@@ -60,7 +60,7 @@ func (s *FastqScanner) Scan() bool {
         line = s.Scanner.Bytes()
         if len(line)==0 { continue }
         if line[0] == '@' {
-            s.NextHeader = line
+            s.NextHeader = string(line)
             // s.NextHeader = make([]byte, len(line))
             // copy(s.NextHeader, line)
             break
@@ -95,12 +95,12 @@ func (s *FastqScanner) Scan() bool {
         // copy(qual, line)
 
     }
-    s.Seq = make([]byte, len(seq))
-    s.Qual = make([]byte, len(qual))
-    copy(s.Seq, seq)
-    copy(s.Qual, qual)
-    // s.Seq = seq
-    // s.Qual = qual
+    // s.Seq = make([]byte, len(seq))
+    // s.Qual = make([]byte, len(qual))
+    // copy(s.Seq, seq)
+    // copy(s.Qual, qual)
+    s.Seq = string(seq)
+    s.Qual = string(qual)
     if err := s.Scanner.Err(); err != nil {
         log.Fatal(err)
     }
