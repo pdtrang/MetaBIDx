@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 	"time"
-	"../utils"
+	"query/utils"
 	// "strings"
 	"runtime"
 	"sync"

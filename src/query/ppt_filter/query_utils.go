@@ -5,7 +5,7 @@ import (
 	"time"
 	"log"
 	"os"
-	"../utils"
+	"query/utils"
 	"strings"
 	"encoding/csv"
 	"io"

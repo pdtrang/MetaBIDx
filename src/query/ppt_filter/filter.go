@@ -12,7 +12,7 @@ import (
 	"unsafe"
 	"io/ioutil"
 	"sync"
-	"../utils"
+	"query/utils"
 	"time"
 )
 
