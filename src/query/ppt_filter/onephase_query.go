@@ -143,9 +143,6 @@ func (f *Filter) OnePhaseQueryHashKmer(kmer []byte) (uint16, bool) {
 	for i := 0; i < len(f.HashFunction); i++ {
 		// fmt.Println("HashKmer - kmer: ", string(kmer))
 		j := f.HashFunction[i].HashKmer(kmer)
-		if j == int64(-1) {
-			return uint16(0), false
-		}
 
 		// is Empty
 		if f.table[j] == Empty {
