@@ -21,7 +21,7 @@ type Read struct {
 	qual2 string
 }
 
-func NewRead(header []byte, read1 []byte, read2 []byte, qual1 []byte, qual2 []byte) *Read {
+func NewRead(header string, read1 string, read2 string, qual1 string, qual2 string) *Read {
 	return &Read{
 		header:	 header,
 		read1:   read1,
@@ -53,7 +53,7 @@ func ScanSingleReads2Channel(read_file_1 string) chan Read {
 	go func() {
 		for scanner.Scan() {
 			// fmt.Println(scanner.Header, scanner.Seq, scanner2.Seq)
-			reads_channel <- (*NewRead(scanner.Header, scanner.Seq, []byte(""), scanner.Qual, []byte("")))
+			reads_channel <- (*NewRead(scanner.Header, scanner.Seq, "", scanner.Qual, ""))
 		}
 
 		close(reads_channel)
