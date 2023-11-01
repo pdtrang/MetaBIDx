@@ -10,9 +10,9 @@ import (
 
 type KmerScanner struct {
 	Seq         []byte
-	Qual		[]byte
+	Qual		string
 	Kmer        []byte
-	Kmer_qual	[]byte
+	Kmer_qual	string
 	K           int
 	I           int
 	IsFirstKmer bool
@@ -33,7 +33,7 @@ func NewKmerScanner(seq []byte, k int) *KmerScanner {
 }
 
 //-----------------------------------------------------------------------------
-func NewKmerScannerQual(seq []byte, k int, qual []byte) *KmerScanner {
+func NewKmerScannerQual(seq []byte, k int, qual string) *KmerScanner {
 	return &KmerScanner{
 		Seq:         seq,
 		Qual: 		 qual,

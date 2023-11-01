@@ -53,7 +53,7 @@ func ScanSingleReads2Channel(read_file_1 string) chan Read {
 	go func() {
 		for scanner.Scan() {
 			// fmt.Println(scanner.Header, scanner.Seq, scanner2.Seq)
-			reads_channel <- (*NewRead(scanner.Header, scanner.Seq, "", scanner.Qual, ""))
+			reads_channel <- (*NewRead(scanner.Header, scanner.Seq, "", scanner.Qual, "")
 		}
 
 		close(reads_channel)
@@ -148,7 +148,7 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 					// fmt.Println(read.header)
 					// fmt.Println("\nPairQuery-Threads ", "\n read1: ", string(read.read1), "\n read2: ", string(read.read2), "\n qual1: ", string(read.qual1), "\n qual2: ", string(read.qual2))
 					fmt.Println("\nPairQuery-Threads ", "\n read1: ", read.read1, "\n read2: ", read.read2, "\n qual1: ", read.qual1, "\n qual2: ", read.qual2)
-					species := f.OnePhaseQuery([]byte(read.read1), []byte(read.read2), []byte(read.qual1), []byte(read.qual2) , []byte(read.header), start_time, strategy, kmer_qual)
+					species := f.OnePhaseQuery([]byte(read.read1), []byte(read.read2), read.qual1, read.qual2, read.header, start_time, strategy, kmer_qual)
 					// query_results.Add(string(read.header), species)
 					// query_results.Add(read.header, species)
 					fmt.Println(read.header, species)					

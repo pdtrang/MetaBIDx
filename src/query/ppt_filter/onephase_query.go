@@ -9,7 +9,7 @@ import (
 
 const Dirty = uint16(65534)
 
-func (f *Filter) OnePhaseQuery(read_1 []byte, read_2 []byte, qual1 []byte, qual2 []byte, header []byte, start_time time.Time, strategy string, kmer_qual_threshold int) string {
+func (f *Filter) OnePhaseQuery(read_1 []byte, read_2 []byte, qual1 string, qual2 string, header string, start_time time.Time, strategy string, kmer_qual_threshold int) string {
 	//StartProfile()
 	//defer Timer()()
 	return f.OnePhaseMajorityQuery(read_1, read_2, qual1, qual2, header, start_time, kmer_qual_threshold)
@@ -39,7 +39,7 @@ func FindMajority_GID(gidx map[uint16][][]byte) uint16 {
 	return uint16(0)
 }
 
-func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 []byte, qual2 []byte, header []byte, start_time time.Time, kmer_qual_threshold int) string {
+func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 string, qual2 string, header string, start_time time.Time, kmer_qual_threshold int) string {
 	//defer Timer()()
 	//fmt.Println("Read ", header)
 	gidx := make(map[uint16][][]byte) // map to keep all the hit kmers for each genome
@@ -73,12 +73,12 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 []byt
 	}
 }
 
-func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx map[uint16][][]byte, kmer_qual_threshold int) {
+func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual string, gidx map[uint16][][]byte, kmer_qual_threshold int) {
 	if len(qual) != 0 {
-		fmt.Println("OnePhaseMajQueryRead - func inputs", " read ", string(read), " qual ", string(qual))
+		fmt.Println("OnePhaseMajQueryRead - func inputs", " read ", string(read), " qual ", qual)
 
 		kmer_scanner := NewKmerScannerQual(read, f.K, qual)
-		fmt.Println("OnePhaseMajQueryRead - before loop ", string(kmer_scanner.Seq), string(kmer_scanner.Qual))
+		fmt.Println("OnePhaseMajQueryRead - before loop ", string(kmer_scanner.Seq), kmer_scanner.Qual)
 		kmer_gid := uint16(0)
 		is_valid_kmer := false
 		for kmer_scanner.ScanOneStrand() {
@@ -124,13 +124,14 @@ func CheckMajorityHashValues(gid_map map[uint16]int, num_hash int) (uint16, bool
 
 }
 
-func isGoodKmer(kmer_qual []byte, kmer_qual_threshold int) bool {
+func isGoodKmer(kmer_qual string, kmer_qual_threshold int) bool {
+	runes := []rune(kmer_qual)
 	total := 0
-	for i := 0; i < len(kmer_qual); i++ {
-		r := kmer_qual[i] - 33
+	for i := 0; i < len(runes); i++ {
+		r := runes[i] - 33
 		total += int(r)
 	}
-	mean_qual := total / len(kmer_qual)
+	mean_qual := total/len(kmer_qual)
 	if mean_qual < kmer_qual_threshold {
 		return false
 	}
