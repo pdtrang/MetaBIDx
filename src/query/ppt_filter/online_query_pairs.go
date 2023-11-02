@@ -31,28 +31,6 @@ func NewRead(header string, read1 string, read2 string, qual1 string, qual2 stri
 	}
 }
 
-func InitBacteriaMap(f *Filter, upper_threshold float64, lower_threshold float64) map[uint16]*Bacteria {
-	defer utils.TimeConsume(time.Now(), "Run time - InitBacteriaMap: ")
-
-	bacteria_map := make(map[uint16]*Bacteria)
-	
-	for k, v := range f.Total_signatures {
-		if k != Empty && k != Dirty {
-			// fmt.Println("k: ", k)
-			bacteria_map[k] = NewBacteria(k, float64(v) * upper_threshold, float64(v) * lower_threshold)
-		}
-	}
-
-	real_num_bacteria := 0
-	for i := range bacteria_map {
-		if bacteria_map[i].UpperThreshold > 0 {
-			real_num_bacteria += 1
-		}
-	}
-
-	return bacteria_map
-}
-
 func ScanSingleReads2Channel(read_file_1 string) chan Read {
 	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
 
