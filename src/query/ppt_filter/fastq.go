@@ -84,12 +84,12 @@ func (s *FastqScanner) Scan() bool {
         qual = line
 
     }
-    // s.Seq = make([]byte, len(seq))
-    // s.Qual = make([]byte, len(qual))
-    // copy(s.Seq, seq)
-    // copy(s.Qual, qual)
-    s.Seq = seq
-    s.Qual = qual
+    s.Seq = make([]byte, len(seq))
+    s.Qual = make([]byte, len(qual))
+    copy(s.Seq, seq)
+    copy(s.Qual, qual)
+    // s.Seq = seq
+    // s.Qual = qual
     if err := s.Scanner.Err(); err != nil {
         log.Fatal(err)
     }
