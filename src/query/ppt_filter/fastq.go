@@ -7,8 +7,8 @@ import (
 )
 
 type FastqScanner struct {
-    Header     string
-    NextHeader string
+    Header     []byte
+    NextHeader []byte
     Seq        []byte
     Qual       []byte
     Finished   bool
@@ -35,7 +35,9 @@ func (s *FastqScanner) Scan() bool {
             line = s.Scanner.Bytes()
             if len(line)==0 { continue }
             if line[0] == '@' {
-                s.Header = string(line)
+                // s.Header = string(line)
+                s.Header = make([]byte, len(line))
+                copy(s.Header, line)
                 break
             }
         }
@@ -56,7 +58,9 @@ func (s *FastqScanner) Scan() bool {
         line = s.Scanner.Bytes()
         if len(line)==0 { continue }
         if line[0] == '@' {
-            s.NextHeader = string(line)
+            // s.NextHeader = string(line)
+            s.NextHeader = make([]byte, len(line))
+            copy(s.NextHeader, line)
             break
         }
         if line[0] == '+' {
@@ -71,7 +75,9 @@ func (s *FastqScanner) Scan() bool {
        line = s.Scanner.Bytes()
         if len(line)==0 { continue }
         if line[0] == '@' {
-            s.NextHeader = string(line)
+            // s.NextHeader = string(line)
+            s.NextHeader = make([]byte, len(line))
+            copy(s.NextHeader, line)
             break
         }
         if line[0] == '+' {
