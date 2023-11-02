@@ -75,10 +75,10 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 []byt
 
 func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx map[uint16][][]byte, kmer_qual_threshold int) {
 	if len(qual) != 0 {
-		fmt.Println("OnePhaseMajQueryRead - func inputs", " read ", string(read), " qual ", string(qual))
+		// fmt.Println("OnePhaseMajQueryRead - func inputs", " read ", string(read), " qual ", string(qual))
 
 		kmer_scanner := NewKmerScannerQual(read, f.K, qual)
-		fmt.Println("OnePhaseMajQueryRead - before loop ", string(kmer_scanner.Seq), string(kmer_scanner.Qual))
+		// fmt.Println("OnePhaseMajQueryRead - before loop ", string(kmer_scanner.Seq), string(kmer_scanner.Qual))
 		kmer_gid := uint16(0)
 		is_valid_kmer := false
 		for kmer_scanner.ScanOneStrand() {
@@ -87,7 +87,7 @@ func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx map[ui
 				continue
 			}
 
-			fmt.Println("OnePhaseMajQueryRead ", string(read), "   kmer: ", string(kmer_scanner.Kmer), "  kmer_qual: ",string(kmer_scanner.Kmer_qual))
+			// fmt.Println("OnePhaseMajQueryRead ", string(read), "   kmer: ", string(kmer_scanner.Kmer), "  kmer_qual: ",string(kmer_scanner.Kmer_qual))
 			// continue query if it is a good kmer
 			kmer_gid, is_valid_kmer = f.OnePhaseQueryHashKmer(kmer_scanner.Kmer)	
 
