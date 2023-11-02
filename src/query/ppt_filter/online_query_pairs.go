@@ -14,14 +14,14 @@ import (
 const Empty = uint16(0)
 
 type Read struct {
-	header []byte
+	header string
 	read1 []byte
 	qual1 []byte
 	read2 []byte
 	qual2 []byte
 }
 
-func NewRead(header []byte, read1 []byte, read2 []byte, qual1 []byte, qual2 []byte) *Read {
+func NewRead(header string, read1 []byte, read2 []byte, qual1 []byte, qual2 []byte) *Read {
 	return &Read{
 		header:	 header,
 		read1:   read1,
@@ -147,8 +147,8 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 				} else if f.N_phases == 1 {
 					// fmt.Println(read.header)
 					// fmt.Println("\nPairQuery-Threads ", "\n read1: ", string(read.read1), "\n read2: ", string(read.read2), "\n qual1: ", string(read.qual1), "\n qual2: ", string(read.qual2))
-					species := f.OnePhaseQuery(read.read1, read.read2, read.qual1, read.qual2 , read.header, start_time, strategy, kmer_qual)
-					query_results.Add(string(read.header), species)
+					species := f.OnePhaseMajorityQuery(read.read1, read.read2, read.qual1, read.qual2, start_time, strategy, kmer_qual)
+					query_results.Add(read.header, species)
 				}
 
 			}

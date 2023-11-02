@@ -9,10 +9,10 @@ import (
 
 const Dirty = uint16(65534)
 
-func (f *Filter) OnePhaseQuery(read_1 []byte, read_2 []byte, qual1 []byte, qual2 []byte, header []byte, start_time time.Time, strategy string, kmer_qual_threshold int) string {
-	//StartProfile()
-	//defer Timer()()
-	return f.OnePhaseMajorityQuery(read_1, read_2, qual1, qual2, header, start_time, kmer_qual_threshold)
+// func (f *Filter) OnePhaseQuery(read_1 []byte, read_2 []byte, qual1 []byte, qual2 []byte, start_time time.Time, strategy string, kmer_qual_threshold int) string {
+// 	//StartProfile()
+// 	//defer Timer()()
+// 	return f.OnePhaseMajorityQuery(read_1, read_2, qual1, qual2, header, start_time, kmer_qual_threshold)
 }
 
 //-----------------------------------------------------------------------------
@@ -39,7 +39,7 @@ func FindMajority_GID(gidx map[uint16][][]byte) uint16 {
 	return uint16(0)
 }
 
-func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 []byte, qual2 []byte, header []byte, start_time time.Time, kmer_qual_threshold int) string {
+func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 []byte, qual2 []byte, start_time time.Time, strategy string, kmer_qual_threshold int) string {
 	//defer Timer()()
 	//fmt.Println("Read ", header)
 	gidx := make(map[uint16][][]byte) // map to keep all the hit kmers for each genome
@@ -142,9 +142,6 @@ func (f *Filter) OnePhaseQueryHashKmer(kmer []byte) (uint16, bool) {
 	for i := 0; i < len(f.HashFunction); i++ {
 		// fmt.Println("HashKmer - kmer: ", string(kmer))
 		j := f.HashFunction[i].HashKmer(kmer)
-		if j == int64(-1) {
-			return uint16(0), false
-		}
 
 		// is Empty
 		if f.table[j] == Empty {
