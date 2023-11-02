@@ -53,22 +53,8 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 []byt
 	idx := FindMajority_GID(gidx)	
 
 	if idx != uint16(0) {
-		//fmt.Println("Read ", header, "|", f.Gid[idx])
-		//fmt.Println("Read ", string(read_1), "|", f.Gid[idx])
-		//fmt.Println("Read ", header, "|", f.Gid[idx])
-		//fmt.Println("Read qual ", string(qual1), string(qual2))
-                //text := header + " | " + f.Gid[idx] + "\n"
-		//WriteResult(out_filename, text)
-		// query_results.Add(header, f.Gid[idx])
 		return f.Gid[idx]
 	} else {
-		//fmt.Println("Read ", header, "|", idx," |unclassified")
-		//fmt.Println("Read ", string(read_1), "|", idx," |unclassified")
-		//fmt.Println("Read qual ", string(qual1), string(qual2))
-		// return 0
-                //text := header + "| unclassified\n"
-		//WriteResult(out_filename, text)
-		// query_results.Add(header, "unclassified")
 		return "unclassified"
 	}
 }
