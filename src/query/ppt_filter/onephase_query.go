@@ -13,7 +13,7 @@ const Dirty = uint16(65534)
 // 	//StartProfile()
 // 	//defer Timer()()
 // 	return f.OnePhaseMajorityQuery(read_1, read_2, qual1, qual2, header, start_time, kmer_qual_threshold)
-}
+// }
 
 //-----------------------------------------------------------------------------
 // Majority
