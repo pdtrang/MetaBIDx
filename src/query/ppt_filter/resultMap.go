@@ -6,7 +6,7 @@ import (
 
 type SafeMap struct {
 	Mu sync.Mutex
-	Map map[[]byte]string
+	Map map[string]string
 }
 
 func (sm *SafeMap) Add(key []byte, value string) {

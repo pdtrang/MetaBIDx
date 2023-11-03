@@ -18,7 +18,7 @@ func WriteResults(out_filename string, query_results SafeMap) {
 	query_results.Mu.Lock()
 	defer query_results.Mu.Unlock()
 	for key, value := range query_results.Map {
-		_, err := fmt.Fprintf(writer, "%s | %s\n", string(key), value)
+		_, err := fmt.Fprintf(writer, "%s | %s\n", key, value)
 		if err != nil {
 			panic(err)
 		}
