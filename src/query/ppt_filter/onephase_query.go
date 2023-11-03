@@ -18,17 +18,17 @@ const Dirty = uint16(65534)
 //-----------------------------------------------------------------------------
 // Majority
 //-----------------------------------------------------------------------------
-func FindMajority_GID(gidx map[uint16][][]byte) uint16 {
+func FindMajority_GID(gidx map[uint16]int) uint16 {
 	// fmt.Println("Find majority GID", gidx)
 	maxCount := 0
 	index := uint16(0)
 	total_count := 0 
-	for key, element := range gidx {
-		if len(element) > maxCount {
-			maxCount = len(element)
+	for key, val := range gidx {
+		if val > maxCount {
+			maxCount = val
 			index = key
 		}	
-		total_count += len(element)
+		total_count += val
 	}
 	
 	if maxCount > total_count/2 {
@@ -42,7 +42,7 @@ func FindMajority_GID(gidx map[uint16][][]byte) uint16 {
 func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 []byte, qual2 []byte, start_time time.Time, strategy string, kmer_qual_threshold int) string {
 	// defer Timer()()
 	//fmt.Println("Read ", header)
-	gidx := make(map[uint16][][]byte) // map to keep all the hit kmers for each genome
+	gidx := make(map[uint16]int) // map to keep all the hit kmers for each genome
 
 	f.OnePhaseMajorityQueryRead(read_1, qual1, gidx, kmer_qual_threshold)
 
@@ -59,7 +59,7 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 []byt
 	}
 }
 
-func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx map[uint16][][]byte, kmer_qual_threshold int) {
+func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx map[uint16]int, kmer_qual_threshold int) {
 	if len(qual) != 0 {
 		// fmt.Println("OnePhaseMajQueryRead - func inputs", " read ", string(read), " qual ", string(qual))
 
@@ -78,7 +78,10 @@ func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx map[ui
 			kmer_gid, is_valid_kmer = f.OnePhaseQueryHashKmer(kmer_scanner.Kmer)	
 
 			if is_valid_kmer {
-				gidx[kmer_gid] = append(gidx[kmer_gid], kmer_scanner.Kmer)
+				gidx[kmer_gid] += 1
+				if gidx[kmer_idx] > (len(read)/2) {
+					break
+				}
 			}
 		}
 	}

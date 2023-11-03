@@ -167,8 +167,3 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 	//utils.PrintMemUsage()
 }
 
-
-
-
-
-
