@@ -140,7 +140,7 @@ func (h *LinearHash) ComputeKmer(read []byte, start int, k int) int64 {
     var base *big.Int
     value := big.NewInt(0)
     for i := start; i <= (start + k - 1); i++ {
-        fmt.Println(i, string(read[i]))
+        // fmt.Println(i, string(read[i]))
         if read[i] == 'A' {
             base = big.NewInt(0)
         } else if read[i] == 'C' {
@@ -154,11 +154,11 @@ func (h *LinearHash) ComputeKmer(read []byte, start int, k int) int64 {
             panic("ComputeKmer: " + string(read) + " ------ Unknown character: " + string(read[i]))
         }
         cur_term := big.NewInt(0)
-        cur_term.Mul(base, h.Exponents[i])
+        cur_term.Mul(base, h.Exponents[i-start])
         cur_term.Mod(cur_term, h.P)
         value.Add(value, cur_term)
         value.Mod(value, h.P)
-        if i == 0 {
+        if (i-start) == 0 {
             h.Term0 = cur_term
         }
     }
