@@ -42,7 +42,8 @@ func FindMajority_GID(gidx map[uint16][][]byte) uint16 {
 func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 []byte, qual2 []byte, start_time time.Time, strategy string, kmer_qual_threshold int) string {
 	//defer Timer()()
 	//fmt.Println("Read ", header)
-	gidx := make(map[uint16][][]byte) // map to keep all the hit kmers for each genome
+	// gidx := make(map[uint16][][]byte) // map to keep all the hit kmers for each genome
+	gidx := make(map[uint16]int) // map to keep all the hit kmers for each genome
 
 	f.OnePhaseMajorityQueryRead(read_1, qual1, gidx, kmer_qual_threshold)
 
@@ -50,7 +51,21 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 []byt
 		f.OnePhaseMajorityQueryRead(read_2, qual2, gidx, kmer_qual_threshold)
 	}
 		
-	idx := FindMajority_GID(gidx)	
+	// idx := FindMajority_GID(gidx)	
+	idx := uint16(0)
+	maxCount := 0
+	total_count := 0
+	for key, val := range(gidx) {
+		if gidx[key] > maxCount {
+			maxCount = gidx[key]
+			idx = key
+		}
+		total_count += gidx[key]
+	}
+
+	if maxCount < total_count/2 {
+		idx = uint16(0)
+	} 
 
 	if idx != uint16(0) {
 		return f.Gid[idx]
@@ -59,7 +74,7 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 []byt
 	}
 }
 
-func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx map[uint16][][]byte, kmer_qual_threshold int) {
+func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx map[uint16]int, kmer_qual_threshold int) {
 	if len(qual) != 0 {
 		// fmt.Println("OnePhaseMajQueryRead - func inputs", " read ", string(read), " qual ", string(qual))
 
@@ -78,7 +93,8 @@ func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx map[ui
 			kmer_gid, is_valid_kmer = f.OnePhaseQueryHashKmer(read, i)	
 
 			if is_valid_kmer {
-				gidx[kmer_gid] = append(gidx[kmer_gid], read[i:i+f.K])
+				// gidx[kmer_gid] = append(gidx[kmer_gid], read[i:i+f.K])
+				gidx[kmer_gid] += 1
 			}
 		}
 	}
