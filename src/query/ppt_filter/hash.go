@@ -136,7 +136,7 @@ func (h *LinearHash) ComputeKmer(read []byte, start int, k int) int64 {
     // if len(kmer) != h.K {
     //     panic("Unmatched k-mer length")
     // }
-    fmt.Println("ComputeKmer - kmer ", string(read[i:i+k]))
+    fmt.Println("ComputeKmer - kmer ", string(read[start:start+k]))
     var base *big.Int
     value := big.NewInt(0)
     for i := start; i <= (start + k - 1); i++ {
