@@ -66,6 +66,7 @@ func ScanSingleReads2Channel(read_file_1 string) chan Read {
 // Scan pair reads to channel
 //-----------------------------------------------------------------------------
 func ScanPairReads2Channel(read_file_1 string, read_file_2 string) chan Read {
+	defer Timer()()
 	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
 
 	log.Printf("Opening fastq files")
@@ -131,7 +132,7 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 	log.Printf("Start querying...")
 
 	// StartProfile()
-	//defer Timer()()
+	defer Timer()()
 
 	for i:=0; i<numCores; i++ {
 		wg.Add(1)
