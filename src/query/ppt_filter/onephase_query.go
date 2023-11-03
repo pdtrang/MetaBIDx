@@ -126,7 +126,7 @@ func isGoodKmer(read_qual []byte, start int, k int, kmer_qual_threshold int) boo
 func (f *Filter) OnePhaseQueryHashKmer(read []byte, start int) (uint16, bool) {
 	gid_map := make(map[uint16]int)
 	for i := 0; i < len(f.HashFunction); i++ {
-		fmt.Println("HashKmer - kmer: ", string(read[start + f.K]))
+		fmt.Println("HashKmer - kmer: ", string(read[start:start + f.K]))
 		j := f.HashFunction[i].HashKmer(read, start, f.K)
 
 		// is Empty
