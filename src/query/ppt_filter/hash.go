@@ -167,9 +167,9 @@ func (h *LinearHash) ComputeKmer(read []byte, start int, k int) int64 {
 //-----------------------------------------------------------------------------
 func (h *LinearHash) HashKmer(read []byte, start int, k int) int64 {
     // fmt.Println("HashKmer func: ", string(kmer))
-    if len(kmer) != h.K {
-        panic("Unmatched k-mer length")
-    }    
+    // if len(kmer) != h.K {
+    //     panic("Unmatched k-mer length")
+    // }    
 
     return h.HashInt64(h.ComputeKmer(read, start, k))
 }
