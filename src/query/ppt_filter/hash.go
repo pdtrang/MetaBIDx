@@ -138,7 +138,7 @@ func (h *LinearHash) ComputeKmer(read []byte, start int, k int) int64 {
     // }
     var base *big.Int
     value := big.NewInt(0)
-    for i := start; i <= (start + k); i++ {
+    for i := start; i <= (start + k - 1); i++ {
         if read[i] == 'A' {
             base = big.NewInt(0)
         } else if read[i] == 'C' {
