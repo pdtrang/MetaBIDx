@@ -112,7 +112,7 @@ func CheckMajorityHashValues(gid_map map[uint16]int, num_hash int) (uint16, bool
 
 func isGoodKmer(read_qual []byte, start int, k int, kmer_qual_threshold int) bool {
 	total := 0
-	for i := start; i <= (start + k); i++ {
+	for i := start; i <= (start + k -1); i++ {
 		r := read_qual[i] - 33
 		total += int(r)
 	}
