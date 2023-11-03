@@ -6,10 +6,10 @@ import (
 
 type SafeMap struct {
 	Mu sync.Mutex
-	Map map[string]string
+	Map map[[]byte]string
 }
 
-func (sm *SafeMap) Add(key string, value string) {
+func (sm *SafeMap) Add(key []byte, value string) {
 	sm.Mu.Lock()
 	defer sm.Mu.Unlock()
 	sm.Map[key] = value
