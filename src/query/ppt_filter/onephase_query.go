@@ -79,7 +79,7 @@ func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx map[ui
 
 			if is_valid_kmer {
 				gidx[kmer_gid] += 1
-				if gidx[kmer_idx] > (len(read)/2) {
+				if gidx[kmer_gid] > (len(read)/2) {
 					break
 				}
 			}
