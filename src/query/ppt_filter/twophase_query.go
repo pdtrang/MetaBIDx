@@ -228,7 +228,8 @@ func (f *Filter) TwoPhasesQueryHashKmer(kmer []byte, is_first_kmer bool) (uint16
 
 	idx := uint16(0)
 	for i := 0; i < len(f.HashFunction); i++ {
-		j := f.HashFunction[i].HashKmer(kmer)
+		// j := f.HashFunction[i].HashKmer(kmer)
+		j := i
 
 		// is either Dirty or Empty
 		if f.table[j] == Dirty || f.table[j] == Empty {
