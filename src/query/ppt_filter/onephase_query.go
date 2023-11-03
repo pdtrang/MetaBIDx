@@ -63,22 +63,21 @@ func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx map[ui
 	if len(qual) != 0 {
 		// fmt.Println("OnePhaseMajQueryRead - func inputs", " read ", string(read), " qual ", string(qual))
 
-		kmer_scanner := NewKmerScannerQual(read, f.K, qual)
 		// fmt.Println("OnePhaseMajQueryRead - before loop ", string(kmer_scanner.Seq), string(kmer_scanner.Qual))
 		kmer_gid := uint16(0)
 		is_valid_kmer := false
-		for kmer_scanner.ScanOneStrand() {
+		for i := 0; i <= (len(read) - f.K); i++ {
 			// check kmer quality 
-			if !isGoodKmer(kmer_scanner.Kmer_qual, kmer_qual_threshold){
+			if !isGoodKmer(read, i, f.K, kmer_qual_threshold){
 				continue
 			}
 
 			// fmt.Println("OnePhaseMajQueryRead ", string(read), "   kmer: ", string(kmer_scanner.Kmer), "  kmer_qual: ",string(kmer_scanner.Kmer_qual))
 			// continue query if it is a good kmer
-			kmer_gid, is_valid_kmer = f.OnePhaseQueryHashKmer(kmer_scanner.Kmer)	
+			kmer_gid, is_valid_kmer = f.OnePhaseQueryHashKmer(read, i)	
 
 			if is_valid_kmer {
-				gidx[kmer_gid] = append(gidx[kmer_gid], kmer_scanner.Kmer)
+				gidx[kmer_gid] = append(gidx[kmer_gid], read[i:i+f.K])
 			}
 		}
 	}
@@ -110,24 +109,24 @@ func CheckMajorityHashValues(gid_map map[uint16]int, num_hash int) (uint16, bool
 
 }
 
-func isGoodKmer(kmer_qual []byte, kmer_qual_threshold int) bool {
+func isGoodKmer(read_qual []byte, start int, k int, kmer_qual_threshold int) bool {
 	total := 0
-	for i := 0; i < len(kmer_qual); i++ {
-		r := kmer_qual[i] - 33
+	for i := start; i <= (start + k); i++ {
+		r := read_qual[i] - 33
 		total += int(r)
 	}
-	mean_qual := total / len(kmer_qual)
+	mean_qual := total / k
 	if mean_qual < kmer_qual_threshold {
 		return false
 	}
 	return true
 }
 
-func (f *Filter) OnePhaseQueryHashKmer(kmer []byte) (uint16, bool) {
+func (f *Filter) OnePhaseQueryHashKmer(read []byte, start int) (uint16, bool) {
 	gid_map := make(map[uint16]int)
 	for i := 0; i < len(f.HashFunction); i++ {
 		// fmt.Println("HashKmer - kmer: ", string(kmer))
-		j := f.HashFunction[i].HashKmer(kmer)
+		j := f.HashFunction[i].HashKmer(read, start, f.K)
 
 		// is Empty
 		if f.table[j] == Empty {

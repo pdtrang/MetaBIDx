@@ -131,25 +131,25 @@ func (h *LinearHash) SetK(k int) {
 }
 
 //-----------------------------------------------------------------------------
-func (h *LinearHash) ComputeKmer(kmer []byte) int64 {
+func (h *LinearHash) ComputeKmer(read []byte, start int, k int) int64 {
     // fmt.Println("---Compute Kmer: ", string(kmer))
-    if len(kmer) != h.K {
-        panic("Unmatched k-mer length")
-    }
+    // if len(kmer) != h.K {
+    //     panic("Unmatched k-mer length")
+    // }
     var base *big.Int
     value := big.NewInt(0)
-    for i := 0; i < len(kmer); i++ {
-        if kmer[i] == 'A' {
+    for i := start; i <= (start + k); i++ {
+        if read[i] == 'A' {
             base = big.NewInt(0)
-        } else if kmer[i] == 'C' {
+        } else if read[i] == 'C' {
             base = big.NewInt(1)
-        } else if kmer[i] == 'G' {
+        } else if read[i] == 'G' {
             base = big.NewInt(2)
-        } else if kmer[i] == 'T' {
+        } else if read[i] == 'T' {
             base = big.NewInt(3)
         } else {
             // fmt.Println(string(kmer))
-            panic("ComputeKmer: " + string(kmer) + " ------ Unknown character: " + string(kmer[i]))
+            panic("ComputeKmer: " + string(read) + " ------ Unknown character: " + string(read[i]))
         }
         cur_term := big.NewInt(0)
         cur_term.Mul(base, h.Exponents[i])
@@ -165,13 +165,13 @@ func (h *LinearHash) ComputeKmer(kmer []byte) int64 {
 }
 
 //-----------------------------------------------------------------------------
-func (h *LinearHash) HashKmer(kmer []byte) int64 {
+func (h *LinearHash) HashKmer(read []byte, start int, k int) int64 {
     // fmt.Println("HashKmer func: ", string(kmer))
     if len(kmer) != h.K {
         panic("Unmatched k-mer length")
     }    
 
-    return h.HashInt64(h.ComputeKmer(kmer))
+    return h.HashInt64(h.ComputeKmer(read, start, k))
 }
 
 //-----------------------------------------------------------------------------
