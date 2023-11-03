@@ -2,7 +2,7 @@ package ppt_filter
 
 import (
 	"time"
-	"fmt"
+	// "fmt"
 	//"os"
 	// "sync"
 )
@@ -73,7 +73,7 @@ func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx map[ui
 			}
 
 			// fmt.Println("OnePhaseMajQueryRead ", string(read), "   kmer: ", string(kmer_scanner.Kmer), "  kmer_qual: ",string(kmer_scanner.Kmer_qual))
-			fmt.Println("OnePhaseMajQueryRead ", i, string(read[i:i+f.K]))
+			// fmt.Println("OnePhaseMajQueryRead ", i, string(read[i:i+f.K]))
 			// continue query if it is a good kmer
 			kmer_gid, is_valid_kmer = f.OnePhaseQueryHashKmer(read, i)	
 
@@ -126,7 +126,7 @@ func isGoodKmer(read_qual []byte, start int, k int, kmer_qual_threshold int) boo
 func (f *Filter) OnePhaseQueryHashKmer(read []byte, start int) (uint16, bool) {
 	gid_map := make(map[uint16]int)
 	for i := 0; i < len(f.HashFunction); i++ {
-		fmt.Println("HashKmer - kmer: ", string(read[start:start + f.K]))
+		// fmt.Println("HashKmer - kmer: ", string(read[start:start + f.K]))
 		j := f.HashFunction[i].HashKmer(read, start, f.K)
 
 		// is Empty
