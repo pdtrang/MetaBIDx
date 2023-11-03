@@ -9,7 +9,7 @@ type SafeMap struct {
 	Map map[string]string
 }
 
-func (sm *SafeMap) Add(key []byte, value string) {
+func (sm *SafeMap) Add(key string, value string) {
 	sm.Mu.Lock()
 	defer sm.Mu.Unlock()
 	sm.Map[key] = value
