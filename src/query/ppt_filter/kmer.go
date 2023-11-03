@@ -47,18 +47,30 @@ func NewKmerScannerQual(seq []byte, k int, qual []byte) *KmerScanner {
 func (s *KmerScanner) ScanOneStrand() bool {
 
 	if s.I >= len(s.Seq)-s.K+1 || s.K > len(s.Seq) {
+		s.I = len(s.Seq) - s.K
+		s.IsFirstKmer = true
+		s.Restarted = false
 		return false
-	} 
+	} else {
+		if s.I == 0 || s.Restarted {
+			s.IsFirstKmer = true
+			s.Restarted = false
+		} else {
+			s.IsFirstKmer = false
+		}
+		for i := s.I; i < s.K+s.I; i++ {
+			if s.Seq[i] != 'A' && s.Seq[i] != 'C' && s.Seq[i] != 'G' && s.Seq[i] != 'T' {
+				s.I = i + 1
+				s.Restarted = true
+				return s.ScanOneStrand()
+			}
+		}
+		s.Kmer = s.Seq[s.I : s.K+s.I]
+		s.Kmer_qual = s.Qual[s.I : s.K+s.I]  
 
-	s.Kmer = make([]byte, s.K)
-	s.Kmer_qual = make([]byte, s.K)
-	copy(s.Kmer, s.Seq[s.I : s.K+s.I])
-	copy(s.Kmer_qual, s.Qual[s.I : s.K+s.I])
-	// s.Kmer = s.Seq[s.I : s.K+s.I]
-	// s.Kmer_qual = s.Qual[s.I : s.K+s.I]
-
-	s.I++
-	return true
+		s.I++
+		return true
+	}
 }
 
 
