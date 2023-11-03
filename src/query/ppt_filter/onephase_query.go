@@ -56,11 +56,11 @@ func (f *Filter) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 []byt
 	maxCount := 0
 	total_count := 0
 	for key, val := range(gidx) {
-		if gidx[key] > maxCount {
-			maxCount = gidx[key]
+		if val > maxCount {
+			maxCount = val
 			idx = key
 		}
-		total_count += gidx[key]
+		total_count += val
 	}
 
 	if maxCount < total_count/2 {
