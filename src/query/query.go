@@ -25,7 +25,8 @@ func main() {
 
 	// Time On
 	defer utils.TimeConsume(time.Now(), "Run time: ")
-
+	StartProfile()
+	
 	// Load filter
 	log.Printf("Load filter")
 	f = ppt_filter.Load(*filter_saved_file)
