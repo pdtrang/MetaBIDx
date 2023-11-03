@@ -50,8 +50,12 @@ func (s *KmerScanner) ScanOneStrand() bool {
 		return false
 	} 
 
-	s.Kmer = s.Seq[s.I : s.K+s.I]
-	s.Kmer_qual = s.Qual[s.I : s.K+s.I]
+	s.Kmer = make([]byte, s.K)
+	s.Kmer_qual = make([]byte, s.K)
+	copy(s.Kmer, s.Seq[s.I : s.K+s.I])
+	copy(s.Kmer_qual, s.Qual[s.I : s.K+s.I])
+	// s.Kmer = s.Seq[s.I : s.K+s.I]
+	// s.Kmer_qual = s.Qual[s.I : s.K+s.I]
 
 	s.I++
 	return true
