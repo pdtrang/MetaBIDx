@@ -2,7 +2,7 @@ package ppt_filter
 
 import (
 	"time"
-	// "fmt"
+	"fmt"
 	//"os"
 	// "sync"
 )
@@ -112,7 +112,7 @@ func CheckMajorityHashValues(gid_map map[uint16]int, num_hash int) (uint16, bool
 
 func isGoodKmer(read_qual []byte, start int, k int, kmer_qual_threshold int) bool {
 	total := 0
-	for i := start; i <= (start + k -1); i++ {
+	for i := start; i < (start + k); i++ {
 		r := read_qual[i] - 33
 		total += int(r)
 	}
@@ -124,6 +124,7 @@ func isGoodKmer(read_qual []byte, start int, k int, kmer_qual_threshold int) boo
 }
 
 func (f *Filter) OnePhaseQueryHashKmer(read []byte, start int) (uint16, bool) {
+	fmt.Println("OnePhaseQueryHashKmer: ", string(read))
 	gid_map := make(map[uint16]int)
 	for i := 0; i < len(f.HashFunction); i++ {
 		// fmt.Println("HashKmer - kmer: ", string(read[start:start + f.K]))
