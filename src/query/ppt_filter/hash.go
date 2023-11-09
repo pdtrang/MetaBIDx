@@ -5,7 +5,6 @@ package ppt_filter
 
 import (
     "fmt"
-    "math/big"
     "math/rand"
     "time"
 )
@@ -44,14 +43,14 @@ func NewLinearHash(m int64) *LinearHash {
         // A: big.NewInt(23),
         // B: big.NewInt(17),
         // P: big.NewInt(97),
-        A:              big.NewInt(a),
-        B:              big.NewInt(b),
-        P:              big.NewInt(p),
+        A:              int64(a),
+        B:              int64(b),
+        P:              int64(p),
         M:              m,
-        Term0:          big.NewInt(0),
-        Term0_rc:       big.NewInt(0),
-        PrevValue:      big.NewInt(0),
-        PrevValue_rc:   big.NewInt(0),
+        Term0:          int64(0),
+        Term0_rc:       int64(0),
+        PrevValue:      int64(0),
+        PrevValue_rc:   int64(0),
     }
 }
 
@@ -68,10 +67,10 @@ func ResetLinearHash(linear_hash *LinearHash, k int) *LinearHash {
         M:              linear_hash.M,
         K:              k,
         Base:           linear_hash.Base,
-        Term0:          big.NewInt(0),
-        Term0_rc:       big.NewInt(0),
-        PrevValue:      big.NewInt(0),
-        PrevValue_rc:   big.NewInt(0),
+        Term0:          int64(0),
+        Term0_rc:       int64(0),
+        PrevValue:      int64(0),
+        PrevValue_rc:   int64(0),
         Exponents:      linear_hash.Exponents,
     }
 }
@@ -80,11 +79,11 @@ func ResetLinearHash(linear_hash *LinearHash, k int) *LinearHash {
 func (h *LinearHash) SetK(k int) {
     h.K = k
     h.Exponents = make([]*int64, k)
-    h.Base = big.NewInt(rand.Int63n(65536-4) + 4)
+    h.Base = int64(rand.Int63n(65536-4) + 4)
     // h.Base = big.NewInt(4)
-    b := big.NewInt(1)
+    b := int64(1)
     for i := k - 1; i >= 0; i-- {
-        h.Exponents[i] = big.NewInt(1)
+        h.Exponents[i] = int64(1)
         h.Exponents[i].Mul(h.Exponents[i], b)
         h.Exponents[i].Mod(h.Exponents[i], h.P)
         b = b.Mul(h.Base, b)
@@ -98,21 +97,21 @@ func (h *LinearHash) ComputeKmer(kmer []byte) int64 {
         panic("Unmatched k-mer length")
     }
     var base *int64
-    value := big.NewInt(0)
+    value := int64(0)
     for i := 0; i < len(kmer); i++ {
         if kmer[i] == 'A' {
-            base = big.NewInt(0)
+            base = int64(0)
         } else if kmer[i] == 'C' {
-            base = big.NewInt(1)
+            base = int64(1)
         } else if kmer[i] == 'G' {
-            base = big.NewInt(2)
+            base = int64(2)
         } else if kmer[i] == 'T' {
-            base = big.NewInt(3)
+            base = int64(3)
         } else {
             // fmt.Println(string(kmer))
             panic("ComputeKmer: " + string(kmer) + " ------ Unknown character: " + string(kmer[i]))
         }
-        cur_term := big.NewInt(0)
+        cur_term := int64(0)
         cur_term.Mul(base, h.Exponents[i])
         cur_term.Mod(cur_term, h.P)
         value.Add(value, cur_term)
@@ -122,7 +121,7 @@ func (h *LinearHash) ComputeKmer(kmer []byte) int64 {
         }
     }
     h.PrevValue = value
-    return value.Int64() % h.M
+    return value % h.M
 }
 
 //-----------------------------------------------------------------------------
@@ -137,11 +136,11 @@ func (h *LinearHash) HashKmer(kmer []byte) int64 {
 
 //-----------------------------------------------------------------------------
 func (h *LinearHash) HashInt64(x int64) int64 {
-    value := big.NewInt(0)
-    value.Mul(h.A, big.NewInt(x))
+    value := int64(0)
+    value.Mul(h.A, int64(x))
     value.Add(value, h.B)
     value.Mod(value, h.P)
-    return value.Int64() % h.M
+    return value % h.M
 }
 
 //-----------------------------------------------------------------------------
