@@ -16,17 +16,17 @@ import (
 //  h(x) = ((x_0*e^{k-1} + x_1*e^{k-2} + ... + x_{k-2}*e + x_{k-1}*1) mod p) mod m
 //-----------------------------------------------------------------------------
 type LinearHash struct {
-    A               *int64 // randomly selected
-    B               *int64 // randomly selected
-    P               *int64 // large prime
+    A               int64 // randomly selected
+    B               int64 // randomly selected
+    P               int64 // large prime
     M               int64    // universe/hash table size
     K               int
-    Base            *int64
-    Term0           *int64
-    Term0_rc        *int64
-    PrevValue       *int64
-    PrevValue_rc    *int64
-    Exponents       []*int64
+    Base            int64
+    Term0           int64
+    Term0_rc        int64
+    PrevValue       int64
+    PrevValue_rc    int64
+    Exponents       []int64
 }
 
 //-----------------------------------------------------------------------------
@@ -78,7 +78,7 @@ func ResetLinearHash(linear_hash *LinearHash, k int) *LinearHash {
 //-----------------------------------------------------------------------------
 func (h *LinearHash) SetK(k int) {
     h.K = k
-    h.Exponents = make([]*int64, k)
+    h.Exponents = make([]int64, k)
     h.Base = int64(rand.Int63n(65536-4) + 4)
     // h.Base = big.NewInt(4)
     b := int64(1)
@@ -96,7 +96,7 @@ func (h *LinearHash) ComputeKmer(kmer []byte) int64 {
     if len(kmer) != h.K {
         panic("Unmatched k-mer length")
     }
-    var base *int64
+    var base int64
     value := int64(0)
     for i := 0; i < len(kmer); i++ {
         if kmer[i] == 'A' {
