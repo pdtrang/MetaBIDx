@@ -76,7 +76,7 @@ func ResetLinearHash(linear_hash *LinearHash, k int) *LinearHash {
 }
 
 //-----------------------------------------------------------------------------
-func (h *LinearHash) SetK(k int64) {
+func (h *LinearHash) SetK(k int) {
     h.K = k
     h.Exponents = make([]int64, k)
     h.Base = rand.Int63n(65536-4) + 4
