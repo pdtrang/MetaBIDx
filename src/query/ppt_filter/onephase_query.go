@@ -68,6 +68,10 @@ func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx map[ui
 		kmer_gid := uint16(0)
 		is_valid_kmer := false
 		for kmer_scanner.ScanOneStrand() {
+			if len(kmer_scanner.Kmer) == 0 {
+				continue
+			}
+
 			// check kmer quality 
 			if !isGoodKmer(kmer_scanner.Kmer_qual, kmer_qual_threshold){
 				continue
