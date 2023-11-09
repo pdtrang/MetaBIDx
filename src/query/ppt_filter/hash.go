@@ -76,23 +76,21 @@ func ResetLinearHash(linear_hash *LinearHash, k int) *LinearHash {
 }
 
 //-----------------------------------------------------------------------------
-func (h *LinearHash) SetK(k int) {
+func (h *LinearHash) SetK(k int64) {
     h.K = k
     h.Exponents = make([]int64, k)
-    h.Base = int64(rand.Int63n(65536-4) + 4)
-    // h.Base = big.NewInt(4)
+    h.Base = rand.Int63n(65536-4) + 4
     b := int64(1)
     for i := k - 1; i >= 0; i-- {
-        h.Exponents[i] = int64(1)
-        h.Exponents[i].Mul(h.Exponents[i], b)
-        h.Exponents[i].Mod(h.Exponents[i], h.P)
-        b = b.Mul(h.Base, b)
+        h.Exponents[i] = 1
+        h.Exponents[i] = (h.Exponents[i] * b) % h.P
+        b = (h.Base * b) % h.P
     }
 }
 
+
 //-----------------------------------------------------------------------------
 func (h *LinearHash) ComputeKmer(kmer []byte) int64 {
-    // fmt.Println("---Compute Kmer: ", string(kmer))
     if len(kmer) != h.K {
         panic("Unmatched k-mer length")
     }
@@ -100,22 +98,19 @@ func (h *LinearHash) ComputeKmer(kmer []byte) int64 {
     value := int64(0)
     for i := 0; i < len(kmer); i++ {
         if kmer[i] == 'A' {
-            base = int64(0)
+            base = 0
         } else if kmer[i] == 'C' {
-            base = int64(1)
+            base = 1
         } else if kmer[i] == 'G' {
-            base = int64(2)
+            base = 2
         } else if kmer[i] == 'T' {
-            base = int64(3)
+            base = 3
         } else {
             // fmt.Println(string(kmer))
-            panic("ComputeKmer: " + string(kmer) + " ------ Unknown character: " + string(kmer[i]))
+            panic("ComputeKmer" + string(kmer) + "Unknown character: " + string(kmer[i]))
         }
-        cur_term := int64(0)
-        cur_term.Mul(base, h.Exponents[i])
-        cur_term.Mod(cur_term, h.P)
-        value.Add(value, cur_term)
-        value.Mod(value, h.P)
+        cur_term := (base * h.Exponents[i]) % h.P
+        value = (value + cur_term) % h.P
         if i == 0 {
             h.Term0 = cur_term
         }
@@ -123,6 +118,7 @@ func (h *LinearHash) ComputeKmer(kmer []byte) int64 {
     h.PrevValue = value
     return value % h.M
 }
+
 
 //-----------------------------------------------------------------------------
 func (h *LinearHash) HashKmer(kmer []byte) int64 {
@@ -136,12 +132,10 @@ func (h *LinearHash) HashKmer(kmer []byte) int64 {
 
 //-----------------------------------------------------------------------------
 func (h *LinearHash) HashInt64(x int64) int64 {
-    value := int64(0)
-    value.Mul(h.A, int64(x))
-    value.Add(value, h.B)
-    value.Mod(value, h.P)
+    value := (h.A * x + h.B) % h.P
     return value % h.M
 }
+
 
 //-----------------------------------------------------------------------------
 func (h *LinearHash) Show() {
