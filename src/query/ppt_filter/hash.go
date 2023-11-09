@@ -77,43 +77,43 @@ func ResetLinearHash(linear_hash *LinearHash, k int) *LinearHash {
 }
 
 //-----------------------------------------------------------------------------
-func NewLinearHashSetK(m int64, k int) *LinearHash {
-    rand.Seed(time.Now().UTC().UnixNano())
+// func NewLinearHashSetK(m int64, k int) *LinearHash {
+//     rand.Seed(time.Now().UTC().UnixNano())
 
-    // temporarily: 2^61 - 1
-    var pint int64 = 2305843009213693951
-    p := big.NewInt(pint)
-    // generate random numbers in [2, p-1]
-    a := big.NewInt((rand.Int63()%(pint-2) + 2))
-    b := big.NewInt((rand.Int63()%(pint-2) + 2))
-    // SetK
-    Expo := make([]*big.Int, k)
-    tbase := big.NewInt(rand.Int63n(65536-4) + 4)
-    tmp := big.NewInt(1)
-    for i := k - 1; i >= 0; i-- {
-        Expo[i] = big.NewInt(1)
-        Expo[i].Mul(Expo[i], tmp)
-        Expo[i].Mod(Expo[i], p)
-        tmp = tmp.Mul(tbase, tmp)
-    }
+//     // temporarily: 2^61 - 1
+//     var pint int64 = 2305843009213693951
+//     p := big.NewInt(pint)
+//     // generate random numbers in [2, p-1]
+//     a := big.NewInt((rand.Int63()%(pint-2) + 2))
+//     b := big.NewInt((rand.Int63()%(pint-2) + 2))
+//     // SetK
+//     Expo := make([]*big.Int, k)
+//     tbase := big.NewInt(rand.Int63n(65536-4) + 4)
+//     tmp := big.NewInt(1)
+//     for i := k - 1; i >= 0; i-- {
+//         Expo[i] = big.NewInt(1)
+//         Expo[i].Mul(Expo[i], tmp)
+//         Expo[i].Mod(Expo[i], p)
+//         tmp = tmp.Mul(tbase, tmp)
+//     }
 
-    return &LinearHash{
-        // A: big.NewInt(23),
-        // B: big.NewInt(17),
-        // P: big.NewInt(97),
-        A:              a,
-        B:              b,
-        P:              p,
-        M:              m,
-        Term0:          big.NewInt(0),
-        Term0_rc:       big.NewInt(0),
-        PrevValue:      big.NewInt(0),
-        PrevValue_rc:   big.NewInt(0),
-        Base:           tbase,
-        K:              k,
-        Exponents:      Expo,
-    }
-}
+//     return &LinearHash{
+//         // A: big.NewInt(23),
+//         // B: big.NewInt(17),
+//         // P: big.NewInt(97),
+//         A:              a,
+//         B:              b,
+//         P:              p,
+//         M:              m,
+//         Term0:          big.NewInt(0),
+//         Term0_rc:       big.NewInt(0),
+//         PrevValue:      big.NewInt(0),
+//         PrevValue_rc:   big.NewInt(0),
+//         Base:           tbase,
+//         K:              k,
+//         Exponents:      Expo,
+//     }
+// }
 
 //-----------------------------------------------------------------------------
 func (h *LinearHash) SetK(k int) {
