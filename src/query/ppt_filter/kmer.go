@@ -1,7 +1,7 @@
 package ppt_filter
 
 import (
-	// "fmt"
+	"fmt"
 )
 
 //-----------------------------------------------------------------------------
@@ -46,6 +46,7 @@ func NewKmerScannerQual(seq []byte, k int, qual []byte) *KmerScanner {
 //-----------------------------------------------------------------------------
 func (s *KmerScanner) ScanOneStrand() bool {
 
+	status := true
 	if s.I >= len(s.Seq)-s.K+1 || s.K > len(s.Seq) {
 		s.I = len(s.Seq) - s.K
 		s.IsFirstKmer = true
@@ -60,17 +61,27 @@ func (s *KmerScanner) ScanOneStrand() bool {
 		}
 		for i := s.I; i < s.K+s.I; i++ {
 			if s.Seq[i] != 'A' && s.Seq[i] != 'C' && s.Seq[i] != 'G' && s.Seq[i] != 'T' {
-				s.I = i + 1
+				fmt.Println("ScanOneStrand - kmer: ", string(s.Seq[s.I : s.K+s.I]))
+				status = false
+				// s.I = i + 1
 				s.Restarted = true
-				return s.ScanOneStrand()
+				// return s.ScanOneStrand()
+				break
 			}
 		}
-		s.Kmer = s.Seq[s.I : s.K+s.I]
-		s.Kmer_qual = s.Qual[s.I : s.K+s.I]  
+
+		if status {
+			s.Kmer = s.Seq[s.I : s.K+s.I]
+			s.Kmer_qual = s.Qual[s.I : s.K+s.I]	
+		} else {
+			s.Kmer = []byte("")
+			s.Kmer_qual = []byte("")
+		}
+		  
 
 		s.I++
 		return true
-	}
+	}		
 }
 
 
