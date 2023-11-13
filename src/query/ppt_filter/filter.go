@@ -497,6 +497,7 @@ func LoadFilterGob(fn string) *Filter {
 	decoder := gob.NewDecoder(file)
 	filter := &Filter{}
 	err = decoder.Decode(filter)
+	fmt.Println("load filter: ", filter.M)
 	return filter
 }
 
