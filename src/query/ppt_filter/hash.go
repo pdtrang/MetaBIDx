@@ -45,7 +45,7 @@ type LinearHash struct {
 }
 
 //-----------------------------------------------------------------------------
-func NewLinearHashInt64(m int64) *LinearHash {
+func NewLinearHashInt64(m int64) *LinearHashInt64 {
     rand.Seed(time.Now().UTC().UnixNano())
 
     // temporarily: 2^61 - 1
@@ -94,7 +94,7 @@ func NewLinearHash(m int64) *LinearHash {
 }
 
 //-----------------------------------------------------------------------------
-func ResetLinearHashInt64(linear_hash *LinearHash, k int) *LinearHash {
+func ResetLinearHashInt64(linear_hash *LinearHashInt64, k int) *LinearHashInt64 {
 
     return &LinearHash{
         // A: big.NewInt(23),
@@ -114,8 +114,28 @@ func ResetLinearHashInt64(linear_hash *LinearHash, k int) *LinearHash {
     }
 }
 
+func ResetLinearHash(linear_hash *LinearHash, k int) *LinearHash {
+
+    return &LinearHash{
+        // A: big.NewInt(23),
+        // B: big.NewInt(17),
+        // P: big.NewInt(97),
+        A:              linear_hash.A,
+        B:              linear_hash.B,
+        P:              linear_hash.P,
+        M:              linear_hash.M,
+        K:              k,
+        Base:           linear_hash.Base,
+        Term0:          big.NewInt(0),
+        Term0_rc:       big.NewInt(0),
+        PrevValue:      big.NewInt(0),
+        PrevValue_rc:   big.NewInt(0),
+        Exponents:      linear_hash.Exponents,
+    }
+}
+
 //-----------------------------------------------------------------------------
-func (h *LinearHash) SetKInt64(k int) {
+func (h *LinearHashInt64) SetKInt64(k int) {
     h.K = k
     h.Exponents = make([]int64, k)
     h.Base = rand.Int63n(65536-4) + 4
@@ -142,7 +162,7 @@ func (h *LinearHash) SetK(k int) {
 }
 
 //-----------------------------------------------------------------------------
-func (h *LinearHash) ComputeKmer(kmer []byte) int64 {
+func (h *LinearHashInt64) ComputeKmerInt64(kmer []byte) int64 {
     if len(kmer) != h.K {
         panic("Unmatched k-mer length")
     }
@@ -171,8 +191,48 @@ func (h *LinearHash) ComputeKmer(kmer []byte) int64 {
     return value % h.M
 }
 
+func (h *LinearHash) ComputeKmer(kmer []byte) int64 {
+    if len(kmer) != h.K {
+        panic("Unmatched k-mer length")
+    }
+    var base *big.Int
+    value := big.NewInt(0)
+    for i := 0; i < len(kmer); i++ {
+        if kmer[i] == 'A' {
+            base = big.NewInt(0)
+        } else if kmer[i] == 'C' {
+            base = big.NewInt(1)
+        } else if kmer[i] == 'G' {
+            base = big.NewInt(2)
+        } else if kmer[i] == 'T' {
+            base = big.NewInt(3)
+        } else {
+            fmt.Println(string(kmer))
+            panic("Unknown character: " + string(kmer[i]))
+        }
+        cur_term := big.NewInt(0)
+        cur_term.Mul(base, h.Exponents[i])
+        cur_term.Mod(cur_term, h.P)
+        value.Add(value, cur_term)
+        value.Mod(value, h.P)
+        if i == 0 {
+            h.Term0 = cur_term
+        }
+    }
+    h.PrevValue = value
+    return value.Int64() % h.M
+}
 
 //-----------------------------------------------------------------------------
+func (h *LinearHashInt64) HashKmerInt64(kmer []byte) int64 {
+    // fmt.Println("HashKmer func: ", string(kmer))
+    if len(kmer) != h.K {
+        panic("Unmatched k-mer length")
+    }    
+
+    return h.HashInt64(h.ComputeKmer(kmer))
+}
+
 func (h *LinearHash) HashKmer(kmer []byte) int64 {
     // fmt.Println("HashKmer func: ", string(kmer))
     if len(kmer) != h.K {
@@ -183,6 +243,11 @@ func (h *LinearHash) HashKmer(kmer []byte) int64 {
 }
 
 //-----------------------------------------------------------------------------
+func (h *LinearHashInt64) HashInt64(x int64) int64 {
+    value := (h.A * x + h.B) % h.P
+    return value % h.M
+}
+
 func (h *LinearHash) HashInt64(x int64) int64 {
     value := (h.A * x + h.B) % h.P
     return value % h.M

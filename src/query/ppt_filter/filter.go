@@ -95,7 +95,7 @@ func NewFilterInt64(m int64, k int, num_hashes int, n_phases int, nlocks int) *F
 		Total_signatures: make(map[uint16]int),
 		NumOfLocks: nlocks,
 	}
-	f.HashFunction = make([]*LinearHash, num_hashes)
+	f.HashFunction = make([]*LinearHashInt64, num_hashes)
 	fmt.Println("Generate random hash functions")
 	for i := 0; i < num_hashes; i++ {
 		f.HashFunction[i] = NewLinearHashInt64(m)
