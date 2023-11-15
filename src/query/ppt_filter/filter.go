@@ -516,6 +516,20 @@ func _save_hashfunction_to_json(data []*LinearHash, fn string) {
 }
 
 //-----------------------------------------------------------------------------
+func (f *FilterInt64) SaveFilterGob(fn string) {
+	for i := range f.HashFunction {
+		f.HashFunction[i] = ResetLinearHash(f.HashFunction[i], f.K)
+	}
+
+	file, err := os.Create(fn)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+	encoder := gob.NewEncoder(file)
+	encoder.Encode(f)
+}
+
 func (f *Filter) SaveFilterGob(fn string) {
 	for i := range f.HashFunction {
 		f.HashFunction[i] = ResetLinearHash(f.HashFunction[i], f.K)
@@ -545,6 +559,17 @@ func LoadFilterGob(fn string) *Filter {
 }
 
 //-----------------------------------------------------------------------------
+func (f *FilterInt64) Save(fn string) {
+	f.SaveFilterGob(fn)
+	_save_table_alone(f.table, path.Join(fn+".table"))
+	// _save_kmerpos_to_json(f.Kmer_pos, path.Join(fn+".json"))
+
+	// comment out
+	// _save_kmerpos_to_binary(f.Kmer_pos, path.Join(fn+"_kmerpos.bin"))
+
+	// _save_hashfunction_to_json(f.HashFunction, path.Join(fn+"_hf.json"))
+}
+
 func (f *Filter) Save(fn string) {
 	f.SaveFilterGob(fn)
 	_save_table_alone(f.table, path.Join(fn+".table"))
