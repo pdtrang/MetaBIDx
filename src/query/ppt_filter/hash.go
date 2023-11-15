@@ -230,7 +230,7 @@ func (h *LinearHashInt64) HashKmerInt64(kmer []byte) int64 {
         panic("Unmatched k-mer length")
     }    
 
-    return h.HashInt64(h.ComputeKmer(kmer))
+    return h.HashInt64(h.ComputeKmerInt64(kmer))
 }
 
 func (h *LinearHash) HashKmer(kmer []byte) int64 {
@@ -249,8 +249,11 @@ func (h *LinearHashInt64) HashInt64(x int64) int64 {
 }
 
 func (h *LinearHash) HashInt64(x int64) int64 {
-    value := (h.A * x + h.B) % h.P
-    return value % h.M
+    value := big.NewInt(0)
+    value.Mul(h.A, big.NewInt(x))
+    value.Add(value, h.B)
+    value.Mod(value, h.P)
+    return value.Int64() % h.M
 }
 
 
