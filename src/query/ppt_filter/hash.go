@@ -96,7 +96,7 @@ func NewLinearHash(m int64) *LinearHash {
 //-----------------------------------------------------------------------------
 func ResetLinearHashInt64(linear_hash *LinearHashInt64, k int) *LinearHashInt64 {
 
-    return &LinearHash{
+    return &LinearHashInt64{
         // A: big.NewInt(23),
         // B: big.NewInt(17),
         // P: big.NewInt(97),
