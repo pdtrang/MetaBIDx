@@ -32,15 +32,20 @@ func main() {
 	f = ppt_filter.Load(*filter_saved_file)
 	log.Println("Finish loading filter.")
 
-	log.Printf(*out)
-	query_results := ppt_filter.SafeMap{
-		Map: make(map[string]string),
-	}
+	f2 := ppt_filter.NewFilterInt64(f.M, f.K, len(f.HashFunction), len(f.NumOfLocks))
+	// f2_name := strings.Replace(*filter_saved_file, ".bin", "_int64.bin", -1)
+	f2_name := "/home/dpham2/metagenomics/mende_species_int64.bin"
+	f2.Save(f2_name)
 
-	f.OnlinePairQuery_Threads(*read_1, *read_2, query_results, *strategy, *level, *kmer_qual)
+	// log.Printf(*out)
+	// query_results := ppt_filter.SafeMap{
+	// 	Map: make(map[string]string),
+	// }
 
-	fmt.Println("Writing Output to: ", *out)
-	ppt_filter.WriteResults(*out, query_results)
+	// f.OnlinePairQuery_Threads(*read_1, *read_2, query_results, *strategy, *level, *kmer_qual)
+
+	// fmt.Println("Writing Output to: ", *out)
+	// ppt_filter.WriteResults(*out, query_results)
 	// print Memory Usage    
 	utils.PrintMemUsage()
 

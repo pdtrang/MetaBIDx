@@ -33,6 +33,21 @@ type Filter struct {
 	lock map[int]*sync.Mutex
 }
 
+type FilterInt64 struct {
+	M            int64
+	K            int
+	HashFunction []*LinearHashInt64
+	table        []uint16
+	Gid			 map[uint16]string // map gids and strains/species names
+	Gid_header   map[uint16][]string // map gids and sequence headers (for query)
+	SeqLength    map[string]int // map of sequence length
+	// Kmer_pos     map[string][]int // map of position of unique kmers in each sequence
+	N_phases	 int
+	Total_signatures map[uint16]int //map of total signatures of each bacteria
+	NumOfLocks	int
+	lock map[int]*sync.Mutex
+}
+
 //-----------------------------------------------------------------------------
 // m: size of hash table.
 // k: length of kmers
@@ -57,6 +72,34 @@ func NewFilter(m int64, k int, num_hashes int, n_phases int, nlocks int) *Filter
 	for i := 0; i < num_hashes; i++ {
 		f.HashFunction[i] = NewLinearHash(m)
 		f.HashFunction[i].SetK(k)
+	}
+	f.lock = make(map[int]*sync.Mutex, f.NumOfLocks)
+	for i := 0; i <= f.NumOfLocks; i++ {
+		f.lock[i] = new(sync.Mutex)
+	}
+
+	return f
+}
+
+func NewFilterInt64(m int64, k int, num_hashes int, n_phases int, nlocks int) *Filter {
+	//num_hashes := 2
+	f := &FilterInt64{
+		M:     m,
+		K:     k,
+		table: make([]uint16, m),
+		Gid: make(map[uint16]string),
+		Gid_header: make(map[uint16][]string),
+		SeqLength: make(map[string]int),
+		// Kmer_pos: make(map[string][]int),
+		N_phases: n_phases,
+		Total_signatures: make(map[uint16]int),
+		NumOfLocks: nlocks,
+	}
+	f.HashFunction = make([]*LinearHash, num_hashes)
+	fmt.Println("Generate random hash functions")
+	for i := 0; i < num_hashes; i++ {
+		f.HashFunction[i] = NewLinearHashInt64(m)
+		f.HashFunction[i].SetKInt64(k)
 	}
 	f.lock = make(map[int]*sync.Mutex, f.NumOfLocks)
 	for i := 0; i <= f.NumOfLocks; i++ {
