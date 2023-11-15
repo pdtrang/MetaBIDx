@@ -5,6 +5,7 @@ package ppt_filter
 
 import (
     "fmt"
+    "math/big"
     "math/rand"
     "time"
 )
@@ -126,6 +127,19 @@ func (h *LinearHash) SetKInt64(k int) {
     }
 }
 
+func (h *LinearHash) SetK(k int) {
+    h.K = k
+    h.Exponents = make([]*big.Int, k)
+    h.Base = big.NewInt(rand.Int63n(65536-4) + 4)
+    // h.Base = big.NewInt(4)
+    b := big.NewInt(1)
+    for i := k - 1; i >= 0; i-- {
+        h.Exponents[i] = big.NewInt(1)
+        h.Exponents[i].Mul(h.Exponents[i], b)
+        h.Exponents[i].Mod(h.Exponents[i], h.P)
+        b = b.Mul(h.Base, b)
+    }
+}
 
 //-----------------------------------------------------------------------------
 func (h *LinearHash) ComputeKmer(kmer []byte) int64 {
