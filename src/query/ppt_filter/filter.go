@@ -518,7 +518,7 @@ func _save_hashfunction_to_json(data []*LinearHash, fn string) {
 //-----------------------------------------------------------------------------
 func (f *FilterInt64) SaveFilterGob(fn string) {
 	for i := range f.HashFunction {
-		f.HashFunction[i] = ResetLinearHash(f.HashFunction[i], f.K)
+		f.HashFunction[i] = ResetLinearHashInt64(f.HashFunction[i], f.K)
 	}
 
 	file, err := os.Create(fn)
