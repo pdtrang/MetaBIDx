@@ -83,7 +83,7 @@ func (f *Filter) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx map[ui
 		is_valid_kmer := false
 		for i := 0; i <= (len(read) - f.K); i++ {
 			// check kmer quality 
-			if !isGoodKmer(qual, i, f.K, kmer_qual_threshold){
+			if !isGoodKmer(read, qual, i, f.K, kmer_qual_threshold){
 				continue
 			}
 
@@ -126,9 +126,12 @@ func CheckMajorityHashValues(gid_map map[uint16]int, num_hash int) (uint16, bool
 
 }
 
-func isGoodKmer(read_qual []byte, start int, k int, kmer_qual_threshold int) bool {
+func isGoodKmer(read []byte, read_qual []byte, start int, k int, kmer_qual_threshold int) bool {
 	total := 0
 	for i := start; i < (start + k); i++ {
+		if read[i] != 'A' && read[i] != 'C' && read[i] != 'G' && read[i] != 'T' {
+			return false
+		}
 		r := read_qual[i] - 33
 		total += int(r)
 	}
