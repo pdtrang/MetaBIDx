@@ -15,7 +15,7 @@ import (
 // String hashing:
 //  h(x) = ((x_0*e^{k-1} + x_1*e^{k-2} + ... + x_{k-2}*e + x_{k-1}*1) mod p) mod m
 //-----------------------------------------------------------------------------
-type LinearHash struct {
+type LinearHashInt64 struct {
     A               int64 // randomly selected
     B               int64 // randomly selected
     P               int64 // large prime
@@ -29,8 +29,22 @@ type LinearHash struct {
     Exponents       []int64
 }
 
+type LinearHash struct {
+    A               *big.Int // randomly selected
+    B               *big.Int // randomly selected
+    P               *big.Int // large prime
+    M               int64    // universe/hash table size
+    K               int
+    Base            *big.Int
+    Term0           *big.Int
+    Term0_rc        *big.Int
+    PrevValue       *big.Int
+    PrevValue_rc    *big.Int
+    Exponents       []*big.Int
+}
+
 //-----------------------------------------------------------------------------
-func NewLinearHash(m int64) *LinearHash {
+func NewLinearHashInt64(m int64) *LinearHash {
     rand.Seed(time.Now().UTC().UnixNano())
 
     // temporarily: 2^61 - 1
@@ -54,8 +68,32 @@ func NewLinearHash(m int64) *LinearHash {
     }
 }
 
+func NewLinearHash(m int64) *LinearHash {
+    rand.Seed(time.Now().UTC().UnixNano())
+
+    // temporarily: 2^61 - 1
+    var p int64 = 2305843009213693951
+    // generate random numbers in [2, p-1]
+    a := rand.Int63()%(p-2) + 2
+    b := rand.Int63()%(p-2) + 2
+
+    return &LinearHash{
+        // A: big.NewInt(23),
+        // B: big.NewInt(17),
+        // P: big.NewInt(97),
+        A:              big.NewInt(a),
+        B:              big.NewInt(b),
+        P:              big.NewInt(p),
+        M:              m,
+        Term0:          big.NewInt(0),
+        Term0_rc:       big.NewInt(0),
+        PrevValue:      big.NewInt(0),
+        PrevValue_rc:   big.NewInt(0),
+    }
+}
+
 //-----------------------------------------------------------------------------
-func ResetLinearHash(linear_hash *LinearHash, k int) *LinearHash {
+func ResetLinearHashInt64(linear_hash *LinearHash, k int) *LinearHash {
 
     return &LinearHash{
         // A: big.NewInt(23),
@@ -76,7 +114,7 @@ func ResetLinearHash(linear_hash *LinearHash, k int) *LinearHash {
 }
 
 //-----------------------------------------------------------------------------
-func (h *LinearHash) SetK(k int) {
+func (h *LinearHash) SetKInt64(k int) {
     h.K = k
     h.Exponents = make([]int64, k)
     h.Base = rand.Int63n(65536-4) + 4
