@@ -81,7 +81,7 @@ func NewFilter(m int64, k int, num_hashes int, n_phases int, nlocks int) *Filter
 	return f
 }
 
-func NewFilterInt64(m int64, k int, num_hashes int, n_phases int, nlocks int) *Filter {
+func NewFilterInt64(m int64, k int, num_hashes int, n_phases int, nlocks int) *FilterInt64 {
 	//num_hashes := 2
 	f := &FilterInt64{
 		M:     m,

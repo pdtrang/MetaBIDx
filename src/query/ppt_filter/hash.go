@@ -54,7 +54,7 @@ func NewLinearHashInt64(m int64) *LinearHashInt64 {
     a := rand.Int63()%(p-2) + 2
     b := rand.Int63()%(p-2) + 2
 
-    return &LinearHash{
+    return &LinearHashInt64{
         // A: big.NewInt(23),
         // B: big.NewInt(17),
         // P: big.NewInt(97),
