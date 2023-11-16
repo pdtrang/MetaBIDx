@@ -358,6 +358,21 @@ func (f *Filter) CountSignature() {
 }
 
 //-----------------------------------------------------------------------------
+func (f *FilterInt64) Show() {
+	fmt.Println("Number of hash functions: ", len(f.HashFunction))
+	fmt.Println("Kmer length:              ", f.K)
+	for i := 0; i < len(f.HashFunction); i++ {
+		fmt.Println("Hash function", i)
+		f.HashFunction[i].Show()
+	}
+	fmt.Println("Filter table")
+	for i := int64(0); i < f.M; i++ {
+		fmt.Printf("%d:%d", i, f.table[i])
+	}
+	fmt.Println("")
+
+}
+
 func (f *Filter) Show() {
 	fmt.Println("Number of hash functions: ", len(f.HashFunction))
 	fmt.Println("Kmer length:              ", f.K)
