@@ -32,12 +32,12 @@ func main() {
 	f = ppt_filter.Load(*filter_saved_file)
 	log.Println("Finish loading filter.")
 	// f.Show()
-	f,Summarize()
+	f.Summarize()
 
 	f2 := ppt_filter.NewFilterInt64(f.M, f.K, len(f.HashFunction), f.N_phases, f.NumOfLocks)
 	table := f.GetTable()
 	f2.CopyInfo(table, f.Gid, f.Gid_header, f.SeqLength)
-	
+
 	// f2_name := strings.Replace(*filter_saved_file, ".bin", "_int64.bin", -1)
 	f2_name := "/home/dpham2/metagenomics/mende_species_int64.bin"
 	f2.Save(f2_name)
