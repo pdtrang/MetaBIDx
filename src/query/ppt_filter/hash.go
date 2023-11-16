@@ -258,6 +258,18 @@ func (h *LinearHash) HashInt64(x int64) int64 {
 
 
 //-----------------------------------------------------------------------------
+func (h *LinearHashInt64) Show() {
+    fmt.Println("A: ", h.A)
+    fmt.Println("B: ", h.B)
+    fmt.Println("P: ", h.P)
+    fmt.Println("M: ", h.M)
+    fmt.Println("K: ", h.K)
+    fmt.Println("Exponents:")
+    for i := 0; i < h.K; i++ {
+        fmt.Println("\t", i, h.Exponents[i])
+    }
+}
+
 func (h *LinearHash) Show() {
     fmt.Println("A: ", h.A)
     fmt.Println("B: ", h.B)
