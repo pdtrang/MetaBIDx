@@ -48,6 +48,10 @@ type FilterInt64 struct {
 	lock map[int]*sync.Mutex
 }
 
+func (f *Filter) GetTable() []uint16 {
+	return f.table
+}
+
 //-----------------------------------------------------------------------------
 // m: size of hash table.
 // k: length of kmers
@@ -107,6 +111,14 @@ func NewFilterInt64(m int64, k int, num_hashes int, n_phases int, nlocks int) *F
 	}
 
 	return f
+}
+
+// copy table
+// two tables must have the same size
+func (f *FilterInt64) CopyTable(table []uint16) {
+	for i := int64(0); i < f.M; i++ {
+		f.table[i] = table[i]
+	}
 }
 
 func (f *Filter) InitNewInfo(m int64){
@@ -367,7 +379,7 @@ func (f *FilterInt64) Show() {
 	}
 	fmt.Println("Filter table")
 	for i := int64(0); i < f.M; i++ {
-		fmt.Printf("%d:%d", i, f.table[i])
+		fmt.Printf("%d:%d \n", i, f.table[i])
 	}
 	fmt.Println("")
 
@@ -382,7 +394,7 @@ func (f *Filter) Show() {
 	}
 	fmt.Println("Filter table")
 	for i := int64(0); i < f.M; i++ {
-		fmt.Printf("%d:%d", i, f.table[i])
+		fmt.Printf("%d:%d \n", i, f.table[i])
 	}
 	fmt.Println("")
 
