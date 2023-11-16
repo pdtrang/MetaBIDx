@@ -115,10 +115,13 @@ func NewFilterInt64(m int64, k int, num_hashes int, n_phases int, nlocks int) *F
 
 // copy table
 // two tables must have the same size
-func (f *FilterInt64) CopyTable(table []uint16) {
+func (f *FilterInt64) CopyInfo(table []uint16, gid map[uint16]string, gid_header map[uint16][]string, seqlength map[string]int) {
 	for i := int64(0); i < f.M; i++ {
 		f.table[i] = table[i]
 	}
+	f.Gid = gid
+	f.Gid_header = gid_header
+	f.SeqLength = seqlength
 }
 
 func (f *Filter) InitNewInfo(m int64){
@@ -129,6 +132,10 @@ func (f *Filter) InitNewInfo(m int64){
 	// f.Kmer_pos = make(map[string][]int)
 	f.Total_signatures = make(map[uint16]int)
 
+}
+
+func (f *FilterInt64) ResetTotalSignatures(){
+	f.Total_signatures = make(map[uint16]int)
 }
 
 func (f *Filter) ResetTotalSignatures(){
@@ -149,6 +156,21 @@ func (f *Filter) InitLocks() {
 }
 
 //-----------------------------------------------------------------------------
+func (f *FilterInt64) Summarize() {
+	f.CountSignature()
+	fmt.Println("Number of hash functions: ", len(f.HashFunction))
+	fmt.Println("Kmer length:              ", f.K)
+	fmt.Println("Table size:               ", f.M)
+	fmt.Println("Gid")
+	for key, value := range f.Gid {
+	    fmt.Println(key,":",value)
+	}
+	fmt.Println("Total_signatures")
+	for key, value := range f.Total_signatures {
+	    fmt.Println(key,":",value)
+	}
+}
+
 func (f *Filter) Summarize() {
 	f.CountSignature()
 	fmt.Println("Number of hash functions: ", len(f.HashFunction))
@@ -359,6 +381,14 @@ func (f *Filter) GetNumberOfUniqueKmers() {
 	for k, v := range count {
 		fmt.Printf("%s,%d,%.1f\n", f.Gid[k], v, float64(v) / float64(len(f.HashFunction)))
 	}
+}
+
+func (f *FilterInt64) CountSignature() {
+	f.ResetTotalSignatures()
+	for i := int64(0); i < f.M; i++ {
+		f.Total_signatures[f.table[i]] += 1
+	}
+
 }
 
 func (f *Filter) CountSignature() {
