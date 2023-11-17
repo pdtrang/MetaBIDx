@@ -36,7 +36,7 @@ func main() {
 
 	// Load filter - int64
 	log.Printf("Load filter")
-	f = ppt_filter.Load(*filter_saved_file)
+	f = ppt_filter.LoadInt64(*filter_saved_file)
 	log.Println("Finish loading filter.")
 	// f.Show()
 	f.Summarize()

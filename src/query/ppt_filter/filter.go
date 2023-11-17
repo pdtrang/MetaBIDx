@@ -602,7 +602,7 @@ func (f *Filter) SaveFilterGob(fn string) {
 }
 
 //-----------------------------------------------------------------------------
-func LoadFilterGob(fn string) *FilterInt64 {
+func LoadFilterGobInt64(fn string) *FilterInt64 {
 	file, err := os.Open(fn)
 	if err != nil {
 		log.Fatal(err)
@@ -668,9 +668,9 @@ func LoadReducedFilter(fn string) * Filter {
 
 //-----------------------------------------------------------------------------
 // load the table
-func Load(fn string) *FilterInt64 {
+func LoadInt64(fn string) *FilterInt64 {
 	defer utils.TimeConsume(time.Now(), "Load filter: ")
-	filter := LoadFilterGob(fn)
+	filter := LoadFilterGobInt64(fn)
 	filter.table = _load_table_alone(fn+".table", filter.M)
 	return filter
 }
