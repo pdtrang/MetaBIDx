@@ -602,6 +602,19 @@ func (f *Filter) SaveFilterGob(fn string) {
 }
 
 //-----------------------------------------------------------------------------
+func LoadFilterGob(fn string) *FilterInt64 {
+	file, err := os.Open(fn)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+	decoder := gob.NewDecoder(file)
+	filter := &FilterInt64{}
+	err = decoder.Decode(filter)
+	fmt.Println("load filter: ", filter.M)
+	return filter
+}
+
 func LoadFilterGob(fn string) *Filter {
 	file, err := os.Open(fn)
 	if err != nil {
@@ -655,6 +668,13 @@ func LoadReducedFilter(fn string) * Filter {
 
 //-----------------------------------------------------------------------------
 // load the table
+func Load(fn string) *FilterInt64 {
+	defer utils.TimeConsume(time.Now(), "Load filter: ")
+	filter := LoadFilterGob(fn)
+	filter.table = _load_table_alone(fn+".table", filter.M)
+	return filter
+}
+
 func Load(fn string) *Filter {
 	defer utils.TimeConsume(time.Now(), "Load filter: ")
 	filter := LoadFilterGob(fn)
