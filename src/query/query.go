@@ -55,12 +55,12 @@ func main() {
 
 
 	fmt.Println(*read_1, *read_2, *out, *level, *strategy, *kmer_qual)
-	// log.Printf(*out)
-	// query_results := ppt_filter.SafeMap{
-	// 	Map: make(map[string]string),
-	// }
+	log.Printf(*out)
+	query_results := ppt_filter.SafeMap{
+		Map: make(map[string]string),
+	}
 
-	// f.OnlinePairQuery_Threads(*read_1, *read_2, query_results, *strategy, *level, *kmer_qual)
+	f.OnlinePairQuery_Threads(*read_1, *read_2, query_results, *strategy, *level, *kmer_qual)
 
 	// fmt.Println("Writing Output to: ", *out)
 	// ppt_filter.WriteResults(*out, query_results)

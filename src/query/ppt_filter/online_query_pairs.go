@@ -115,7 +115,7 @@ func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 //-----------------------------------------------------------------------------
 // Query
 //-----------------------------------------------------------------------------
-func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string, query_results SafeMap, strategy string, level string, kmer_qual int) {
+func (f *FilterInt64) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string, query_results SafeMap, strategy string, level string, kmer_qual int) {
 	// defer utils.TimeConsume(time.Now(), "Run time - parallel: ")
 
 	// fmt.Println("-----------------PARALLEL QUERY--------------------")
@@ -166,4 +166,55 @@ func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string,
 	
 	//utils.PrintMemUsage()
 }
+// func (f *Filter) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string, query_results SafeMap, strategy string, level string, kmer_qual int) {
+// 	// defer utils.TimeConsume(time.Now(), "Run time - parallel: ")
+
+// 	// fmt.Println("-----------------PARALLEL QUERY--------------------")
+
+// 	numCores := runtime.NumCPU()
+// 	runtime.GOMAXPROCS(numCores)
+	
+// 	reads_channel := make(chan Read, numCores)
+// 	reads_channel = ScanReads2Channel(read_file_1, read_file_2)
+
+// 	var wg sync.WaitGroup
+// 	start_time := time.Now()
+// 	defer utils.TimeConsume(start_time, "\nQuery Time ")
+// 	log.Printf("Start querying...")
+
+// 	// StartProfile()
+// 	// defer Timer()()
+
+// 	for i:=0; i<numCores; i++ {
+// 		wg.Add(1)
+
+// 		go func() {
+// 			defer wg.Done()
+// 			for read := range(reads_channel){
+// 				// fmt.Println(read.read1, read.read2)
+// 				if f.N_phases == 2 {
+// 					// skip two phases for now
+// 					//f.TwoPhaseQuery(read.read1, read.read2, start_time, strategy, level)
+
+// 				} else if f.N_phases == 1 {
+// 					// fmt.Println(read.header)
+// 					// fmt.Println("\nPairQuery-Threads ", "\n read1: ", string(read.read1), "\n read2: ", string(read.read2), "\n qual1: ", string(read.qual1), "\n qual2: ", string(read.qual2))
+// 					species := f.OnePhaseMajorityQuery(read.read1, read.read2, read.qual1, read.qual2, start_time, strategy, kmer_qual)
+// 					query_results.Add(string(read.header), species)
+// 				}
+
+// 			}
+// 		}()
+// 	}
+
+// 	wg.Wait()
+
+// 	if len(read_file_2) == 0 {
+// 		fmt.Printf("Input: \n%s.\n", read_file_1)
+// 	} else {
+// 		fmt.Printf("Inputs: \n%s and %s.\n", read_file_1, read_file_2)
+// 	}
+	
+// 	//utils.PrintMemUsage()
+// }
 
