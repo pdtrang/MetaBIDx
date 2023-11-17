@@ -28,9 +28,9 @@ func main() {
 	ppt_filter.StartProfile()
 
 	// Load filter - bigint
-	log.Printf("Load filter")
-	f = ppt_filter.Load(*filter_saved_file)
-	log.Println("Finish loading filter.")
+	// log.Printf("Load filter")
+	// f = ppt_filter.Load(*filter_saved_file)
+	// log.Println("Finish loading filter.")
 	// f.Show()
 	// f.Summarize()
 
