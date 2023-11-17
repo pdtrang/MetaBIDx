@@ -21,7 +21,8 @@ func main() {
 	kmer_qual := flag.Int("kmer-qual", 20, "threshold for k-mer mean quality")
 	flag.Parse()
 	
-	var f *ppt_filter.Filter
+	// var f *ppt_filter.Filter
+	var f *ppt_filter.FilterInt64
 
 	// Time On
 	defer utils.TimeConsume(time.Now(), "Run time: ")
