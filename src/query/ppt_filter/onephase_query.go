@@ -187,7 +187,7 @@ func (f *FilterInt64) OnePhaseQueryHashKmer(kmer []byte) (uint16, bool) {
 	gid_map := make(map[uint16]int)
 	for i := 0; i < len(f.HashFunction); i++ {
 		// fmt.Println("HashKmer - kmer: ", string(kmer))
-		j := f.HashFunction[i].HashKmer(kmer)
+		j := f.HashFunction[i].HashKmerInt64(kmer)
 
 		// is Empty
 		if f.table[j] == Empty {
