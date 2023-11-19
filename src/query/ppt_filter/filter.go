@@ -611,7 +611,7 @@ func LoadFilterGobInt64(fn string) *FilterInt64 {
 	decoder := gob.NewDecoder(file)
 	filter := &FilterInt64{}
 	err = decoder.Decode(filter)
-	fmt.Println("load filter: ", filter.M)
+	// fmt.Println("load filter: ", filter.M)
 	return filter
 }
 
