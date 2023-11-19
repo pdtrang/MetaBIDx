@@ -247,14 +247,11 @@ func (h *LinearHash) HashKmer(kmer []byte) int64 {
 
 //-----------------------------------------------------------------------------
 func (h *LinearHashInt64) HashInt64(x int64) int64 {
-    fmt.Println("HashInt64 ---- h.A ", h.A, " x " , x)
-    value := int64(0)
-    value = h.A * x 
-    fmt.Println("HashInt64 ---- value = h.A * x = ", value)
-    value = value + h.B
-    value = value % h.P
-    fmt.Println("HashInt64 ---- value = ", value)
-    return value % h.M
+    value := big.NewInt(0)
+    value.Mul(big.NewInt(h.A), big.NewInt(x))
+    value.Add(value, big.NewInt(h.B))
+    value.Mod(value, big.NewInt(h.P))
+    return value.Int64() % h.M
 }
 
 func (h *LinearHash) HashInt64(x int64) int64 {
