@@ -2,7 +2,7 @@ package ppt_filter
 
 import (
 	"time"
-	// "fmt"
+	"fmt"
 	//"os"
 	// "sync"
 )
@@ -188,6 +188,7 @@ func (f *FilterInt64) OnePhaseQueryHashKmer(kmer []byte) (uint16, bool) {
 	for i := 0; i < len(f.HashFunction); i++ {
 		// fmt.Println("HashKmer - kmer: ", string(kmer))
 		j := f.HashFunction[i].HashKmerInt64(kmer)
+		fmt.Println("HashKmer j:= ", j)
 
 		// is Empty
 		if f.table[j] == Empty {
