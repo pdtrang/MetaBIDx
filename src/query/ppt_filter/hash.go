@@ -170,19 +170,22 @@ func (h *LinearHashInt64) ComputeKmerInt64(kmer []byte) int64 {
     value := int64(0)
     for i := 0; i < len(kmer); i++ {
         if kmer[i] == 'A' {
-            base = 0
+            base = int64(0)
         } else if kmer[i] == 'C' {
-            base = 1
+            base = int64(1)
         } else if kmer[i] == 'G' {
-            base = 2
+            base = int64(2)
         } else if kmer[i] == 'T' {
-            base = 3
+            base = int64(3)
         } else {
             // fmt.Println(string(kmer))
             panic("ComputeKmer" + string(kmer) + "Unknown character: " + string(kmer[i]))
         }
-        cur_term := (base * h.Exponents[i]) % h.P
-        value = (value + cur_term) % h.P
+        cur_term := int64(0) 
+        cur_term = base * h.Exponents[i]
+        cur_term = cur_term % h.P
+        value = value + cur_term
+        value = value % h.P
         if i == 0 {
             h.Term0 = cur_term
         }
