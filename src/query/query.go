@@ -62,8 +62,8 @@ func main() {
 
 	f.OnlinePairQuery_Threads(*read_1, *read_2, query_results, *strategy, *level, *kmer_qual)
 
-	// fmt.Println("Writing Output to: ", *out)
-	// ppt_filter.WriteResults(*out, query_results)
+	fmt.Println("Writing Output to: ", *out)
+	ppt_filter.WriteResults(*out, query_results)
 	// print Memory Usage    
 	utils.PrintMemUsage()
 
