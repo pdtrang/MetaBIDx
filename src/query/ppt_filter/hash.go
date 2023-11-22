@@ -131,7 +131,7 @@ func (h *LinearHash) SetK(k int) {
 }
 
 //-----------------------------------------------------------------------------
-func (h *LinearHash) ComputeKmer(read []byte, start int, k int) int64 {
+func (h *LinearHash) ComputeKmer(read []byte, qual []byte, start int, k int, kmer_qual_threshold int) int64 {
     // fmt.Println("---Compute Kmer: ", string(kmer))
     // if len(kmer) != h.K {
     //     panic("Unmatched k-mer length")
@@ -140,6 +140,7 @@ func (h *LinearHash) ComputeKmer(read []byte, start int, k int) int64 {
     // fmt.Println("ComputeKmer - kmer ", string(read[start:start+k]))
     var base *big.Int
     value := big.NewInt(0)
+    total := 0
     for i := start; i < (start + k); i++ {
         // fmt.Println(i, string(read[i]))
         if read[i] == 'A' {
@@ -153,7 +154,9 @@ func (h *LinearHash) ComputeKmer(read []byte, start int, k int) int64 {
         } else {
             // fmt.Println(string(kmer))
             panic("ComputeKmer: " + string(read) + " ------ Unknown character: " + string(read[i]))
+            return int64(-1)
         }
+        total += int(qual[i] - 33)
         cur_term := big.NewInt(0)
         cur_term.Mul(base, h.Exponents[i-start])
         cur_term.Mod(cur_term, h.P)
@@ -163,18 +166,27 @@ func (h *LinearHash) ComputeKmer(read []byte, start int, k int) int64 {
             h.Term0 = cur_term
         }
     }
+    mean_qual := total / k
+    if mean_qual < kmer_qual_threshold {
+        return int64(-1)
+    }
+
     h.PrevValue = value
     return value.Int64() % h.M
 }
 
 //-----------------------------------------------------------------------------
-func (h *LinearHash) HashKmer(read []byte, start int, k int) int64 {
+func (h *LinearHash) HashKmer(read []byte, qual []byte, start int, k int, kmer_qual_threshold int) int64 {
     // fmt.Println("HashKmer func: ", string(read))
     // if len(kmer) != h.K {
     //     panic("Unmatched k-mer length")
     // }    
+    i := h.ComputeKmer(read, qual, start, k, kmer_qual_threshold)
+    if i == int64(-1) {
+        return int64(-1)
+    }
 
-    return h.HashInt64(h.ComputeKmer(read, start, k))
+    return h.HashInt64(i)
 }
 
 //-----------------------------------------------------------------------------
