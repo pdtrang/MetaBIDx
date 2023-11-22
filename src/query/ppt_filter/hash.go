@@ -153,7 +153,7 @@ func (h *LinearHash) ComputeKmer(read []byte, qual []byte, start int, k int, kme
             base = big.NewInt(3)
         } else {
             // fmt.Println(string(kmer))
-            panic("ComputeKmer: " + string(read) + " ------ Unknown character: " + string(read[i]))
+            // panic("ComputeKmer: " + string(read) + " ------ Unknown character: " + string(read[i]))
             return int64(-1)
         }
         total += int(qual[i] - 33)
