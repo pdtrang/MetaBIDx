@@ -185,11 +185,11 @@ func (h *LinearHashInt64) ComputeKmerInt64(read []byte, qual []byte, start int, 
         }
         total += int(qual[i] - 33)
         cur_term := int64(0) 
-        cur_term = base * h.Exponents[i]
+        cur_term = base * h.Exponents[i-start]
         cur_term = cur_term % h.P
         value = value + cur_term
         value = value % h.P
-        if i == 0 {
+        if (i-start) == 0 {
             h.Term0 = cur_term
         }
     }
