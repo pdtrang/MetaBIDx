@@ -162,12 +162,13 @@ func (h *LinearHash) SetK(k int) {
 }
 
 //-----------------------------------------------------------------------------
-func (h *LinearHashInt64) ComputeKmerInt64(kmer []byte) int64 {
+func (h *LinearHashInt64) ComputeKmerInt64(read []byte, qual []byte, start int, k int, kmer_qual_threshold int) int64 {
     if len(kmer) != h.K {
         panic("Unmatched k-mer length")
     }
     var base int64
     value := int64(0)
+    total := 0
     for i := 0; i < len(kmer); i++ {
         if kmer[i] == 'A' {
             base = int64(0)
@@ -179,8 +180,10 @@ func (h *LinearHashInt64) ComputeKmerInt64(kmer []byte) int64 {
             base = int64(3)
         } else {
             // fmt.Println(string(kmer))
-            panic("ComputeKmer" + string(kmer) + "Unknown character: " + string(kmer[i]))
+            // panic("ComputeKmer" + string(kmer) + "Unknown character: " + string(kmer[i]))
+            return int64(-1)
         }
+        total += int(qual[i] - 33)
         cur_term := int64(0) 
         cur_term = base * h.Exponents[i]
         cur_term = cur_term % h.P
@@ -190,6 +193,11 @@ func (h *LinearHashInt64) ComputeKmerInt64(kmer []byte) int64 {
             h.Term0 = cur_term
         }
     }
+    mean_qual := total / k
+    if mean_qual < kmer_qual_threshold {
+        return int64(-1)
+    }
+
     h.PrevValue = value
     return value % h.M
 }
@@ -227,13 +235,17 @@ func (h *LinearHash) ComputeKmer(kmer []byte) int64 {
 }
 
 //-----------------------------------------------------------------------------
-func (h *LinearHashInt64) HashKmerInt64(kmer []byte) int64 {
+func (h *LinearHashInt64) HashKmerInt64(read []byte, qual []byte, start int, k int, kmer_qual_threshold int) int64 {
     // fmt.Println("HashKmer func: ", string(kmer))
-    if len(kmer) != h.K {
-        panic("Unmatched k-mer length")
-    }    
+    // if len(kmer) != h.K {
+    //     panic("Unmatched k-mer length")
+    // }    
+    i := h.ComputeKmerInt64(read, qual, start, k, kmer_qual_threshold)
+    if i == int64(-1) {
+        return int64(-1)
+    }
 
-    return h.HashInt64(h.ComputeKmerInt64(kmer))
+    return h.HashInt64(i)
 }
 
 func (h *LinearHash) HashKmer(kmer []byte) int64 {
