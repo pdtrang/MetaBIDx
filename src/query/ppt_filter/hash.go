@@ -169,14 +169,14 @@ func (h *LinearHashInt64) ComputeKmerInt64(read []byte, qual []byte, start int, 
     var base int64
     value := int64(0)
     total := 0
-    for i := 0; i < len(kmer); i++ {
-        if kmer[i] == 'A' {
+    for i := start; i < (start + k); i++ {
+        if read[i] == 'A' {
             base = int64(0)
-        } else if kmer[i] == 'C' {
+        } else if read[i] == 'C' {
             base = int64(1)
-        } else if kmer[i] == 'G' {
+        } else if read[i] == 'G' {
             base = int64(2)
-        } else if kmer[i] == 'T' {
+        } else if read[i] == 'T' {
             base = int64(3)
         } else {
             // fmt.Println(string(kmer))

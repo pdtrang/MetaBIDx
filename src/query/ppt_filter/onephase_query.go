@@ -100,7 +100,7 @@ func (f *FilterInt64) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx m
 
 			// fmt.Println("OnePhaseMajQueryRead ", string(read), "   kmer: ", string(kmer_scanner.Kmer), "  kmer_qual: ",string(kmer_scanner.Kmer_qual))
 			// continue query if it is a good kmer
-			kmer_gid, is_valid_kmer = f.OnePhaseQueryHashKmer(read, qual, i, kmer_scanner.Kmer)	
+			kmer_gid, is_valid_kmer = f.OnePhaseQueryHashKmer(read, qual, i, kmer_qual_threshold)	
 
 			if is_valid_kmer {
 				gidx[kmer_gid] += 1
