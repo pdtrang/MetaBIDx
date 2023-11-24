@@ -163,9 +163,9 @@ func (h *LinearHash) SetK(k int) {
 
 //-----------------------------------------------------------------------------
 func (h *LinearHashInt64) ComputeKmerInt64(read []byte, qual []byte, start int, k int, kmer_qual_threshold int) int64 {
-    if len(kmer) != h.K {
-        panic("Unmatched k-mer length")
-    }
+    // if len(kmer) != h.K {
+    //     panic("Unmatched k-mer length")
+    // }
     var base int64
     value := int64(0)
     total := 0
