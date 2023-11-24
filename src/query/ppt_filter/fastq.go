@@ -35,9 +35,9 @@ func (s *FastqScanner) Scan() bool {
             line = s.Scanner.Bytes()
             if len(line)==0 { continue }
             if line[0] == '@' {
-                s.Header = line
-                // s.Header = make([]byte, len(line))
-                // copy(s.Header, line)
+                // s.Header = line
+                s.Header = make([]byte, len(line))
+                copy(s.Header, line)
                 break
             }
         }
@@ -58,15 +58,16 @@ func (s *FastqScanner) Scan() bool {
         line = s.Scanner.Bytes()
         if len(line)==0 { continue }
         if line[0] == '@' {
-            s.NextHeader = line
-            // s.NextHeader = make([]byte, len(line))
-            // copy(s.NextHeader, line)
+            // s.NextHeader = line
+            s.NextHeader = make([]byte, len(line))
+            copy(s.NextHeader, line)
             break
         }
         if line[0] == '+' {
             break
         }
-        seq = line
+        // seq = line
+        copy(seq, line)
     }
 
     // 3. Read Quality
@@ -75,9 +76,9 @@ func (s *FastqScanner) Scan() bool {
        line = s.Scanner.Bytes()
         if len(line)==0 { continue }
         if line[0] == '@' {
-            s.NextHeader = line
-            // s.NextHeader = make([]byte, len(line))
-            // copy(s.NextHeader, line)
+            // s.NextHeader = line
+            s.NextHeader = make([]byte, len(line))
+            copy(s.NextHeader, line)
             break
         }
         if line[0] == '+' {
@@ -87,15 +88,16 @@ func (s *FastqScanner) Scan() bool {
         if line[0] == 'A' || line[0] == 'T' || line[0] == 'G' || line[0] == 'C' || line[0] == 'N' {
             break
         }
-        qual = line
+        // qual = line
+        copy(qual, line)
 
     }
-    // s.Seq = make([]byte, len(seq))
-    // s.Qual = make([]byte, len(qual))
-    // copy(s.Seq, seq)
-    // copy(s.Qual, qual)
-    s.Seq = seq
-    s.Qual = qual
+    s.Seq = make([]byte, len(seq))
+    s.Qual = make([]byte, len(qual))
+    copy(s.Seq, seq)
+    copy(s.Qual, qual)
+    // s.Seq = seq
+    // s.Qual = qual
     if err := s.Scanner.Err(); err != nil {
         log.Fatal(err)
     }
