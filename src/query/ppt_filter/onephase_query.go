@@ -83,7 +83,7 @@ func (f *FilterInt64) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx m
 	if len(qual) != 0 {
 		// fmt.Println("OnePhaseMajQueryRead - func inputs", " read ", string(read), " qual ", string(qual))
 
-		kmer_scanner := NewKmerScannerQual(read, f.K, qual)
+		// kmer_scanner := NewKmerScannerQual(read, f.K, qual)
 		// fmt.Println("OnePhaseMajQueryRead - before loop ", string(kmer_scanner.Seq), string(kmer_scanner.Qual))
 		kmer_gid := uint16(0)
 		is_valid_kmer := false
