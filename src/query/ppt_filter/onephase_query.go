@@ -195,7 +195,7 @@ func (f *FilterInt64) OnePhaseQueryHashKmer(read []byte, qual []byte, start int,
 	gid_map := make(map[uint16]int)
 	for i := 0; i < len(f.HashFunction); i++ {
 		// fmt.Println("HashKmer - kmer: ", string(kmer))
-		j := f.HashFunction[i].HashKmerInt64(kmer, kmer_qual, f.K, kmer_qual_threshold)
+		// j := f.HashFunction[i].HashKmerInt64(kmer, kmer_qual, f.K, kmer_qual_threshold)
 		j := f.HashFunction[i].HashKmerInt64(read, qual, f.K, start, kmer_qual_threshold)
 		
 		// fmt.Println("HashKmer j:= ", j)
