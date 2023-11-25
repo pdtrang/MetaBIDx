@@ -46,11 +46,11 @@ func NewKmerScannerQual(seq []byte, k int, qual []byte) *KmerScanner {
 //-----------------------------------------------------------------------------
 func (s *KmerScanner) ScanOneStrand() bool {
 
-	status := true
 	if s.I >= len(s.Seq)-s.K+1 || s.K > len(s.Seq) {
 		return false
 	} 
 
+	// status := true
 	// for i := s.I; i < s.K+s.I; i++ {
 	// 	if s.Seq[i] != 'A' && s.Seq[i] != 'C' && s.Seq[i] != 'G' && s.Seq[i] != 'T' {
 	// 		status = false
