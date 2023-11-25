@@ -199,6 +199,7 @@ func (h *LinearHashInt64) ComputeKmerInt64(kmer []byte, kmer_qual []byte, k int,
     }
     mean_qual := total / k
     if mean_qual < kmer_qual_threshold {
+        fmt.Println("Kmer ", string(kmer), " is not good. Quality = ", mean_qual)
         return int64(-1)
     }
 
