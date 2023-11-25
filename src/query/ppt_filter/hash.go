@@ -162,34 +162,34 @@ func (h *LinearHash) SetK(k int) {
 }
 
 //-----------------------------------------------------------------------------
-func (h *LinearHashInt64) ComputeKmerInt64(read []byte, qual []byte, start int, k int, kmer_qual_threshold int) int64 {
+func (h *LinearHashInt64) ComputeKmerInt64(kmer []byte, kmer_qual []byte, k int, kmer_qual_threshold int) int64 {
     // if len(kmer) != h.K {
     //     panic("Unmatched k-mer length")
     // }
     var base int64
     value := int64(0)
     total := 0
-    for i := start; i < (start + k); i++ {
-        if read[i] == 'A' {
+    for i := 0; i < len(kmer); i++ {
+        if kmer[i] == 'A' {
             base = int64(0)
-        } else if read[i] == 'C' {
+        } else if kmer[i] == 'C' {
             base = int64(1)
-        } else if read[i] == 'G' {
+        } else if kmer[i] == 'G' {
             base = int64(2)
-        } else if read[i] == 'T' {
+        } else if kmer[i] == 'T' {
             base = int64(3)
         } else {
             // fmt.Println(string(kmer))
             // panic("ComputeKmer" + string(kmer) + "Unknown character: " + string(kmer[i]))
             return int64(-1)
         }
-        total += int(qual[i] - 33)
+        total += int(kmer_qual[i] - 33)
         cur_term := int64(0) 
-        cur_term = base * h.Exponents[i-start]
+        cur_term = base * h.Exponents[i]
         cur_term = cur_term % h.P
         value = value + cur_term
         value = value % h.P
-        if (i-start) == 0 {
+        if (i) == 0 {
             h.Term0 = cur_term
         }
     }
@@ -235,12 +235,12 @@ func (h *LinearHash) ComputeKmer(kmer []byte) int64 {
 }
 
 //-----------------------------------------------------------------------------
-func (h *LinearHashInt64) HashKmerInt64(read []byte, qual []byte, start int, k int, kmer_qual_threshold int) int64 {
+func (h *LinearHashInt64) HashKmerInt64(kmer []byte, kmer_qual []byte, k int, kmer_qual_threshold int) int64 {
     // fmt.Println("HashKmer func: ", string(kmer))
     // if len(kmer) != h.K {
     //     panic("Unmatched k-mer length")
     // }    
-    i := h.ComputeKmerInt64(read, qual, start, k, kmer_qual_threshold)
+    i := h.ComputeKmerInt64(kmer, kmer_qual, k, kmer_qual_threshold)
     if i == int64(-1) {
         return int64(-1)
     }

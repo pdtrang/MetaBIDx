@@ -51,20 +51,23 @@ func (s *KmerScanner) ScanOneStrand() bool {
 		return false
 	} 
 
-	for i := s.I; i < s.K+s.I; i++ {
-		if s.Seq[i] != 'A' && s.Seq[i] != 'C' && s.Seq[i] != 'G' && s.Seq[i] != 'T' {
-			status = false
-			break
-		}
-	}
+	// for i := s.I; i < s.K+s.I; i++ {
+	// 	if s.Seq[i] != 'A' && s.Seq[i] != 'C' && s.Seq[i] != 'G' && s.Seq[i] != 'T' {
+	// 		status = false
+	// 		break
+	// 	}
+	// }
 
-	if status {
-		s.Kmer = s.Seq[s.I : s.K+s.I]
-		s.Kmer_qual = s.Qual[s.I : s.K+s.I]	
-	} else {
-		s.Kmer = []byte("")
-		s.Kmer_qual = []byte("")
-	}
+	// if status {
+	// 	s.Kmer = s.Seq[s.I : s.K+s.I]
+	// 	s.Kmer_qual = s.Qual[s.I : s.K+s.I]	
+	// } else {
+	// 	s.Kmer = []byte("")
+	// 	s.Kmer_qual = []byte("")
+	// }
+
+	s.Kmer = s.Seq[s.I : s.K+s.I]
+	s.Kmer_qual = s.Qual[s.I : s.K+s.I]	
 
 	s.I++
 	return true
