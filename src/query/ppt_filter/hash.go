@@ -166,6 +166,7 @@ func (h *LinearHashInt64) ComputeKmerInt64(kmer []byte, kmer_qual []byte, k int,
     // if len(kmer) != h.K {
     //     panic("Unmatched k-mer length")
     // }
+    fmt.Println("Kmer: ", string(kmer), "  Kmer qual: ", string(kmer_qual))
     var base int64
     value := int64(0)
     total := 0
