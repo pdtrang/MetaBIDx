@@ -66,8 +66,7 @@ func (s *FastqScanner) Scan() bool {
         if line[0] == '+' {
             break
         }
-        // seq = line
-        copy(seq, line)
+        seq = line
     }
 
     // 3. Read Quality
@@ -88,9 +87,7 @@ func (s *FastqScanner) Scan() bool {
         if line[0] == 'A' || line[0] == 'T' || line[0] == 'G' || line[0] == 'C' || line[0] == 'N' {
             break
         }
-        // qual = line
-        copy(qual, line)
-
+        qual = line
     }
     s.Seq = make([]byte, len(seq))
     s.Qual = make([]byte, len(qual))

@@ -2,7 +2,7 @@ package ppt_filter
 
 import (
 	"time"
-	"fmt"
+	// "fmt"
 	//"os"
 	// "sync"
 )
@@ -42,7 +42,7 @@ func FindMajority_GID(gidx map[uint16]int) uint16 {
 func (f *FilterInt64) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 []byte, qual2 []byte, start_time time.Time, strategy string, kmer_qual_threshold int) string {
 	// defer Timer()()
 	//fmt.Println("Read ", header)
-	fmt.Println("Read 1 ", string(read_1), " - read 2 ", string(read_2), " - qual 1 ", string(qual1), " - qual 2 ", string(qual2))
+	// fmt.Println("Read 1 ", string(read_1), " - read 2 ", string(read_2), " - qual 1 ", string(qual1), " - qual 2 ", string(qual2))
 	gidx := make(map[uint16]int) // map to keep all the hit kmers for each genome
 
 	f.OnePhaseMajorityQueryRead(read_1, qual1, gidx, kmer_qual_threshold)
@@ -91,7 +91,7 @@ func (f *FilterInt64) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx m
 		for kmer_scanner.ScanOneStrand() {
 		// for i := 0; i <= (len(read) - f.K); i++ {
 			if len(kmer_scanner.Kmer) == 0 {
-				fmt.Println("Empty kmer")
+				// fmt.Println("Empty kmer")
 				continue
 			}
 
@@ -100,7 +100,7 @@ func (f *FilterInt64) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx m
 			// 	continue
 			// }
 
-			fmt.Println("OnePhaseMajQueryRead ", string(read), "   kmer: ", string(kmer_scanner.Kmer), "  kmer_qual: ",string(kmer_scanner.Kmer_qual))
+			// fmt.Println("OnePhaseMajQueryRead ", string(read), "   kmer: ", string(kmer_scanner.Kmer), "  kmer_qual: ",string(kmer_scanner.Kmer_qual))
 			// continue query if it is a good kmer
 			kmer_gid, is_valid_kmer = f.OnePhaseQueryHashKmer(kmer_scanner.Kmer, kmer_scanner.Kmer_qual, kmer_qual_threshold)	
 
@@ -111,6 +111,8 @@ func (f *FilterInt64) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx m
 				}
 			}
 		}
+	} else {
+		panic("Read quality is empty.")
 	}
 
 }
