@@ -42,6 +42,7 @@ func FindMajority_GID(gidx map[uint16]int) uint16 {
 func (f *FilterInt64) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 []byte, qual2 []byte, start_time time.Time, strategy string, kmer_qual_threshold int) string {
 	// defer Timer()()
 	//fmt.Println("Read ", header)
+	fmt.Println("Read 1 ", string(read_1), " - read 2 ", string(read_2), " - qual 1 ", string(qual1), " - qual 2 ", string(qual2))
 	gidx := make(map[uint16]int) // map to keep all the hit kmers for each genome
 
 	f.OnePhaseMajorityQueryRead(read_1, qual1, gidx, kmer_qual_threshold)
