@@ -2,7 +2,7 @@ package ppt_filter
 
 import (
 	"time"
-	// "fmt"
+	"fmt"
 	//"os"
 	// "sync"
 )
@@ -90,6 +90,7 @@ func (f *FilterInt64) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx m
 		for kmer_scanner.ScanOneStrand() {
 		// for i := 0; i <= (len(read) - f.K); i++ {
 			if len(kmer_scanner.Kmer) == 0 {
+				fmt.Println("Empty kmer")
 				continue
 			}
 
