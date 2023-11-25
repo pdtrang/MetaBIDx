@@ -111,7 +111,8 @@ func (f *FilterInt64) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx m
 				}
 			}
 		}
-	// } else {
+	} 
+	// else {
 	// 	panic("Read quality is empty.")
 	// }
 
