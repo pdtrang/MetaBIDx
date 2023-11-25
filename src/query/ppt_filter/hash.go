@@ -162,7 +162,8 @@ func (h *LinearHash) SetK(k int) {
 }
 
 //-----------------------------------------------------------------------------
-func (h *LinearHashInt64) ComputeKmerInt64(kmer []byte, kmer_qual []byte, k int, kmer_qual_threshold int) int64 {
+// func (h *LinearHashInt64) ComputeKmerInt64(kmer []byte, kmer_qual []byte, k int, kmer_qual_threshold int) int64 {
+func (h *LinearHashInt64) ComputeKmerInt64(read []byte, qual []byte, k int, start int, kmer_qual_threshold int) int64 {
     // if len(kmer) != h.K {
     //     panic("Unmatched k-mer length")
     // }
@@ -170,31 +171,32 @@ func (h *LinearHashInt64) ComputeKmerInt64(kmer []byte, kmer_qual []byte, k int,
     var base int64
     value := int64(0)
     total := 0
-    for i := 0; i < len(kmer); i++ {
-        if kmer[i] == 'A' {
+    // for i := 0; i < len(kmer); i++ {
+    for i := start; i < (start + k); i++ {
+        if read[i] == 'A' {
             base = int64(0)
-        } else if kmer[i] == 'C' {
+        } else if read[i] == 'C' {
             base = int64(1)
-        } else if kmer[i] == 'G' {
+        } else if read[i] == 'G' {
             base = int64(2)
-        } else if kmer[i] == 'T' {
+        } else if read[i] == 'T' {
             base = int64(3)
         } else {
             // fmt.Println(string(kmer))
             // panic("ComputeKmer" + string(kmer) + "Unknown character: " + string(kmer[i]))
             return int64(-1)
         }
-        if (kmer_qual[i] - 33) < 0 {
-            fmt.Println("Kmer:", string(kmer))
-            panic("Base: " + string(kmer[i])+ "has quality" + string(kmer_qual[i]) + " less than 0.")
-        }
-        total += int(kmer_qual[i] - 33)
+        // if (kmer_qual[i] - 33) < 0 {
+        //     fmt.Println("Kmer:", string(kmer))
+        //     panic("Base: " + string(kmer[i])+ "has quality" + string(kmer_qual[i]) + " less than 0.")
+        // }
+        total += int(qual[i] - 33)
         cur_term := int64(0) 
-        cur_term = base * h.Exponents[i]
+        cur_term = base * h.Exponents[i-start]
         cur_term = cur_term % h.P
         value = value + cur_term
         value = value % h.P
-        if (i) == 0 {
+        if (i-start) == 0 {
             h.Term0 = cur_term
         }
     }
@@ -241,12 +243,16 @@ func (h *LinearHash) ComputeKmer(kmer []byte) int64 {
 }
 
 //-----------------------------------------------------------------------------
-func (h *LinearHashInt64) HashKmerInt64(kmer []byte, kmer_qual []byte, k int, kmer_qual_threshold int) int64 {
+// func (h *LinearHashInt64) HashKmerInt64(kmer []byte, kmer_qual []byte, k int, kmer_qual_threshold int) int64 {
+func (h *LinearHashInt64) HashKmerInt64(read []byte, qual []byte, k int, start int, kmer_qual_threshold int) int64 {
+
     // fmt.Println("HashKmer func: ", string(kmer))
     // if len(kmer) != h.K {
     //     panic("Unmatched k-mer length")
     // }    
-    i := h.ComputeKmerInt64(kmer, kmer_qual, k, kmer_qual_threshold)
+    // i := h.ComputeKmerInt64(kmer, kmer_qual, k, kmer_qual_threshold)
+    i := h.ComputeKmerInt64(read, qual, k, start, kmer_qual_threshold)
+    
     if i == int64(-1) {
         return int64(-1)
     }
