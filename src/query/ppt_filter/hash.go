@@ -184,7 +184,8 @@ func (h *LinearHashInt64) ComputeKmerInt64(kmer []byte, kmer_qual []byte, k int,
             return int64(-1)
         }
         if (kmer_qual[i] - 33) < 0 {
-            panic("Quality is less than 0.", kmer[i])
+            fmt.Println("Kmer:", string(kmer))
+            panic("Base: " + string(kmer[i])+ "has quality" + string(kmer_qual[i]) + " less than 0.")
         }
         total += int(kmer_qual[i] - 33)
         cur_term := int64(0) 
