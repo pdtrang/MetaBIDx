@@ -1,7 +1,7 @@
 package ppt_filter
 
 import (
-	// "fmt"
+	"fmt"
 )
 
 //-----------------------------------------------------------------------------
@@ -61,6 +61,7 @@ func (s *KmerScanner) ScanOneStrand() bool {
 	if status {
 		s.Kmer = s.Seq[s.I : s.K+s.I]
 		s.Kmer_qual = s.Qual[s.I : s.K+s.I]	
+		fmt.Println("ScanOneStrand - ", string(s.Kmer), string(s.Kmer_qual))
 	} else {
 		s.Kmer = []byte("")
 		s.Kmer_qual = []byte("")
