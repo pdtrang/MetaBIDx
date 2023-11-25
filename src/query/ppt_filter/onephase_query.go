@@ -89,9 +89,9 @@ func (f *FilterInt64) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx m
 		is_valid_kmer := false
 		for kmer_scanner.ScanOneStrand() {
 		// for i := 0; i <= (len(read) - f.K); i++ {
-			// if len(kmer_scanner.Kmer) == 0 {
-			// 	continue
-			// }
+			if len(kmer_scanner.Kmer) == 0 {
+				continue
+			}
 
 			// // check kmer quality 
 			// if !isGoodKmer(kmer_scanner.Kmer_qual, kmer_qual_threshold){

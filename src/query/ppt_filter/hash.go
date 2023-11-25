@@ -183,6 +183,9 @@ func (h *LinearHashInt64) ComputeKmerInt64(kmer []byte, kmer_qual []byte, k int,
             // panic("ComputeKmer" + string(kmer) + "Unknown character: " + string(kmer[i]))
             return int64(-1)
         }
+        if (kmer_qual[i] - 33) < 0 {
+            panic("Quality is less than 0.", kmer[i])
+        }
         total += int(kmer_qual[i] - 33)
         cur_term := int64(0) 
         cur_term = base * h.Exponents[i]
