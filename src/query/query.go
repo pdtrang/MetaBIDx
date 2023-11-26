@@ -50,7 +50,6 @@ func main() {
 	// // f2_name := strings.Replace(*filter_saved_file, ".bin", "_int64.bin", -1)
 	// f2_name := "/home/dpham2/metagenomics/mende_species_int64.bin"
 	// f2.Save(f2_name)
-	// // f2.Show()
 	// f2.Summarize()
 
 
