@@ -27,17 +27,17 @@ func (s *FastqScanner) Scan() bool {
     if s.Finished {
         return false
     }
-    var line []byte
+    var header_line []byte
     var flag bool
     // 1. Read Fasta header
     if len(s.NextHeader) == 0 {
         for flag = s.Scanner.Scan(); flag; flag = s.Scanner.Scan() {
-            line = s.Scanner.Bytes()
-            if len(line)==0 { continue }
-            if line[0] == '@' {
-                // s.Header = line
-                s.Header = make([]byte, len(line))
-                copy(s.Header, line)
+            header_line = s.Scanner.Bytes()
+            if len(header_line)==0 { continue }
+            if header_line[0] == '@' {
+                s.Header = header_line
+                // s.Header = make([]byte, len(line))
+                // copy(s.Header, line)
                 break
             }
         }
@@ -53,46 +53,50 @@ func (s *FastqScanner) Scan() bool {
     }
 
     // 2. Read Fastq sequence
-    var seq []byte
+    var seq_line []byte
+    // var seq []byte
     for flag = s.Scanner.Scan(); flag; flag = s.Scanner.Scan() {
-        line = s.Scanner.Bytes()
-        if len(line)==0 { continue }
-        if line[0] == '@' {
-            // s.NextHeader = line
-            s.NextHeader = make([]byte, len(line))
-            copy(s.NextHeader, line)
+        seq_line = s.Scanner.Bytes()
+        if len(seq_line)==0 { continue }
+        if seq_line[0] == '@' {
+            s.NextHeader = seq_line
+            // s.NextHeader = make([]byte, len(line))
+            // copy(s.NextHeader, line)
             break
         }
-        if line[0] == '+' {
+        if seq_line[0] == '+' {
             break
         }
-        seq = line
+        // seq = seq_line
+        s.Seq = seq_line
     }
 
     // 3. Read Quality
-    var qual []byte
+    var qual_line []byte
+    // var qual []byte
     for flag = s.Scanner.Scan(); flag; flag = s.Scanner.Scan() {
-       line = s.Scanner.Bytes()
-        if len(line)==0 { continue }
-        if line[0] == '@' {
-            // s.NextHeader = line
-            s.NextHeader = make([]byte, len(line))
-            copy(s.NextHeader, line)
+       qual_line = s.Scanner.Bytes()
+        if len(qual_line)==0 { continue }
+        if qual_line[0] == '@' {
+            s.NextHeader = qual_line
+            // s.NextHeader = make([]byte, len(line))
+            // copy(s.NextHeader, line)
             break
         }
-        if line[0] == '+' {
+        if qual_line[0] == '+' {
             break
         }
 
-        if line[0] == 'A' || line[0] == 'T' || line[0] == 'G' || line[0] == 'C' || line[0] == 'N' {
+        if qual_line[0] == 'A' || qual_line[0] == 'T' || qual_line[0] == 'G' || qual_line[0] == 'C' || qual_line[0] == 'N' {
             break
         }
-        qual = line
+        // qual = line
+        s.Qual = qual_line
     }
-    s.Seq = make([]byte, len(seq))
-    s.Qual = make([]byte, len(qual))
-    copy(s.Seq, seq)
-    copy(s.Qual, qual)
+    // s.Seq = make([]byte, len(seq))
+    // s.Qual = make([]byte, len(qual))
+    // copy(s.Seq, seq)
+    // copy(s.Qual, qual)
     // s.Seq = seq
     // s.Qual = qual
     if err := s.Scanner.Err(); err != nil {
