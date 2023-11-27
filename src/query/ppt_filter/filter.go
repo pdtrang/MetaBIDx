@@ -48,9 +48,9 @@ type FilterInt64 struct {
 	lock map[int]*sync.Mutex
 }
 
-func (f *Filter) GetTable() []uint16 {
-	return f.table
-}
+// func (f *Filter) GetTable() []uint16 {
+// 	return f.table
+// }
 
 //-----------------------------------------------------------------------------
 // m: size of hash table.
@@ -487,22 +487,22 @@ func _load_binary_kmerpos(fn string) map[string][]int {
 }
 
 //-----------------------------------------------------------------------------
-func _load_hashfunction(fn string) []*LinearHash {
-    // read file
-    f, err := ioutil.ReadFile(fn)
-    if err != nil {
-      fmt.Print(err)
-    }
+// func _load_hashfunction(fn string) []*LinearHash {
+//     // read file
+//     f, err := ioutil.ReadFile(fn)
+//     if err != nil {
+//       fmt.Print(err)
+//     }
 
-    var data []*LinearHash
-    err = json.Unmarshal(f, &data)
-    if err != nil {
-        fmt.Println("error:", err)
-    }
+//     var data []*LinearHash
+//     err = json.Unmarshal(f, &data)
+//     if err != nil {
+//         fmt.Println("error:", err)
+//     }
     
 
-    return data
-}
+//     return data
+// }
 
 //-----------------------------------------------------------------------------
 func _save_table_alone(s []uint16, filename string) {
@@ -553,24 +553,24 @@ func _save_kmerpos_to_binary(data map[string][]int, fn string) {
 }
 
 //-----------------------------------------------------------------------------
-func _save_hashfunction_to_json(data []*LinearHash, fn string) {
+// func _save_hashfunction_to_json(data []*LinearHash, fn string) {
 
-    // Marshal the map into a JSON string.
-    // saveData, err := json.Marshal(data)   
-    // if err != nil {
-    //     fmt.Println(err.Error())
-    //     return
-    // }
+//     // Marshal the map into a JSON string.
+//     // saveData, err := json.Marshal(data)   
+//     // if err != nil {
+//     //     fmt.Println(err.Error())
+//     //     return
+//     // }
      
-    // jsonStr := string(saveData)
-    // fmt.Println("The JSON data is:")
-    // fmt.Println(jsonStr)
+//     // jsonStr := string(saveData)
+//     // fmt.Println("The JSON data is:")
+//     // fmt.Println(jsonStr)
 
-    file, _ := json.MarshalIndent(data, "", " ")
+//     file, _ := json.MarshalIndent(data, "", " ")
  
-    _ = ioutil.WriteFile(fn, file, 0644)
+//     _ = ioutil.WriteFile(fn, file, 0644)
 
-}
+// }
 
 //-----------------------------------------------------------------------------
 func (f *FilterInt64) SaveFilterGob(fn string) {
