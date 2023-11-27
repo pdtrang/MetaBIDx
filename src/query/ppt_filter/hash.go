@@ -87,7 +87,7 @@ func (h *LinearHashInt64) SetKInt64(k int) {
 func (h *LinearHashInt64) ComputeKmerInt64(read []byte, qual []byte, k int, start int, kmer_qual_threshold int) int64 {
     var base int64
     value := int64(0)
-    total := 0
+    total := 0  // for checking kmer quality
     for i := start; i < (start + k); i++ {
         if read[i] == 'A' {
             base = int64(0)
@@ -112,6 +112,8 @@ func (h *LinearHashInt64) ComputeKmerInt64(read []byte, qual []byte, k int, star
             h.Term0 = cur_term
         }
     }
+    
+    // check kmer quality
     mean_qual := total / k
     if mean_qual < kmer_qual_threshold {
         return int64(-1)
