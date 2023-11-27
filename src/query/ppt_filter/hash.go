@@ -25,8 +25,6 @@ type LinearHashInt64 struct {
     Base            int64
     Term0           int64
     Term0_rc        int64
-    // PrevValue       int64
-    // PrevValue_rc    int64
     Exponents       []int64
 }
 
@@ -50,8 +48,6 @@ func NewLinearHashInt64(m int64) *LinearHashInt64 {
         M:              m,
         Term0:          int64(0),
         Term0_rc:       int64(0),
-        // PrevValue:      int64(0),
-        // PrevValue_rc:   int64(0),
     }
 }
 
@@ -70,8 +66,6 @@ func ResetLinearHashInt64(linear_hash *LinearHashInt64, k int) *LinearHashInt64 
         Base:           linear_hash.Base,
         Term0:          int64(0),
         Term0_rc:       int64(0),
-        // PrevValue:      int64(0),
-        // PrevValue_rc:   int64(0),
         Exponents:      linear_hash.Exponents,
     }
 }
@@ -123,7 +117,6 @@ func (h *LinearHashInt64) ComputeKmerInt64(read []byte, qual []byte, k int, star
         return int64(-1)
     }
 
-    // h.PrevValue = value
     return value % h.M
 }
 
