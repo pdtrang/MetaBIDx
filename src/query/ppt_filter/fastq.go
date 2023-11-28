@@ -27,15 +27,15 @@ func (s *FastqScanner) Scan() bool {
     if s.Finished {
         return false
     }
-    var header_line []byte
+    var header_line string
     var flag bool
     // 1. Read Fasta header
     if len(s.NextHeader) == 0 {
         for flag = s.Scanner.Scan(); flag; flag = s.Scanner.Scan() {
-            header_line = s.Scanner.Bytes()
+            header_line = s.Scanner.Text()
             if len(header_line)==0 { continue }
             if header_line[0] == '@' {
-                s.Header = string(header_line)
+                s.Header = header_line
                 // s.Header = make([]byte, len(line))
                 // copy(s.Header, line)
                 break
@@ -53,13 +53,13 @@ func (s *FastqScanner) Scan() bool {
     }
 
     // 2. Read Fastq sequence
-    var seq_line []byte
+    var seq_line string
     // var seq []byte
     for flag = s.Scanner.Scan(); flag; flag = s.Scanner.Scan() {
-        seq_line = s.Scanner.Bytes()
+        seq_line = s.Scanner.Text()
         if len(seq_line)==0 { continue }
         if seq_line[0] == '@' {
-            s.NextHeader = string(seq_line)
+            s.NextHeader = seq_line
             // s.NextHeader = make([]byte, len(line))
             // copy(s.NextHeader, line)
             break
@@ -68,17 +68,17 @@ func (s *FastqScanner) Scan() bool {
             break
         }
         // seq = seq_line
-        s.Seq = string(seq_line)
+        s.Seq = seq_line
     }
 
     // 3. Read Quality
-    var qual_line []byte
+    var qual_line string
     // var qual []byte
     for flag = s.Scanner.Scan(); flag; flag = s.Scanner.Scan() {
-       qual_line = s.Scanner.Bytes()
+       qual_line = s.Scanner.Text()
         if len(qual_line)==0 { continue }
         if qual_line[0] == '@' {
-            s.NextHeader = string(qual_line)
+            s.NextHeader = qual_line
             // s.NextHeader = make([]byte, len(line))
             // copy(s.NextHeader, line)
             break
@@ -91,7 +91,7 @@ func (s *FastqScanner) Scan() bool {
             break
         }
         // qual = line
-        s.Qual = string(qual_line)
+        s.Qual = qual_line
     }
     // s.Seq = make([]byte, len(seq))
     // s.Qual = make([]byte, len(qual))
