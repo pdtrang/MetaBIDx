@@ -41,7 +41,7 @@ type RRead struct{
 	qual2 []byte
 }
 
-func NewRRead(header []byte, header2 []byte, read1 []byte, read2 []byte, qual1 []byte, qual2 []byte) *Read {
+func NewRRead(header []byte, header2 []byte, read1 []byte, read2 []byte, qual1 []byte, qual2 []byte) *RRead {
 	return &RRead{
 		header:	 header,
 		header2: header2,
