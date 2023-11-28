@@ -50,100 +50,79 @@ func NewRead(header string, read1 string, read2 string, qual1 string, qual2 stri
 	}
 }
 
-type RRead struct{
-	header []byte
-	header2 []byte
-	read1 []byte
-	qual1 []byte
-	read2 []byte
-	qual2 []byte
-}
-
-func NewRRead(header []byte, header2 []byte, read1 []byte, read2 []byte, qual1 []byte, qual2 []byte) *RRead {
-	return &RRead{
-		header:	 header,
-		header2: header2,
-		read1:   read1,
-		read2:   read2,
-		qual1:   qual1,
-		qual2:   qual2,
-	}
-}
-
 //-----------------------------------------------------------------------------
 // Scan single reads to channel
 //-----------------------------------------------------------------------------
-// func ScanSingleReads2Channel(read_file_1 string) chan Read {
-// 	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
+func ScanSingleReads2Channel(read_file_1 string) chan Read {
+	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
 
-// 	log.Printf("Opening fastq files")
-// 	fmt.Printf("Scanning %s ...", read_file_1)
-// 	fq, err := os.Open(read_file_1)
-// 	if err != nil {
-// 		panic(err)
-// 	}
+	log.Printf("Opening fastq files")
+	fmt.Printf("Scanning %s ...", read_file_1)
+	fq, err := os.Open(read_file_1)
+	if err != nil {
+		panic(err)
+	}
 
-// 	scanner := NewFastqScanner(fq)
+	scanner := NewFastqScanner(fq)
 
-// 	numCores := runtime.NumCPU()
-// 	runtime.GOMAXPROCS(numCores)
+	numCores := runtime.NumCPU()
+	runtime.GOMAXPROCS(numCores)
 
-// 	reads_channel := make(chan Read, numCores)
-// 	go func() {
-// 		for scanner.Scan() {
-// 			// fmt.Println(scanner.Header, scanner.Seq, scanner2.Seq)
-// 			reads_channel <- (*NewRead(string(scanner.Header), scanner.Seq, []byte(""), scanner.Qual, []byte("")))
-// 		}
+	reads_channel := make(chan Read, numCores)
+	go func() {
+		for scanner.Scan() {
+			// fmt.Println(scanner.Header, scanner.Seq, scanner2.Seq)
+			reads_channel <- (*NewRead(scanner.Header, scanner.Seq, "", scanner.Qual, ""))
+		}
 
-// 		close(reads_channel)
-// 	}()
+		close(reads_channel)
+	}()
 
-// 	return reads_channel
-// }
+	return reads_channel
+}
 
 //-----------------------------------------------------------------------------
 // Scan pair reads to channel
 //-----------------------------------------------------------------------------
-// func ScanPairReads2Channel(read_file_1 string, read_file_2 string) chan Read {
-// 	// defer Timer()()
-// 	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
+func ScanPairReads2Channel(read_file_1 string, read_file_2 string) chan Read {
+	// defer Timer()()
+	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
 
-// 	log.Printf("Opening fastq files")
-// 	log.Printf("Scanning %s ...", read_file_1)
-// 	fq, err := os.Open(read_file_1)
-// 	if err != nil {
-// 		panic(err)
-// 	}
+	log.Printf("Opening fastq files")
+	log.Printf("Scanning %s ...", read_file_1)
+	fq, err := os.Open(read_file_1)
+	if err != nil {
+		panic(err)
+	}
 
-// 	log.Printf("Scanning %s ...", read_file_2)
-// 	fq2, err := os.Open(read_file_2)
-// 	if err != nil {
-// 		panic(err)
-// 	}
+	log.Printf("Scanning %s ...", read_file_2)
+	fq2, err := os.Open(read_file_2)
+	if err != nil {
+		panic(err)
+	}
 
-// 	scanner := NewFastqScanner(fq)
-// 	scanner2 := NewFastqScanner(fq2)
+	scanner := NewFastqScanner(fq)
+	scanner2 := NewFastqScanner(fq2)
 
-// 	numCores := runtime.NumCPU()
-// 	runtime.GOMAXPROCS(numCores)
+	numCores := runtime.NumCPU()
+	runtime.GOMAXPROCS(numCores)
 
-// 	reads_channel := make(chan Read, numCores)
-// 	go func() {
-// 		for scanner.Scan() && scanner2.Scan() {
-// 			// fmt.Println(scanner.Header, scanner.Seq, scanner2.Seq)
-// 			// fmt.Println(scanner.Header)
-// 			// fmt.Println(string(scanner.Seq), string(scanner.Qual))
-// 			// fmt.Println(string(scanner2.Seq), string(scanner2.Qual))
-// 			// reads_channel <- (*NewRead(scanner.Header, scanner.Seq, scanner2.Seq, scanner.Qual, scanner2.Qual))
-// 			reads_channel <- (*NewRead(string(scanner.Header), scanner.Seq, scanner2.Seq, scanner.Qual, scanner2.Qual))
+	reads_channel := make(chan Read, numCores)
+	go func() {
+		for scanner.Scan() && scanner2.Scan() {
+			// fmt.Println(scanner.Header, scanner.Seq, scanner2.Seq)
+			// fmt.Println(scanner.Header)
+			// fmt.Println(string(scanner.Seq), string(scanner.Qual))
+			// fmt.Println(string(scanner2.Seq), string(scanner2.Qual))
+			reads_channel <- (*NewRead(scanner.Header, scanner.Seq, scanner2.Seq, scanner.Qual, scanner2.Qual))
 
-// 		}
+		}
 
-// 		close(reads_channel)
-// 	}()
+		close(reads_channel)
+	}()
 
-// 	return reads_channel
-// }
+	return reads_channel
+}
 
 func ReadFastqPair(read_file_1 string, read_file_2 string) chan Read {
 	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
@@ -192,22 +171,22 @@ func ReadFastqPair(read_file_1 string, read_file_2 string) chan Read {
 	return reads_channel
 }
 
-// func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
-// 	if len(read_file_2) == 0 {
-// 		return ScanSingleReads2Channel(read_file_1)
-// 	} else {
-// 		return ScanPairReads2Channel(read_file_1, read_file_2)
-// 	}
-// }
-
 func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
-	// if len(read_file_2) == 0 {
-	// 	return ScanSingleReads2Channel(read_file_1)
-	// } else {
-		// return ScanPairReads2Channel(read_file_1, read_file_2)
-	return ReadFastqPair(read_file_1, read_file_2)
-	// }
+	if len(read_file_2) == 0 {
+		return ScanSingleReads2Channel(read_file_1)
+	} else {
+		return ScanPairReads2Channel(read_file_1, read_file_2)
+	}
 }
+
+// func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
+// 	// if len(read_file_2) == 0 {
+// 	// 	return ScanSingleReads2Channel(read_file_1)
+// 	// } else {
+// 		// return ScanPairReads2Channel(read_file_1, read_file_2)
+// 	return ReadFastqPair(read_file_1, read_file_2)
+// 	// }
+// }
 
 //-----------------------------------------------------------------------------
 // Query
