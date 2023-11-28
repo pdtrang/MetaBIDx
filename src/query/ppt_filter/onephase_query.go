@@ -33,7 +33,7 @@ func FindMajority_GID(gidx map[uint16]int) uint16 {
 	return uint16(0)
 }
 
-func (f *FilterInt64) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 []byte, qual2 []byte, start_time time.Time, strategy string, kmer_qual_threshold int) string {
+func (f *FilterInt64) OnePhaseMajorityQuery(read_1 string, read_2 string, qual1 string, qual2 string, start_time time.Time, strategy string, kmer_qual_threshold int) string {
 	// defer Timer()()
 	//fmt.Println("Read ", header)
 	// fmt.Println("Read 1 ", string(read_1), " - read 2 ", string(read_2), " - qual 1 ", string(qual1), " - qual 2 ", string(qual2))
@@ -54,7 +54,7 @@ func (f *FilterInt64) OnePhaseMajorityQuery(read_1 []byte, read_2 []byte, qual1 
 	}
 }
 
-func (f *FilterInt64) OnePhaseMajorityQueryRead(read []byte, qual []byte, gidx map[uint16]int, kmer_qual_threshold int) {
+func (f *FilterInt64) OnePhaseMajorityQueryRead(read string, qual string, gidx map[uint16]int, kmer_qual_threshold int) {
 	if len(qual) != 0 {
 		// fmt.Println("OnePhaseMajQueryRead - func inputs", " read ", string(read), " qual ", string(qual))
 
@@ -128,7 +128,7 @@ func isGoodKmer(kmer_qual []byte, kmer_qual_threshold int) bool {
 	return true
 }
 
-func (f *FilterInt64) OnePhaseQueryHashKmer(read []byte, qual []byte, start int, kmer_qual_threshold int) (uint16, bool) {	
+func (f *FilterInt64) OnePhaseQueryHashKmer(read string, qual string, start int, kmer_qual_threshold int) (uint16, bool) {	
 	gid_map := make(map[uint16]int)
 	for i := 0; i < len(f.HashFunction); i++ {
 		// fmt.Println("HashKmer - kmer: ", string(kmer))

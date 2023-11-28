@@ -84,7 +84,7 @@ func (h *LinearHashInt64) SetKInt64(k int) {
 }
 
 //-----------------------------------------------------------------------------
-func (h *LinearHashInt64) ComputeKmerInt64(read []byte, qual []byte, k int, start int, kmer_qual_threshold int) int64 {
+func (h *LinearHashInt64) ComputeKmerInt64(read string, qual string, k int, start int, kmer_qual_threshold int) int64 {
     var base int64
     value := int64(0)
     total := 0  // for checking kmer quality
@@ -102,7 +102,7 @@ func (h *LinearHashInt64) ComputeKmerInt64(read []byte, qual []byte, k int, star
             // panic("ComputeKmer" + string(kmer) + "Unknown character: " + string(kmer[i]))
             return int64(-1)
         }
-        total += int(qual[i] - 33)
+        total += int([]byte(qual[i]) - 33)
         cur_term := int64(0) 
         cur_term = base * h.Exponents[i-start]
         cur_term = cur_term % h.P
@@ -123,7 +123,7 @@ func (h *LinearHashInt64) ComputeKmerInt64(read []byte, qual []byte, k int, star
 }
 
 //-----------------------------------------------------------------------------
-func (h *LinearHashInt64) HashKmerInt64(read []byte, qual []byte, k int, start int, kmer_qual_threshold int) int64 {
+func (h *LinearHashInt64) HashKmerInt64(read string, qual string, k int, start int, kmer_qual_threshold int) int64 {
     i := h.ComputeKmerInt64(read, qual, k, start, kmer_qual_threshold)
     if i == int64(-1) {
         return int64(-1)
