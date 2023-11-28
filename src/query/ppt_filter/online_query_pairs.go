@@ -157,7 +157,7 @@ func ReadFastqPair(read_file_1 string, read_file_2 string) chan Read {
 			scanner1.Scan()
 			qual1 := []byte(scanner1.Text())
 
-			_ := []byte(scanner2.Text())
+			_ = []byte(scanner2.Text())
 			scanner2.Scan()
 			seq2 := []byte(scanner2.Text())
 			scanner2.Scan() // Skip the '+' line
