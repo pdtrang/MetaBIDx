@@ -221,7 +221,7 @@ func (f *FilterInt64) OnlinePairQuery_Threads(read_file_1 string, read_file_2 st
 	runtime.GOMAXPROCS(numCores)
 	
 	reads_channel := make(chan Read, numCores)
-	reads_channel = ScanRReads2Channel(read_file_1, read_file_2)
+	reads_channel = ScanReads2Channel(read_file_1, read_file_2)
 
 	var wg sync.WaitGroup
 	start_time := time.Now()
