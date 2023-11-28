@@ -152,17 +152,17 @@ func ReadFastqPair(read_file_1 string, read_file_2 string) chan Read {
 		for scanner1.Scan() && scanner2.Scan() {
 			header1 := scanner1.Text()
 			scanner1.Scan()
-			seq1 := scanner1.Bytes()
+			seq1 := []byte(scanner1.Text())
 			scanner1.Scan() // Skip the '+' line
 			scanner1.Scan()
-			qual1 := scanner1.Bytes()
+			qual1 := []byte(scanner1.Text())
 
 			_ = scanner2.Text()
 			scanner2.Scan()
-			seq2 := scanner2.Bytes()
+			seq2 := []byte(scanner2.Text())
 			scanner2.Scan() // Skip the '+' line
 			scanner2.Scan()
-			qual2 := scanner2.Bytes()
+			qual2 := []byte(scanner2.Text())
 			reads_channel <- (*NewRead(header1, seq1, seq2, qual1, qual2))
 		}
 
