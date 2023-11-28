@@ -22,7 +22,7 @@ type Read struct {
 	qual2 []byte
 }
 
-func NewRead(header []byte, read1 []byte, read2 []byte, qual1 []byte, qual2 []byte) *Read {
+func NewRead(header string, read1 []byte, read2 []byte, qual1 []byte, qual2 []byte) *Read {
 	return &Read{
 		header:	 header,
 		read1:   read1,
