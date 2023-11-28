@@ -9,6 +9,7 @@ import (
 	// "strings"
 	"runtime"
 	"sync"
+	"bufio"
 )
 
 const Empty = uint16(0)
@@ -41,7 +42,7 @@ type RRead struct{
 }
 
 func NewRRead(header []byte, header2 []byte, read1 []byte, read2 []byte, qual1 []byte, qual2 []byte) *Read {
-	return &Read{
+	return &RRead{
 		header:	 header,
 		header2: header2,
 		read1:   read1,
@@ -124,7 +125,7 @@ func ScanPairReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 	return reads_channel
 }
 
-func ReadFastqPair(read_file_1 string, read_file_2 string) chan Read {
+func ReadFastqPair(read_file_1 string, read_file_2 string) chan RRead {
 	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
 
 	log.Printf("Opening fastq files")
@@ -175,9 +176,17 @@ func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 	if len(read_file_2) == 0 {
 		return ScanSingleReads2Channel(read_file_1)
 	} else {
-		// return ScanPairReads2Channel(read_file_1, read_file_2)
-		return ReadFastqPair(read_file_1, read_file_2)
+		return ScanPairReads2Channel(read_file_1, read_file_2)
 	}
+}
+
+func ScanRReads2Channel(read_file_1 string, read_file_2 string) chan RRead {
+	// if len(read_file_2) == 0 {
+	// 	return ScanSingleReads2Channel(read_file_1)
+	// } else {
+		// return ScanPairReads2Channel(read_file_1, read_file_2)
+	return ReadFastqPair(read_file_1, read_file_2)
+	// }
 }
 
 //-----------------------------------------------------------------------------
@@ -191,8 +200,8 @@ func (f *FilterInt64) OnlinePairQuery_Threads(read_file_1 string, read_file_2 st
 	numCores := runtime.NumCPU()
 	runtime.GOMAXPROCS(numCores)
 	
-	reads_channel := make(chan Read, numCores)
-	reads_channel = ScanReads2Channel(read_file_1, read_file_2)
+	reads_channel := make(chan RRead, numCores)
+	reads_channel = ScanRReads2Channel(read_file_1, read_file_2)
 
 	var wg sync.WaitGroup
 	start_time := time.Now()
@@ -214,7 +223,7 @@ func (f *FilterInt64) OnlinePairQuery_Threads(read_file_1 string, read_file_2 st
 					//f.TwoPhaseQuery(read.read1, read.read2, start_time, strategy, level)
 
 				} else if f.N_phases == 1 {
-					fmt.Println(string(read.header), string(read.header2), string(read.seq1), string(read.seq2), string(read.qual1), string(read.qual2))
+					fmt.Println(string(read.header), string(read.header2), string(read.read1), string(read.read2), string(read.qual1), string(read.qual2))
 					// fmt.Println(read.header)
 					// fmt.Println("\nPairQuery-Threads ", "\n read1: ", string(read.read1), "\n read2: ", string(read.read2), "\n qual1: ", string(read.qual1), "\n qual2: ", string(read.qual2))
 					// species := f.OnePhaseMajorityQuery(read.read1, read.read2, read.qual1, read.qual2, start_time, strategy, kmer_qual)
