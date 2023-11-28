@@ -32,7 +32,7 @@ func (s *FastqScanner) Scan() bool {
     // 1. Read Fasta header
     if len(s.NextHeader) == 0 {
         for flag = s.Scanner.Scan(); flag; flag = s.Scanner.Scan() {
-            header_line = s.Scanner.Text()
+            header_line = string(s.Scanner.Bytes())
             if len(header_line)==0 { continue }
             if header_line[0] == '@' {
                 s.Header = header_line
@@ -56,7 +56,7 @@ func (s *FastqScanner) Scan() bool {
     var seq_line string
     // var seq []byte
     for flag = s.Scanner.Scan(); flag; flag = s.Scanner.Scan() {
-        seq_line = s.Scanner.Text()
+        seq_line = string(s.Scanner.Bytes())
         if len(seq_line)==0 { continue }
         if seq_line[0] == '@' {
             s.NextHeader = seq_line
@@ -75,7 +75,7 @@ func (s *FastqScanner) Scan() bool {
     var qual_line string
     // var qual []byte
     for flag = s.Scanner.Scan(); flag; flag = s.Scanner.Scan() {
-       qual_line = s.Scanner.Text()
+       qual_line = string(s.Scanner.Bytes())
         if len(qual_line)==0 { continue }
         if qual_line[0] == '@' {
             s.NextHeader = qual_line
