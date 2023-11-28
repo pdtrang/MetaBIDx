@@ -171,22 +171,22 @@ func ReadFastqPair(read_file_1 string, read_file_2 string) chan Read {
 	return reads_channel
 }
 
-// func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
-// 	if len(read_file_2) == 0 {
-// 		return ScanSingleReads2Channel(read_file_1)
-// 	} else {
-// 		return ScanPairReads2Channel(read_file_1, read_file_2)
-// 	}
-// }
-
 func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
-	// if len(read_file_2) == 0 {
-	// 	return ScanSingleReads2Channel(read_file_1)
-	// } else {
-		// return ScanPairReads2Channel(read_file_1, read_file_2)
-	return ReadFastqPair(read_file_1, read_file_2)
-	// }
+	if len(read_file_2) == 0 {
+		return ScanSingleReads2Channel(read_file_1)
+	} else {
+		return ScanPairReads2Channel(read_file_1, read_file_2)
+	}
 }
+
+// func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
+// 	// if len(read_file_2) == 0 {
+// 	// 	return ScanSingleReads2Channel(read_file_1)
+// 	// } else {
+// 		// return ScanPairReads2Channel(read_file_1, read_file_2)
+// 	return ReadFastqPair(read_file_1, read_file_2)
+// 	// }
+// }
 
 //-----------------------------------------------------------------------------
 // Query
