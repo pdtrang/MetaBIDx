@@ -31,6 +31,26 @@ func NewRead(header []byte, read1 []byte, read2 []byte, qual1 []byte, qual2 []by
 	}
 }
 
+type RRead struct{
+	header []byte
+	header2 []byte
+	read1 []byte
+	qual1 []byte
+	read2 []byte
+	qual2 []byte
+}
+
+func NewRRead(header []byte, header2 []byte, read1 []byte, read2 []byte, qual1 []byte, qual2 []byte) *Read {
+	return &Read{
+		header:	 header,
+		header2: header2,
+		read1:   read1,
+		read2:   read2,
+		qual1:   qual1,
+		qual2:   qual2,
+	}
+}
+
 //-----------------------------------------------------------------------------
 // Scan single reads to channel
 //-----------------------------------------------------------------------------
@@ -104,11 +124,59 @@ func ScanPairReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 	return reads_channel
 }
 
+func ReadFastqPair(read_file_1 string, read_file_2 string) chan Read {
+	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
+
+	log.Printf("Opening fastq files")
+	log.Printf("Scanning %s ...", read_file_1)
+	fq, err := os.Open(read_file_1)
+	if err != nil {
+		panic(err)
+	}
+
+	log.Printf("Scanning %s ...", read_file_2)
+	fq2, err := os.Open(read_file_2)
+	if err != nil {
+		panic(err)
+	}
+
+	scanner1 := bufio.NewScanner(fq)
+	scanner2 := bufio.NewScanner(fq2)
+
+	numCores := runtime.NumCPU()
+	runtime.GOMAXPROCS(numCores)
+
+	reads_channel := make(chan RRead, numCores)
+	go func() {
+		for scanner1.Scan() && scanner2.Scan() {
+			header1 := []byte(scanner1.Text())
+			scanner1.Scan()
+			seq1 := []byte(scanner1.Text())
+			scanner1.Scan() // Skip the '+' line
+			scanner1.Scan()
+			qual1 := []byte(scanner1.Text())
+
+			header2 := []byte(scanner2.Text())
+			scanner2.Scan()
+			seq2 := []byte(scanner2.Text())
+			scanner2.Scan() // Skip the '+' line
+			scanner2.Scan()
+			qual2 := []byte(scanner2.Text())
+			reads_channel <- (*NewRRead(header1, header2, seq1, seq2, qual1, qual2))
+		}
+
+		close(reads_channel)
+	}()
+
+	return reads_channel
+}
+
 func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 	if len(read_file_2) == 0 {
 		return ScanSingleReads2Channel(read_file_1)
 	} else {
-		return ScanPairReads2Channel(read_file_1, read_file_2)
+		// return ScanPairReads2Channel(read_file_1, read_file_2)
+		return ReadFastqPair(read_file_1, read_file_2)
 	}
 }
 
@@ -146,10 +214,11 @@ func (f *FilterInt64) OnlinePairQuery_Threads(read_file_1 string, read_file_2 st
 					//f.TwoPhaseQuery(read.read1, read.read2, start_time, strategy, level)
 
 				} else if f.N_phases == 1 {
+					fmt.Println(string(read.header), string(read.header2), string(read.seq1), string(read.seq2), string(read.qual1), string(read.qual2))
 					// fmt.Println(read.header)
 					// fmt.Println("\nPairQuery-Threads ", "\n read1: ", string(read.read1), "\n read2: ", string(read.read2), "\n qual1: ", string(read.qual1), "\n qual2: ", string(read.qual2))
-					species := f.OnePhaseMajorityQuery(read.read1, read.read2, read.qual1, read.qual2, start_time, strategy, kmer_qual)
-					query_results.Add(string(read.header), species)
+					// species := f.OnePhaseMajorityQuery(read.read1, read.read2, read.qual1, read.qual2, start_time, strategy, kmer_qual)
+					// query_results.Add(string(read.header), species)
 				}
 
 			}
