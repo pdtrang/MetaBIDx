@@ -74,7 +74,7 @@ func ScanSingleReads2Channel(read_file_1 string) chan Read {
 	go func() {
 		for scanner.Scan() {
 			// fmt.Println(scanner.Header, scanner.Seq, scanner2.Seq)
-			reads_channel <- (*NewRead(scanner.Header, scanner.Seq, []byte(""), scanner.Qual, []byte("")))
+			reads_channel <- (*NewRead(string(scanner.Header), scanner.Seq, []byte(""), scanner.Qual, []byte("")))
 		}
 
 		close(reads_channel)
@@ -116,7 +116,7 @@ func ScanPairReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 			// fmt.Println(scanner.Header)
 			// fmt.Println(string(scanner.Seq), string(scanner.Qual))
 			// fmt.Println(string(scanner2.Seq), string(scanner2.Qual))
-			reads_channel <- (*NewRead(scanner.Header, scanner.Seq, scanner2.Seq, scanner.Qual, scanner2.Qual))
+			reads_channel <- (*NewRead(string(scanner.Header), scanner.Seq, scanner2.Seq, scanner.Qual, scanner2.Qual))
 		}
 
 		close(reads_channel)
