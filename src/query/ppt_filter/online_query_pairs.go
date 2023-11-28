@@ -147,7 +147,7 @@ func ReadFastqPair(read_file_1 string, read_file_2 string) chan Read {
 	numCores := runtime.NumCPU()
 	runtime.GOMAXPROCS(numCores)
 
-	reads_channel := make(chan RRead, numCores)
+	reads_channel := make(chan Read, numCores)
 	go func() {
 		for scanner1.Scan() && scanner2.Scan() {
 			header1 := []byte(scanner1.Text())
@@ -224,7 +224,7 @@ func (f *FilterInt64) OnlinePairQuery_Threads(read_file_1 string, read_file_2 st
 					//f.TwoPhaseQuery(read.read1, read.read2, start_time, strategy, level)
 
 				} else if f.N_phases == 1 {
-					fmt.Println(string(read.header), string(read.header2), string(read.read1), string(read.read2), string(read.qual1), string(read.qual2), "\n")
+					fmt.Println(string(read.header), string(read.read1), string(read.read2), string(read.qual1), string(read.qual2), "\n")
 					// fmt.Println(read.header)
 					// fmt.Println("\nPairQuery-Threads ", "\n read1: ", string(read.read1), "\n read2: ", string(read.read2), "\n qual1: ", string(read.qual1), "\n qual2: ", string(read.qual2))
 					// species := f.OnePhaseMajorityQuery(read.read1, read.read2, read.qual1, read.qual2, start_time, strategy, kmer_qual)
