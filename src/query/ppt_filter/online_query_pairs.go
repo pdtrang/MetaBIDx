@@ -15,7 +15,7 @@ import (
 const Empty = uint16(0)
 
 type Read struct {
-	header []byte
+	header string
 	read1 []byte
 	qual1 []byte
 	read2 []byte
@@ -150,19 +150,19 @@ func ReadFastqPair(read_file_1 string, read_file_2 string) chan Read {
 	reads_channel := make(chan Read, numCores)
 	go func() {
 		for scanner1.Scan() && scanner2.Scan() {
-			header1 := []byte(scanner1.Text())
+			header1 := scanner1.Text()
 			scanner1.Scan()
-			seq1 := []byte(scanner1.Text())
+			seq1 := scanner1.Bytes()
 			scanner1.Scan() // Skip the '+' line
 			scanner1.Scan()
-			qual1 := []byte(scanner1.Text())
+			qual1 := scanner1.Bytes()
 
 			_ = scanner2.Text()
 			scanner2.Scan()
-			seq2 := []byte(scanner2.Text())
+			seq2 := scanner2.Bytes()
 			scanner2.Scan() // Skip the '+' line
 			scanner2.Scan()
-			qual2 := []byte(scanner2.Text())
+			qual2 := scanner2.Bytes()
 			reads_channel <- (*NewRead(header1, seq1, seq2, qual1, qual2))
 		}
 
@@ -227,7 +227,7 @@ func (f *FilterInt64) OnlinePairQuery_Threads(read_file_1 string, read_file_2 st
 					// fmt.Println(read.header)
 					// fmt.Println("\nPairQuery-Threads ", "\n read1: ", string(read.read1), "\n read2: ", string(read.read2), "\n qual1: ", string(read.qual1), "\n qual2: ", string(read.qual2))
 					species := f.OnePhaseMajorityQuery(read.read1, read.read2, read.qual1, read.qual2, start_time, strategy, kmer_qual)
-					query_results.Add(string(read.header), species)
+					query_results.Add(read.header, species)
 				}
 
 			}
