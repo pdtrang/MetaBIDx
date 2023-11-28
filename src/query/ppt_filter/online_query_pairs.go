@@ -125,7 +125,7 @@ func ScanPairReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 	return reads_channel
 }
 
-func ReadFastqPair(read_file_1 string, read_file_2 string) chan RRead {
+func ReadFastqPair(read_file_1 string, read_file_2 string) chan Read {
 	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
 
 	log.Printf("Opening fastq files")
@@ -157,13 +157,14 @@ func ReadFastqPair(read_file_1 string, read_file_2 string) chan RRead {
 			scanner1.Scan()
 			qual1 := []byte(scanner1.Text())
 
-			header2 := []byte(scanner2.Text())
+			// header2 := []byte(scanner2.Text())
+			scanner2.Scan()
 			scanner2.Scan()
 			seq2 := []byte(scanner2.Text())
 			scanner2.Scan() // Skip the '+' line
 			scanner2.Scan()
 			qual2 := []byte(scanner2.Text())
-			reads_channel <- (*NewRRead(header1, header2, seq1, seq2, qual1, qual2))
+			reads_channel <- (*NewRead(header1, seq1, seq2, qual1, qual2))
 		}
 
 		close(reads_channel)
@@ -180,7 +181,7 @@ func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 	}
 }
 
-func ScanRReads2Channel(read_file_1 string, read_file_2 string) chan RRead {
+func ScanRReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 	// if len(read_file_2) == 0 {
 	// 	return ScanSingleReads2Channel(read_file_1)
 	// } else {
@@ -200,7 +201,7 @@ func (f *FilterInt64) OnlinePairQuery_Threads(read_file_1 string, read_file_2 st
 	numCores := runtime.NumCPU()
 	runtime.GOMAXPROCS(numCores)
 	
-	reads_channel := make(chan RRead, numCores)
+	reads_channel := make(chan Read, numCores)
 	reads_channel = ScanRReads2Channel(read_file_1, read_file_2)
 
 	var wg sync.WaitGroup
@@ -223,7 +224,7 @@ func (f *FilterInt64) OnlinePairQuery_Threads(read_file_1 string, read_file_2 st
 					//f.TwoPhaseQuery(read.read1, read.read2, start_time, strategy, level)
 
 				} else if f.N_phases == 1 {
-					fmt.Println(string(read.header), string(read.header2), string(read.read1), string(read.read2), string(read.qual1), string(read.qual2))
+					fmt.Println(string(read.header), string(read.header2), string(read.read1), string(read.read2), string(read.qual1), string(read.qual2), "\n")
 					// fmt.Println(read.header)
 					// fmt.Println("\nPairQuery-Threads ", "\n read1: ", string(read.read1), "\n read2: ", string(read.read2), "\n qual1: ", string(read.qual1), "\n qual2: ", string(read.qual2))
 					// species := f.OnePhaseMajorityQuery(read.read1, read.read2, read.qual1, read.qual2, start_time, strategy, kmer_qual)
