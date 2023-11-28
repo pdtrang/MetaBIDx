@@ -102,7 +102,7 @@ func (h *LinearHashInt64) ComputeKmerInt64(read string, qual string, k int, star
             // panic("ComputeKmer" + string(kmer) + "Unknown character: " + string(kmer[i]))
             return int64(-1)
         }
-        total += int([]byte(qual[i]) - 33)
+        total += int(qual[i] - 33)
         cur_term := int64(0) 
         cur_term = base * h.Exponents[i-start]
         cur_term = cur_term % h.P
