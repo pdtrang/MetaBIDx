@@ -39,8 +39,8 @@ func main() {
 	// log.Printf("Load filter")
 	// f = ppt_filter.LoadInt64(*filter_saved_file)
 	// log.Println("Finish loading filter.")
-	f.Show()
-	f.Summarize()
+	// f.Show()
+	// f.Summarize()
 
 	// ----- convert bigint to int64 -------
 	f2 := ppt_filter.NewFilterInt64(f.M, f.K, len(f.HashFunction), f.N_phases, f.NumOfLocks)
@@ -50,8 +50,8 @@ func main() {
 	// // f2_name := strings.Replace(*filter_saved_file, ".bin", "_int64.bin", -1)
 	f2_name := "/home/dpham2/metagenomics/cami_int64.bin"
 	f2.Save(f2_name)
-	f2.Show()
-	// f2.Summarize()
+	// f2.Show()
+	f2.Summarize()
 
 
 	fmt.Println(*read_1, *read_2, *out, *level, *strategy, *kmer_qual)
