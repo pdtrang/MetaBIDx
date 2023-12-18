@@ -32,15 +32,15 @@ func main() {
 	log.Printf("Load filter")
 	f = ppt_filter.Load(*filter_saved_file)
 	log.Println("Finish loading filter.")
-	f.Show()
-	// f.Summarize()
+	// f.Show()
+	f.Summarize()
 
 	// Load filter - int64
 	// log.Printf("Load filter")
 	// f = ppt_filter.LoadInt64(*filter_saved_file)
 	// log.Println("Finish loading filter.")
-	// f.Show()
-	// f.Summarize()
+	f.Show()
+	f.Summarize()
 
 	// ----- convert bigint to int64 -------
 	f2 := ppt_filter.NewFilterInt64(f.M, f.K, len(f.HashFunction), f.N_phases, f.NumOfLocks)

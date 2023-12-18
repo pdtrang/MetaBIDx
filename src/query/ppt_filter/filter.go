@@ -165,10 +165,10 @@ func (f *FilterInt64) Summarize() {
 	for key, value := range f.Gid {
 	    fmt.Println(key,":",value)
 	}
-	fmt.Println("Total_signatures")
-	for key, value := range f.Total_signatures {
-	    fmt.Println(key,":",value)
-	}
+	// fmt.Println("Total_signatures")
+	// for key, value := range f.Total_signatures {
+	//     fmt.Println(key,":",value)
+	// }
 }
 
 func (f *Filter) Summarize() {
@@ -180,10 +180,10 @@ func (f *Filter) Summarize() {
 	for key, value := range f.Gid {
 	    fmt.Println(key,":",value)
 	}
-	fmt.Println("Total_signatures")
-	for key, value := range f.Total_signatures {
-	    fmt.Println(key,":",value)
-	}
+	// fmt.Println("Total_signatures")
+	// for key, value := range f.Total_signatures {
+	//     fmt.Println(key,":",value)
+	// }
 }
 
 func (f *Filter) SetTable(table []uint16) {
