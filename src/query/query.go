@@ -1,8 +1,8 @@
 package main
 
 import (
-	"query/ppt_filter"
-	"query/utils"
+	// "query/ppt_filter"
+	// "query/utils"
 	"fmt"
 	"flag"
 	"log"
