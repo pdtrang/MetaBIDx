@@ -1,7 +1,7 @@
 package main
 
 import (
-    "./ppt_filter"
+    "build_index/ppt_filter"
     // "log"
     "flag"
     "fmt"
@@ -10,7 +10,7 @@ import (
     "runtime"
     "math"
     "strings"
-    "./utils"
+    "build_index/utils"
     "sync"
     // "sort"
     // "path/filepath"
@@ -36,7 +36,7 @@ func NewKmer(kmer []byte, idx uint16, header string, loc int, isPrimary bool) *K
 }
 
 //-----------------------------------------------------------------------------
-func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
+func VerifySignature(f *ppt_filter.FilterInt64, refseq string, k int, ph int) {
     // Walk through refseq dir 
     fscanner := ppt_filter.NewFileScanner(refseq)
 
@@ -108,13 +108,85 @@ func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
     
     fmt.Println("Finish hashing kmers")  
 }
+// func VerifySignature(f *ppt_filter.Filter, refseq string, k int, ph int) {
+//     // Walk through refseq dir 
+//     fscanner := ppt_filter.NewFileScanner(refseq)
+
+//     kmer_channel := make(chan Kmer)
+//     numCores := runtime.NumCPU()
+//     runtime.GOMAXPROCS(numCores)
+    
+//     var mutex = &sync.Mutex{}
+//     var wg_hash_kmers sync.WaitGroup
+//     var wg1_scan_kmers sync.WaitGroup
+
+//     maxGoroutines := 1000
+//     queue := make(chan int, maxGoroutines)
+
+//     // Scan reference genomes
+//     for fidx, filename := range fscanner.Scan() {
+//         wg1_scan_kmers.Add(1)
+
+//         go func(fidx int, filename string, mutex *sync.Mutex, kmer_channel chan Kmer) {
+//             fmt.Println("Start scanning", filename)
+//             queue <- 1
+//             defer wg1_scan_kmers.Done()
+
+//             fa, err := os.Open(filename)
+//             if err != nil {
+//                 panic(err)
+//             }
+//             fa_scanner := ppt_filter.NewFastaScanner(fa)
+
+//             // Scan through all sequences in the fasta file
+//             for fa_scanner.Scan() {
+//                 name_parts := strings.Split(filename, "/")
+//                 mutex.Lock()
+//                 f.Gid[uint16(fidx+1)] = strings.Replace(name_parts[len(name_parts)-1],".fa","",-1)
+                
+//                 // Sequence header, and seq length            
+//                 header := fa_scanner.Header[1:]
+//                 f.SeqLength[header] = len(fa_scanner.Seq)
+//                 mutex.Unlock()
+//                 kmer_scanner := ppt_filter.NewKmerScanner(fa_scanner.Seq, k)
+
+//                 for kmer_scanner.ScanBothStrands() {
+//                     // fmt.Println(string(kmer_scanner.Kmer), kmer_scanner.IsPrimary)
+//                     kmer_channel <- (*NewKmer(kmer_scanner.Kmer, uint16(fidx+1), 
+//                                      fa_scanner.Header[1:], kmer_scanner.Kmer_loc, kmer_scanner.IsPrimary))
+//                 }
+                
+
+//             }
+//             <- queue
+//         }(fidx, filename, mutex, kmer_channel)
+//     }
+
+//     for i:=0; i<numCores; i++ {
+//         wg_hash_kmers.Add(1)
+
+//         go func(ph int, mutex *sync.Mutex, kmer_channel chan Kmer) {
+//             defer wg_hash_kmers.Done()
+//             for kmer := range(kmer_channel){
+//                 f.HashSignature_OnePhase(kmer.seq, kmer.gidx, ph, kmer.header, kmer.loc, kmer.IsPrimary, mutex)
+//             }
+//         }(ph, mutex, kmer_channel)
+//     }
+
+    
+//     wg1_scan_kmers.Wait()
+//     close(kmer_channel)
+//     wg_hash_kmers.Wait()
+    
+//     fmt.Println("Finish hashing kmers")  
+// }
 
 
 //-----------------------------------------------------------------------------
-func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases int, nlocks int) *ppt_filter.Filter {
+func BuildNewFilterInt64(refseq string, k int, n_hf int, table_size int64, n_phases int, nlocks int) *ppt_filter.FilterInt64 {
     // fmt.Println("Build New Filter")
     // Create an empty filter
-    f := ppt_filter.NewFilter(table_size, k, n_hf, n_phases, nlocks)    
+    f := ppt_filter.NewFilterInt64(table_size, k, n_hf, n_phases, nlocks)    
 
     
     // 1st walk
@@ -129,9 +201,27 @@ func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases i
 
     return f
 }
+// func BuildNewFilter(refseq string, k int, n_hf int, table_size int64, n_phases int, nlocks int) *ppt_filter.Filter {
+//     // fmt.Println("Build New Filter")
+//     // Create an empty filter
+//     f := ppt_filter.NewFilter(table_size, k, n_hf, n_phases, nlocks)    
+
+    
+//     // 1st walk
+//     // fmt.Println("Phase 1...")
+//     VerifySignature(f, refseq, k, 1)
+
+//     // if n_phases == 2 {
+//     //     // 2nd walk
+//     //     fmt.Println("\n\nPhase 2...")
+//     //     VerifySignature(f, refseq, k, 2)
+//     // }
+
+//     return f
+// }
 
 //-----------------------------------------------------------------------------
-func BuildNewTable(f *ppt_filter.Filter, refseq string, k int, n_hf int, table_size int64, n_phases int, nlocks int) {
+func BuildNewTable(f *ppt_filter.FilterInt64, refseq string, k int, n_hf int, table_size int64, n_phases int, nlocks int) {
     // 1st walk
     VerifySignature(f, refseq, k, 1)
 
@@ -141,6 +231,16 @@ func BuildNewTable(f *ppt_filter.Filter, refseq string, k int, n_hf int, table_s
     // }
 
 }
+// func BuildNewTable(f *ppt_filter.Filter, refseq string, k int, n_hf int, table_size int64, n_phases int, nlocks int) {
+//     // 1st walk
+//     VerifySignature(f, refseq, k, 1)
+
+//     // if n_phases == 2 {
+//     //     // 2nd walk
+//     //     VerifySignature(f, refseq, k, 2)
+//     // }
+
+// }
 
 
 //-----------------------------------------------------------------------------
@@ -170,7 +270,7 @@ func main() {
     // Build
     if *filter_name == "" {
         fmt.Println("Build filter...")
-        f := BuildNewFilter(*refseq_genomes, *K, *N_HASH_FUNCTIONS, FILTER_LEN, 1, *N_LOCKS)
+        f := BuildNewFilterInt64(*refseq_genomes, *K, *N_HASH_FUNCTIONS, FILTER_LEN, 1, *N_LOCKS)
         
         f.CountSignature()
         f.Summarize()

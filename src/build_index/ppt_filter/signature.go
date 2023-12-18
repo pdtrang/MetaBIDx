@@ -16,14 +16,15 @@ const Dirty = uint16(65534)
 // If all slots have either 0 (clean) or gid, then kmer is unique.
 // If so, set these slots to gid.  If not, set them to Dirty.
 //-----------------------------------------------------------------------------
-func (f *Filter) HashSignature(kmer []byte, gid uint16, ph int, header string, kmer_pos int, isPrimary bool, mutex *sync.Mutex) {
+func (f *FilterInt64) HashSignature(kmer []byte, gid uint16, ph int, header string, kmer_pos int, isPrimary bool, mutex *sync.Mutex) {
 
 	unique_to_genome := true
 	idx := make([]int64, 0)
 
 	for i := 0; i < len(f.HashFunction); i++ {
 		// j := f.HashFunction[i].SlidingHashKmerModified(kmer, is_first_kmer, isPrimary)
-		j := f.HashFunction[i].HashKmer(kmer)
+		j := f.HashFunction[i].HashKmerInt64(kmer)
+
 		idx = append(idx, j)
 		if f.table[j] != Empty && f.table[j] != gid {
 			unique_to_genome = false
@@ -66,6 +67,56 @@ func (f *Filter) HashSignature(kmer []byte, gid uint16, ph int, header string, k
 	// }
 	
 }
+// func (f *Filter) HashSignature(kmer []byte, gid uint16, ph int, header string, kmer_pos int, isPrimary bool, mutex *sync.Mutex) {
+
+// 	unique_to_genome := true
+// 	idx := make([]int64, 0)
+
+// 	for i := 0; i < len(f.HashFunction); i++ {
+// 		// j := f.HashFunction[i].SlidingHashKmerModified(kmer, is_first_kmer, isPrimary)
+// 		j := f.HashFunction[i].HashKmer(kmer)
+// 		idx = append(idx, j)
+// 		if f.table[j] != Empty && f.table[j] != gid {
+// 			unique_to_genome = false
+// 		}
+// 	}
+
+
+// 	if unique_to_genome {
+// 		for i := 0; i < len(idx); i++ {
+// 			mut := f.GetLock(idx[i])
+// 			// mut := idx[i])
+// 			f.lock[mut].Lock()
+
+// 			f.table[idx[i]] = gid	
+			
+// 			f.lock[mut].Unlock()
+// 		}
+// 	} else {
+
+// 		for i := 0; i < len(idx); i++ {
+// 			mut := f.GetLock(idx[i])
+// 			// mut := int(idx[i])
+// 			f.lock[mut].Lock()
+
+// 			f.table[idx[i]] = Dirty
+			
+// 			f.lock[mut].Unlock()
+// 		}
+
+// 	}
+	
+
+// 	// comment out with Kmer_pos
+// 	// if unique_to_genome {
+// 	// 	if ph == 2 {
+//  //            // store all positions of unique kmers in phase 2
+// 	// 		// f.GetPositionofUniqueKmer(kmer_pos, header, mutex)
+// 	// 		f.GetPositionofUniqueKmer(kmer_pos, header, isPrimary, mutex)
+// 	// 	}
+// 	// }
+	
+// }
 
 // func (f *Filter) GetPositionofUniqueKmer(kmer_pos int, header string, isPrimary bool, mutex *sync.Mutex){
 	
@@ -95,11 +146,11 @@ func Find(slice []int, val int) (int, bool) {
 }
 
 //-----------------------------------------------------------------------------
-func (f *Filter) HashSignature_OnePhase(kmer []byte, gid uint16, ph int, header string, kmer_pos int, isPrimary bool, mutex *sync.Mutex) {
+func (f *FilterInt64) HashSignature_OnePhase(kmer []byte, gid uint16, ph int, header string, kmer_pos int, isPrimary bool, mutex *sync.Mutex) {
 	// unique_to_genome := true
 
 	for i := 0; i < len(f.HashFunction); i++ {
-		j := f.HashFunction[i].HashKmer(kmer)
+		j := f.HashFunction[i].HashKmerInt64(kmer)
 		
 		mut := f.GetLock(j)
 		f.lock[mut].Lock()
@@ -119,3 +170,27 @@ func (f *Filter) HashSignature_OnePhase(kmer []byte, gid uint16, ph int, header 
 	// }
 	
 }
+// func (f *Filter) HashSignature_OnePhase(kmer []byte, gid uint16, ph int, header string, kmer_pos int, isPrimary bool, mutex *sync.Mutex) {
+// 	// unique_to_genome := true
+
+// 	for i := 0; i < len(f.HashFunction); i++ {
+// 		j := f.HashFunction[i].HashKmer(kmer)
+		
+// 		mut := f.GetLock(j)
+// 		f.lock[mut].Lock()
+// 		if f.table[j] != Empty && f.table[j] != gid {
+// 			f.table[j] = Dirty
+// 		} else {
+// 			f.table[j] = gid	
+// 		}
+			
+// 		f.lock[mut].Unlock()
+// 	}	
+
+// 	// if unique_to_genome {
+//  //        // store all positions of unique kmers in phase 2
+// 	// 	// f.GetPositionofUniqueKmer(kmer_pos, header, mutex)
+// 	// 	f.GetPositionofUniqueKmer(kmer_pos, header, isPrimary, mutex)
+// 	// }
+	
+// }
