@@ -29,28 +29,28 @@ func main() {
 	ppt_filter.StartProfile()
 
 	// Load filter - bigint
+	log.Printf("Load filter")
+	f = ppt_filter.Load(*filter_saved_file)
+	log.Println("Finish loading filter.")
+	f.Show()
+	// f.Summarize()
+
+	// Load filter - int64
 	// log.Printf("Load filter")
-	// f = ppt_filter.Load(*filter_saved_file)
+	// f = ppt_filter.LoadInt64(*filter_saved_file)
 	// log.Println("Finish loading filter.")
 	// f.Show()
 	// f.Summarize()
 
-	// Load filter - int64
-	log.Printf("Load filter")
-	f = ppt_filter.LoadInt64(*filter_saved_file)
-	log.Println("Finish loading filter.")
-	// f.Show()
-	// f.Summarize()
-
 	// ----- convert bigint to int64 -------
-	// f2 := ppt_filter.NewFilterInt64(f.M, f.K, len(f.HashFunction), f.N_phases, f.NumOfLocks)
-	// table := f.GetTable()
-	// f2.CopyInfo(table, f.Gid, f.Gid_header, f.SeqLength)
+	f2 := ppt_filter.NewFilterInt64(f.M, f.K, len(f.HashFunction), f.N_phases, f.NumOfLocks)
+	table := f.GetTable()
+	f2.CopyInfo(table, f.Gid, f.Gid_header, f.SeqLength)
 
 	// // f2_name := strings.Replace(*filter_saved_file, ".bin", "_int64.bin", -1)
-	// f2_name := "/home/dpham2/metagenomics/mende_species_int64.bin"
-	// f2.Save(f2_name)
-	// // f2.Show()
+	f2_name := "/home/dpham2/metagenomics/cami_int64.bin"
+	f2.Save(f2_name)
+	f2.Show()
 	// f2.Summarize()
 
 
@@ -60,10 +60,12 @@ func main() {
 		Map: make(map[string]string),
 	}
 
+	if false {
 	f.OnlinePairQuery_Threads(*read_1, *read_2, query_results, *strategy, *level, *kmer_qual)
 
 	fmt.Println("Writing Output to: ", *out)
 	ppt_filter.WriteResults(*out, query_results)
+	}
 	// print Memory Usage    
 	utils.PrintMemUsage()
 
