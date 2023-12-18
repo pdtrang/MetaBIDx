@@ -13,12 +13,12 @@ import (
 func main() {
 	// get inputs from commandline
 	filter_saved_file := flag.String("load", "", "filter saved file")
-	read_1 := flag.String("r1", "", "fastq/fq file")
-	read_2 := flag.String("r2", "", "fastq/fq file")
-	out := flag.String("out", "result.txt", "output filename")
-	level := flag.String("level", "strains", "query level")
-	strategy := flag.String("strategy", "majority", "querying strategy")
-	kmer_qual := flag.Int("kmer-qual", 20, "threshold for k-mer mean quality")
+	// read_1 := flag.String("r1", "", "fastq/fq file")
+	// read_2 := flag.String("r2", "", "fastq/fq file")
+	// out := flag.String("out", "result.txt", "output filename")
+	// level := flag.String("level", "strains", "query level")
+	// strategy := flag.String("strategy", "majority", "querying strategy")
+	// kmer_qual := flag.Int("kmer-qual", 20, "threshold for k-mer mean quality")
 	flag.Parse()
 	
 	var f *ppt_filter.Filter
@@ -60,12 +60,11 @@ func main() {
 		Map: make(map[string]string),
 	}
 
-	if false {
-	f.OnlinePairQuery_Threads_BI(*read_1, *read_2, query_results, *strategy, *level, *kmer_qual)
+	// f.OnlinePairQuery_Threads_BI(*read_1, *read_2, query_results, *strategy, *level, *kmer_qual)
 
-	fmt.Println("Writing Output to: ", *out)
-	ppt_filter.WriteResults(*out, query_results)
-	}
+	// fmt.Println("Writing Output to: ", *out)
+	// ppt_filter.WriteResults(*out, query_results)
+	
 	// print Memory Usage    
 	utils.PrintMemUsage()
 
