@@ -61,7 +61,7 @@ func main() {
 	}
 
 	if false {
-	f.OnlinePairQuery_Threads(*read_1, *read_2, query_results, *strategy, *level, *kmer_qual)
+	f.OnlinePairQuery_Threads_BI(*read_1, *read_2, query_results, *strategy, *level, *kmer_qual)
 
 	fmt.Println("Writing Output to: ", *out)
 	ppt_filter.WriteResults(*out, query_results)
