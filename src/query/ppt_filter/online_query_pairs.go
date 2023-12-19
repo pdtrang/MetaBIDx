@@ -218,7 +218,7 @@ func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 //-----------------------------------------------------------------------------
 // Query
 //-----------------------------------------------------------------------------
-func (f *FilterInt64) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string, query_results SafeMap, level string, kmer_qual int) {
+func (f *FilterInt64) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string, query_results SafeMap, kmer_qual int) {
 	// defer utils.TimeConsume(time.Now(), "Run time - parallel: ")
 
 	// fmt.Println("-----------------PARALLEL QUERY--------------------")
@@ -261,12 +261,6 @@ func (f *FilterInt64) OnlinePairQuery_Threads(read_file_1 string, read_file_2 st
 	}
 
 	wg.Wait()
-
-	if len(read_file_2) == 0 {
-		fmt.Printf("Input: \n%s.\n", read_file_1)
-	} else {
-		fmt.Printf("Inputs: \n%s and %s.\n", read_file_1, read_file_2)
-	}
 	
 	//utils.PrintMemUsage()
 }
