@@ -16,7 +16,7 @@ func main() {
 	read_1 := flag.String("r1", "", "fastq/fq file")
 	read_2 := flag.String("r2", "", "fastq/fq file")
 	out := flag.String("out", "result.txt", "output filename")
-	level := flag.String("level", "strains", "query level")
+	// level := flag.String("level", "strains", "query level")
 	// strategy := flag.String("strategy", "majority", "querying strategy")
 	kmer_qual := flag.Int("kmer-qual", 20, "threshold for k-mer mean quality")
 	flag.Parse()
