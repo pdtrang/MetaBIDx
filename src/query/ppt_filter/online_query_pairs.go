@@ -171,27 +171,54 @@ func ReadFastqPair(read_file_1 string, read_file_2 string) chan Read {
 	return reads_channel
 }
 
-// func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
-// 	if len(read_file_2) == 0 {
-// 		return ScanSingleReads2Channel(read_file_1)
-// 	} else {
-// 		return ScanPairReads2Channel(read_file_1, read_file_2)
-// 	}
-// }
+func ReadFastqSingle(read_file_1 string) chan Read {
+	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
+
+	log.Printf("Opening fastq file")
+	log.Printf("Scanning %s ...", read_file_1)
+	fq, err := os.Open(read_file_1)
+	if err != nil {
+		panic(err)
+	}
+
+	scanner1 := bufio.NewScanner(fq)
+
+	numCores := runtime.NumCPU()
+	runtime.GOMAXPROCS(numCores)
+
+	reads_channel := make(chan Read, numCores)
+	go func() {
+		for scanner1.Scan() {
+			header1 := scanner1.Text()
+			scanner1.Scan()
+			seq1 := scanner1.Text()
+			scanner1.Scan() // Skip the '+' line
+			scanner1.Scan()
+			qual1 := scanner1.Text()
+
+			reads_channel <- (*NewRead(header1, seq1, "", qual1, ""))
+		}
+
+		close(reads_channel)
+	}()
+
+	return reads_channel
+}
 
 func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
-	// if len(read_file_2) == 0 {
-	// 	return ScanSingleReads2Channel(read_file_1)
-	// } else {
+	if len(read_file_2) == 0 {
+		// return ScanSingleReads2Channel(read_file_1)
+		return ReadFastqSingle(read_file_1)
+	} else {
 		// return ScanPairReads2Channel(read_file_1, read_file_2)
-	return ReadFastqPair(read_file_1, read_file_2)
-	// }
+		return ReadFastqPair(read_file_1, read_file_2)
+	}
 }
 
 //-----------------------------------------------------------------------------
 // Query
 //-----------------------------------------------------------------------------
-func (f *FilterInt64) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string, query_results SafeMap, strategy string, level string, kmer_qual int) {
+func (f *FilterInt64) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string, query_results SafeMap, level string, kmer_qual int) {
 	// defer utils.TimeConsume(time.Now(), "Run time - parallel: ")
 
 	// fmt.Println("-----------------PARALLEL QUERY--------------------")

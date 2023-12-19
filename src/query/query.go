@@ -17,7 +17,7 @@ func main() {
 	read_2 := flag.String("r2", "", "fastq/fq file")
 	out := flag.String("out", "result.txt", "output filename")
 	level := flag.String("level", "strains", "query level")
-	strategy := flag.String("strategy", "majority", "querying strategy")
+	// strategy := flag.String("strategy", "majority", "querying strategy")
 	kmer_qual := flag.Int("kmer-qual", 20, "threshold for k-mer mean quality")
 	flag.Parse()
 	
@@ -34,13 +34,13 @@ func main() {
 	log.Println("Finish loading filter.")
 	// f.Summarize()
 
-	fmt.Println(*read_1, *read_2, *out, *level, *strategy, *kmer_qual)
+	fmt.Println(*read_1, *read_2, *out, *level, *kmer_qual)
 	log.Printf(*out)
 	query_results := ppt_filter.SafeMap{
 		Map: make(map[string]string),
 	}
 
-	f.OnlinePairQuery_Threads(*read_1, *read_2, query_results, *strategy, *level, *kmer_qual)
+	f.OnlinePairQuery_Threads(*read_1, *read_2, query_results, *level, *kmer_qual)
 
 	fmt.Println("Writing Output to: ", *out)
 	ppt_filter.WriteResults(*out, query_results)
