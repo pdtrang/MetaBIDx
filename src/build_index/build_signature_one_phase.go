@@ -120,12 +120,6 @@ func BuildNewFilterInt64(refseq string, k int, n_hf int, table_size int64, n_pha
     // fmt.Println("Phase 1...")
     VerifySignature(f, refseq, k, 1)
 
-    // if n_phases == 2 {
-    //     // 2nd walk
-    //     fmt.Println("\n\nPhase 2...")
-    //     VerifySignature(f, refseq, k, 2)
-    // }
-
     return f
 }
 
@@ -133,20 +127,11 @@ func BuildNewFilterInt64(refseq string, k int, n_hf int, table_size int64, n_pha
 func BuildNewTable(f *ppt_filter.FilterInt64, refseq string, k int, n_hf int, table_size int64, n_phases int, nlocks int) {
     // 1st walk
     VerifySignature(f, refseq, k, 1)
-
-    // if n_phases == 2 {
-    //     // 2nd walk
-    //     VerifySignature(f, refseq, k, 2)
-    // }
-
 }
 
 
 //-----------------------------------------------------------------------------
 func main() {
-    //
-    // log.Printf("Start building Bloom filter from a directory of genomes")
-    // 
     refseq_genomes := flag.String("refseq", "", "refseq genome dir")    
     K := flag.Int("k", 16, "kmer length")
     filter_name := flag.String("load", "", "load existing filter file (without table)")
@@ -160,13 +145,6 @@ func main() {
     var FILTER_LEN int64
 
     FILTER_LEN = int64(math.Pow(float64(2), float64(*power)))
-
-    // fmt.Println("Build index with papams:")
-    // fmt.Println("\t- Reference folder:", *refseq_genomes)
-    // fmt.Println("\t- K-mer length:", *K)
-    // fmt.Println("\t- Number of hash function:", *N_HASH_FUNCTIONS)
-    // fmt.Println("\t- Number of locks:", *N_LOCKS)
-    // fmt.Println("\t- Filter length:", FILTER_LEN)
 
     // Time On
     defer utils.TimeConsume(time.Now(), "Run time: ")
