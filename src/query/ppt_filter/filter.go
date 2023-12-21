@@ -12,7 +12,7 @@ import (
 	"unsafe"
 	"io/ioutil"
 	"sync"
-	"query/utils"
+	"metabidx/query/utils"
 	"time"
 )
 

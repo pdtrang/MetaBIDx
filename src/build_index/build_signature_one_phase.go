@@ -1,16 +1,16 @@
-package main
+package build_index
 
 import (
-    "build_index/ppt_filter"
+    "metabidx/build_index/ppt_filter"
     // "log"
-    "flag"
+    // "flag"
     "fmt"
     "os"
     "time"
     "runtime"
     "math"
     "strings"
-    "build_index/utils"
+    "metabidx/build_index/utils"
     "sync"
     // "sort"
     // "path/filepath"
@@ -131,56 +131,46 @@ func BuildNewTable(f *ppt_filter.FilterInt64, refseq string, k int, n_hf int, ta
 
 
 //-----------------------------------------------------------------------------
-func main() {
-    refseq_genomes := flag.String("refseq", "", "refseq genome dir")    
-    K := flag.Int("k", 16, "kmer length")
-    filter_name := flag.String("load", "", "load existing filter file (without table)")
-    filter_saved_file := flag.String("save", "", "prefix of output filter")
-    power := flag.Int("p", 32, "power")
-    N_HASH_FUNCTIONS := flag.Int("n", 2, "number of hash functions")
-    // N_PHASES := flag.Int("ph", 2, "number of phases")
-    N_LOCKS := flag.Int("locks", 50000, "number of mutex locks")
-
-    flag.Parse()
+func Build(refseq_genomes string, K int, filter_name string, filter_saved_file string, power int, N_HASH_FUNCTIONS int, N_LOCKS int) {
     var FILTER_LEN int64
 
-    FILTER_LEN = int64(math.Pow(float64(2), float64(*power)))
+    FILTER_LEN = int64(math.Pow(float64(2), float64(power)))
 
     // Time On
     defer utils.TimeConsume(time.Now(), "Run time: ")
     
     // Build
-    if *filter_name == "" {
+    if filter_name == "" {
         fmt.Println("Build index with params:")
-        fmt.Println("\t- Reference folder:", *refseq_genomes)
-        fmt.Println("\t- K-mer length:", *K)
-        fmt.Println("\t- Number of hash function:", *N_HASH_FUNCTIONS)
-        fmt.Println("\t- Number of locks:", *N_LOCKS)
+        fmt.Println("\t- Reference folder:", refseq_genomes)
+        fmt.Println("\t- K-mer length:", K)
+        fmt.Println("\t- Number of hash function:", N_HASH_FUNCTIONS)
+        fmt.Println("\t- Number of locks:", N_LOCKS)
         fmt.Println("\t- Filter length:", FILTER_LEN)
         fmt.Println("Build filter...")
-        f := BuildNewFilterInt64(*refseq_genomes, *K, *N_HASH_FUNCTIONS, FILTER_LEN, 1, *N_LOCKS)
+        f := BuildNewFilterInt64(refseq_genomes, K, N_HASH_FUNCTIONS, FILTER_LEN, 1, N_LOCKS)
         
         // f.CountSignature()
         // f.Summarize()
-        f.Save(*filter_saved_file)
+        f.Save(filter_saved_file)
     } else {
-        fmt.Println("Load existing filter: ", *filter_name)
-        f := ppt_filter.LoadFilter(*filter_name)
+        fmt.Println("Load existing filter: ", filter_name)
+        f := ppt_filter.LoadFilter(filter_name)
         fmt.Println("Build new table from filter params:")
-        fmt.Println("\t- Reference folder:", *refseq_genomes)
+        fmt.Println("\t- Reference folder:", refseq_genomes)
         fmt.Println("\t- K-mer length:", f.K)
         fmt.Println("\t- Number of hash function:", len(f.HashFunction))
         fmt.Println("\t- Number of locks:", f.NumOfLocks)
         fmt.Println("\t- Filter length:", f.M)
-        BuildNewTable(f, *refseq_genomes, f.K, len(f.HashFunction), f.M, f.N_phases, f.NumOfLocks)
+        BuildNewTable(f, refseq_genomes, f.K, len(f.HashFunction), f.M, f.N_phases, f.NumOfLocks)
         
         // f.CountSignature()
         // f.Summarize()
-        f.Save(*filter_saved_file)
+        f.Save(filter_saved_file)
     }
 
     // print Memory Usage    
     // utils.PrintMemUsage()
     fmt.Println("Finish building index.")
-    fmt.Println("Save index to ", *filter_saved_file)
+    fmt.Println("Save index to ", filter_saved_file)
 }

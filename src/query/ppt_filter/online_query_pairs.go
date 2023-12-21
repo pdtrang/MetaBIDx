@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 	"time"
-	"query/utils"
+	"metabidx/query/utils"
 	// "strings"
 	"runtime"
 	"sync"
