@@ -6,7 +6,7 @@ A new computational approach to bacteria identification in microbiomes
 - MetaBIDx can be downloaded at [https://github.com/pdtrang/MetaBIDx/releases](https://github.com/pdtrang/MetaBIDx/releases)
 
 
-### Indexing genomes in a microbiome 
+### Index genomes in a microbiome 
 
 ```
 metabidx build -refseq genome_folder -save index_name.bin -k 15
@@ -24,7 +24,7 @@ Example:
 metabidx build -refseq test_data/Two_refs/ -save two_refs_index.bin
 ```
 
-### Querying reads
+### Query reads
 ```
 metabidx query -load path/to/index_name.bin -r1 path/to/read_1.fq -r2 path/to/read_2.fq -out query_outputs.txt
 ``` 
