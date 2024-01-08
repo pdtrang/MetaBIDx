@@ -9,7 +9,7 @@ import (
 )
 
 func printInfo() {
-    fmt.Println("MetaBIDx - A tool to empower bacteria identification in microbiomes")
+    fmt.Println("MetaBIDx - A new computational approach to bacteria identification in microbiomes")
     fmt.Println("\nUsage: ./metabidx <command> [options]")
     fmt.Println("\nCommands:")
     fmt.Println("\tbuild\t\t\tbuild an index for microbiome")
@@ -23,10 +23,12 @@ func printBuildInfo(){
     fmt.Println("\t-save <path_to_output_index>\t        Path to output index")
     fmt.Println("Options:")
     fmt.Println("\t-k INT\t\t\t\t\tk-mer length (default 16)")
-    fmt.Println("\t-p INT\t\t\t\t\tSize of the index is 2^power (default 32)")
+    fmt.Println("\t-p INT\t\t\t\t\tSize of the index is 2^p (default 32)")
     fmt.Println("\t-n INT\t\t\t\t\tNunber of hash function to build the index (default 2)")
     fmt.Println("\t-locks INT\t\t\t\tNumber of mutex locks (default 50000)")
     fmt.Println("\t-load <path_to_existing_index>\t\tPath to an existing index")
+    fmt.Println("Example:")
+    fmt.Println("metabidx build -refseq test_data/references -save references.bin -k 7 -n 2 -p 15")
 }
 
 func printQueryInfo(){
@@ -38,6 +40,8 @@ func printQueryInfo(){
     fmt.Println("\t-r2 <path_to_read>\t\t\tPath to fastq/fq file")
     fmt.Println("\t-out <path_to_output_file>\t\tPath to output file (default 'result.txt')")
     fmt.Println("\t-kmer-qual INT\t\t\t\tThreshold for k-mer mean quality (default 20)")
+    fmt.Println("Example:")
+    fmt.Println("metabidx query references.bin -r1 test_data/Reads/read1.fq -r2 test_data/Reads/read2.fq -save my_output.txt")
 }
 
 func main() {
