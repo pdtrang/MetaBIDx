@@ -26,17 +26,43 @@ metabidx build -refseq test_data/Two_refs/ -save two_refs_index.bin
 
 ### Query reads
 ```
-metabidx query -load path/to/index_name.bin -r1 path/to/read_1.fq -r2 path/to/read_2.fq -out query_outputs.txt
+metabidx query -load path/to/index_name.bin -r1 path/to/read_1.fq -r2 path/to/read_2.fq -out query_output.txt
 ``` 
 where:
 - `index_name` is the name of the index
 - read_1 is read or the first read in pairs
 - read_2 is the second read in pairs. This input is optional.
-- query_outputs.txt is the file containing output of classifying reads. (Default: result.txt)
+- query_output.txt is the file containing output of classifying reads. (Default: query_output.txt)
 
 For more optional parameters, run `metabidx query -h`
 
 Example:
 ```go
-metabidx query -load my_index.bin -r1 test_data/Reads/r1.fq -r2 test_data/Reads/r2.fq -out my_query_outputs.txt
+metabidx query -load my_index.bin -r1 test_data/Reads/r1.fq -r2 test_data/Reads/r2.fq -out my_query_output.txt
 ```
+
+#### Query output format
+- The query output has 2 columns:
+	- First column: read header
+	- Second column: the species name which the read is classified to or "unclassified"
+
+
+### Predict species
+```
+metabidx predict -load path/to/index_name.bin -r1 path/to/read_1.fq -r2 path/to/read_2.fq -out prediction_output.txt
+``` 
+where:
+- `index_name` is the name of the index
+- read_1 is read or the first read in pairs
+- read_2 is the second read in pairs. This input is optional.
+- prediction_outputs.txt is the file containing output of classifying reads. (Default: prediction_output.txt)
+
+For more optional parameters, run `metabidx predict -h`
+
+Example:
+```go
+metabidx predict -load my_index.bin -r1 test_data/Reads/r1.fq -r2 test_data/Reads/r2.fq -out my_prediction_output.txt
+```
+
+#### Predict output format
+- The predict output file contains all predicted species name which were identified from the reads.
