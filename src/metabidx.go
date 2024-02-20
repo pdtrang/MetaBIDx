@@ -41,6 +41,7 @@ func printPredictInfo(){
     fmt.Println("\t-r2 <path_to_read>\t\t\tPath to fastq/fq file")
     fmt.Println("\t-out <path_to_output_file>\t\tPath to output file (default 'prediction_result.txt')")
     fmt.Println("\t-kmer-qual INT\t\t\t\tThreshold for k-mer mean quality (default 20)")
+    fmt.Println("\t-python-path <path_to_python3>\t\tPath to Python3 (default '/usr/bin/python3')")
     fmt.Println("Example:")
     fmt.Println("metabidx predict -load references.bin -r1 test_data/Reads/read1.fq -r2 test_data/Reads/read2.fq -out my_prediction_output.txt")
 }
@@ -84,6 +85,7 @@ func main() {
     read_2 := predictCmd.String("r2", "", "path to fastq/fq file")
     out := predictCmd.String("out", "prediction_result.txt", "path to output filename")
     kmer_qual := predictCmd.Int("kmer-qual", 20, "threshold for k-mer mean quality")
+    python_path := predictCmd.String("python-path", "/usr/bin/python3", "path to Python3")
 
     if len(os.Args) < 2 {
         printInfo()
@@ -127,7 +129,7 @@ func main() {
             predictCmd.Parse(os.Args[2:])
             tmp_cov_output := "tmp_out.csv"
             query.Query(*filter, *read_1, *read_2, *out, *kmer_qual, false, true)
-            predict.Predict(tmp_cov_output, *out)
+            predict.Predict(tmp_cov_output, *out, *python_path)
         default:
             fmt.Println("Expected 'build' or 'query' subcommands")
             os.Exit(1)

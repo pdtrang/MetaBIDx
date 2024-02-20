@@ -48,8 +48,26 @@ metabidx query -load my_index.bin -r1 test_data/Reads/r1.fq -r2 test_data/Reads/
 
 
 ### Predict species
+#### Requirements
+- Python3 (tested with Python v3.11.4)
+- Python3 package: scikit-learn, yellowbrick, pandas, numpy
+	- Install via conda
+	```
+	conda install anaconda::pandas
+	conda install anaconda::scikit-learn
+	conda install conda-forge::yellowbrick
+	conda install anaconda::numpy
+	```
+	- Install via pip
+	```
+	pip install pandas
+	pip install -U scikit-learn
+	pip install yellowbrick
+	pip install numpy
+	```
+
 ```
-metabidx predict -load path/to/index_name.bin -r1 path/to/read_1.fq -r2 path/to/read_2.fq -out prediction_output.txt
+metabidx predict -load path/to/index_name.bin -r1 path/to/read_1.fq -r2 path/to/read_2.fq -out prediction_output.txt -python-path /home/user/miniconda3/bin/python3
 ``` 
 where:
 - `index_name` is the name of the index
