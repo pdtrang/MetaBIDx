@@ -6,6 +6,7 @@ import (
     "os"
     "metabidx/build_index"
     "metabidx/query"
+    "metabidx/predict"
 )
 
 func printInfo() {
@@ -31,6 +32,19 @@ func printBuildInfo(){
     fmt.Println("metabidx build -refseq test_data/references -save references.bin -k 7 -n 2 -p 15")
 }
 
+func printPredictInfo(){
+    fmt.Println("Usage: metabidx predict -query-output <path_to_query_output>")
+    fmt.Println("Required:")
+    fmt.Println("\t-load <path_to_index>\t\t\tPath to index")
+    fmt.Println("\t-r1 <path_to_read>\t\t\tPath to fastq/fq file")
+    fmt.Println("Options:")
+    fmt.Println("\t-r2 <path_to_read>\t\t\tPath to fastq/fq file")
+    fmt.Println("\t-out <path_to_output_file>\t\tPath to output file (default 'prediction_result.txt')")
+    fmt.Println("\t-kmer-qual INT\t\t\t\tThreshold for k-mer mean quality (default 20)")
+    fmt.Println("Example:")
+    fmt.Println("metabidx predict -load references.bin -r1 test_data/Reads/read1.fq -r2 test_data/Reads/read2.fq -out my_prediction_output.txt")
+}
+
 func printQueryInfo(){
     fmt.Println("Usage: metabidx query -load <path_to_index> -r1 <path_to_read> [-r2 <path_to_read2>] [-out <path_to_output_file>] [-kmer-qual INT]")
     fmt.Println("Required:")
@@ -38,10 +52,10 @@ func printQueryInfo(){
     fmt.Println("\t-r1 <path_to_read>\t\t\tPath to fastq/fq file")
     fmt.Println("Options:")
     fmt.Println("\t-r2 <path_to_read>\t\t\tPath to fastq/fq file")
-    fmt.Println("\t-out <path_to_output_file>\t\tPath to output file (default 'result.txt')")
+    fmt.Println("\t-out <path_to_output_file>\t\tPath to output file (default 'query_result.txt')")
     fmt.Println("\t-kmer-qual INT\t\t\t\tThreshold for k-mer mean quality (default 20)")
     fmt.Println("Example:")
-    fmt.Println("metabidx query references.bin -r1 test_data/Reads/read1.fq -r2 test_data/Reads/read2.fq -save my_output.txt")
+    fmt.Println("metabidx query -load references.bin -r1 test_data/Reads/read1.fq -r2 test_data/Reads/read2.fq -out my_query_output.txt")
 }
 
 func main() {
@@ -55,13 +69,21 @@ func main() {
     N_HASH_FUNCTIONS := buildCmd.Int("n", 2, "number of hash functions")
     N_LOCKS := buildCmd.Int("locks", 50000, "number of mutex locks")
 
-   //  params for query
+    //  params for query
     queryCmd := flag.NewFlagSet("query", flag.ExitOnError)
-    filter := queryCmd.String("load", "", "path to index/filter")
-    read_1 := queryCmd.String("r1", "", "path to fastq/fq file")
-    read_2 := queryCmd.String("r2", "", "path to fastq/fq file")
-    out := queryCmd.String("out", "result.txt", "path to output filename")
-    kmer_qual := queryCmd.Int("kmer-qual", 20, "threshold for k-mer mean quality")
+    qfilter := queryCmd.String("load", "", "path to index/filter")
+    qread_1 := queryCmd.String("r1", "", "path to fastq/fq file")
+    qread_2 := queryCmd.String("r2", "", "path to fastq/fq file")
+    qout := queryCmd.String("out", "query_result.txt", "path to output filename")
+    qkmer_qual := queryCmd.Int("kmer-qual", 20, "threshold for k-mer mean quality")
+
+    //  params for prediction
+    predictCmd := flag.NewFlagSet("predict", flag.ExitOnError)
+    filter := predictCmd.String("load", "", "path to index/filter")
+    read_1 := predictCmd.String("r1", "", "path to fastq/fq file")
+    read_2 := predictCmd.String("r2", "", "path to fastq/fq file")
+    out := predictCmd.String("out", "prediction_result.txt", "path to output filename")
+    kmer_qual := predictCmd.Int("kmer-qual", 20, "threshold for k-mer mean quality")
 
     if len(os.Args) < 2 {
         printInfo()
@@ -92,7 +114,20 @@ func main() {
                 return 
             }
             queryCmd.Parse(os.Args[2:])
-            query.Query(*filter, *read_1, *read_2, *out, *kmer_qual)
+            query.Query(*qfilter, *qread_1, *qread_2, *qout, *qkmer_qual, true, false)
+        case "predict":
+            if len(os.Args[2:]) == 0 {
+               printPredictInfo()
+               return 
+            } else if os.Args[2] == "-h" {
+                printPredictInfo()
+                return 
+            }
+            // query_output := "/Users/dpham@dnanexus.com/Downloads/notebooks_csv_files_OneDrive_1_1-9-2024/Metabf_species/test_query_output.csv"
+            predictCmd.Parse(os.Args[2:])
+            tmp_cov_output := "tmp_out.csv"
+            query.Query(*filter, *read_1, *read_2, *out, *kmer_qual, false, true)
+            predict.Predict(tmp_cov_output, *out)
         default:
             fmt.Println("Expected 'build' or 'query' subcommands")
             os.Exit(1)

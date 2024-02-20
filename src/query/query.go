@@ -10,7 +10,7 @@ import (
 	//"runtime"
 )
 
-func Query(filter_saved_file string, read_1 string, read_2 string, out string, kmer_qual int) {
+func Query(filter_saved_file string, read_1 string, read_2 string, out string, kmer_qual int, write_query_output bool, write_tmp_cov_file bool) {
 	var f *ppt_filter.FilterInt64
 
 	// Time On
@@ -29,8 +29,15 @@ func Query(filter_saved_file string, read_1 string, read_2 string, out string, k
 
 	f.OnlinePairQuery_Threads(read_1, read_2, query_results, kmer_qual)
 
-	fmt.Println("Writing Output to: ", out)
-	ppt_filter.WriteResults(out, query_results)
+	if write_query_output{
+		fmt.Println("Writing Output to: ", out)
+		ppt_filter.WriteResults(out, query_results)
+	}
+
+	if write_tmp_cov_file {
+		tmp_out := "tmp_out.csv"
+		ppt_filter.WriteCoverage(tmp_out, query_results, f)
+	}
 	// print Memory Usage    
 	// utils.PrintMemUsage()
 
