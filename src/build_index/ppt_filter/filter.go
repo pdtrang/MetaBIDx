@@ -28,6 +28,7 @@ type FilterInt64 struct {
 	Gid			 map[uint16]string // map gids and strains/species names
 	Gid_header   map[uint16][]string // map gids and sequence headers (for query)
 	SeqLength    map[string]int // map of sequence length
+	GLength		 map[string]int // map of sequence length by fa file name
 	// Kmer_pos     map[string][]int // map of position of unique kmers in each sequence
 	N_phases	 int
 	Total_signatures map[uint16]int //map of total signatures of each bacteria
@@ -49,6 +50,7 @@ func NewFilterInt64(m int64, k int, num_hashes int, n_phases int, nlocks int) *F
 		Gid: make(map[uint16]string),
 		Gid_header: make(map[uint16][]string),
 		SeqLength: make(map[string]int),
+		GLength: make(map[string]int),
 		// Kmer_pos: make(map[string][]int),
 		N_phases: n_phases,
 		Total_signatures: make(map[uint16]int),

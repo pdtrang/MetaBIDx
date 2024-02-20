@@ -70,11 +70,16 @@ func VerifySignature(f *ppt_filter.FilterInt64, refseq string, k int, ph int) {
             for fa_scanner.Scan() {
                 name_parts := strings.Split(filename, "/")
                 mutex.Lock()
-                f.Gid[uint16(fidx+1)] = strings.Replace(name_parts[len(name_parts)-1],".fa","",-1)
+                fa_name := strings.Replace(name_parts[len(name_parts)-1],".fasta","",-1)
+                fa_name = strings.Replace(name_parts[len(name_parts)-1],".fna","",-1)
+                fa_name = strings.Replace(name_parts[len(name_parts)-1],".fa","",-1)
+                // f.Gid[uint16(fidx+1)] = strings.Replace(name_parts[len(name_parts)-1],".fa","",-1)
+                f.Gid[uint16(fidx+1)] = fa_name
                 
                 // Sequence header, and seq length            
                 header := fa_scanner.Header[1:]
                 f.SeqLength[header] = len(fa_scanner.Seq)
+                f.GLength[fa_name] = len(fa_scanner.Seq)
                 mutex.Unlock()
                 kmer_scanner := ppt_filter.NewKmerScanner(fa_scanner.Seq, k)
 
