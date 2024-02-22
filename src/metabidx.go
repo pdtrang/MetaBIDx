@@ -15,6 +15,7 @@ func printInfo() {
     fmt.Println("\nCommands:")
     fmt.Println("\tbuild\t\t\tbuild an index for microbiome")
     fmt.Println("\tquery\t\t\tquery metagenomes from an index")
+    fmt.Println("\tpredict\t\t\tquery metagenomes from an index and predict species")
 }
 
 func printBuildInfo(){
