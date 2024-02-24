@@ -50,8 +50,8 @@ func VerifySignature(f *ppt_filter.FilterInt64, refseq string, k int, ph int) {
     var wg_hash_kmers sync.WaitGroup
     var wg1_scan_kmers sync.WaitGroup
 
-    maxGoroutines := 1000
-    // maxGoroutines := 100
+    // maxGoroutines := 1000
+    maxGoroutines := 1
     queue := make(chan int, maxGoroutines)
 
     // Scan reference genomes
