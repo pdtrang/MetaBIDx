@@ -42,7 +42,7 @@ func VerifySignature(f *ppt_filter.FilterInt64, refseq string, k int, ph int) {
 
     kmer_channel := make(chan Kmer)
     // numCores := runtime.NumCPU()
-    numCores := runtime.NumCPU() / 3
+    numCores := 1
     fmt.Println("numCores = ", numCores)
     runtime.GOMAXPROCS(numCores)
     
@@ -50,8 +50,8 @@ func VerifySignature(f *ppt_filter.FilterInt64, refseq string, k int, ph int) {
     var wg_hash_kmers sync.WaitGroup
     var wg1_scan_kmers sync.WaitGroup
 
-    // maxGoroutines := 1000
-    maxGoroutines := 1
+    maxGoroutines := 1000
+    // maxGoroutines := 1
     queue := make(chan int, maxGoroutines)
 
     // Scan reference genomes
