@@ -42,7 +42,7 @@ func VerifySignature(f *ppt_filter.FilterInt64, refseq string, k int, ph int) {
 
     kmer_channel := make(chan Kmer)
     // numCores := runtime.NumCPU()
-    numCores := runtime.NumCPU() / 4
+    numCores := runtime.NumCPU() / 8
     // fmt.Println("numCores = ", numCores)
     runtime.GOMAXPROCS(numCores)
     
