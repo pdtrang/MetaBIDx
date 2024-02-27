@@ -224,7 +224,7 @@ func (f *FilterInt64) OnlinePairQuery_Threads(read_file_1 string, read_file_2 st
 	// fmt.Println("-----------------PARALLEL QUERY--------------------")
 
 	// numCores := runtime.NumCPU()
-	numCores := runtime.NumCPU()/4
+	numCores := runtime.NumCPU()/8
 	runtime.GOMAXPROCS(numCores)
 	
 	reads_channel := make(chan Read, numCores)
