@@ -11,6 +11,7 @@ import (
 
 func printInfo() {
     fmt.Println("MetaBIDx - A new computational approach to bacteria identification in microbiomes")
+    fmt.Println("Version - 2.1.0")
     fmt.Println("\nUsage: ./metabidx <command> [options]")
     fmt.Println("\nCommands:")
     fmt.Println("\tbuild\t\t\tbuild an index for microbiome")
