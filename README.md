@@ -32,7 +32,7 @@ where:
 - `index_name` is the name of the index
 - `read_1` is read or the first read in pairs
 - `read_2` is the second read in pairs. This input is optional.
-- `query_output.txt` is the file containing output of classifying reads. (Default: query_output.txt)
+- `query_output.txt` is the file containing output of classified reads. (Default: query_output.txt)
 
 For more optional parameters, run `metabidx query -h`
 
