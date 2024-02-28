@@ -5,7 +5,7 @@ import (
 	// "metabidx/query/utils"
 	"fmt"
 	// "flag"
-	"log"
+	// "log"
 	// "time"
 	//"runtime"
 )
@@ -29,9 +29,9 @@ func Query(filter_saved_file string, read_1 string, read_2 string, out string, k
 	fmt.Println("\t- Non-discard k-mer threshold:", ndiscard_threshold,"%")
 
 	// Load filter - int64
-	log.Printf("Load filter")
+	fmt.Println("Load filter")
 	f = ppt_filter.LoadInt64(filter_saved_file)
-	log.Println("Finish loading filter.")
+	fmt.Println("Finish loading filter.")
 	// f.Summarize()
 
 	query_results := ppt_filter.SafeMap{

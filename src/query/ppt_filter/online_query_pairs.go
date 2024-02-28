@@ -127,14 +127,14 @@ func ScanPairReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 func ReadFastqPair(read_file_1 string, read_file_2 string) chan Read {
 	// defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
 
-	log.Printf("Opening fastq files")
-	log.Printf("Scanning %s ...", read_file_1)
+	fmt.Println("Opening fastq files")
+	fmt.Println("Scanning %s ...", read_file_1)
 	fq, err := os.Open(read_file_1)
 	if err != nil {
 		panic(err)
 	}
 
-	log.Printf("Scanning %s ...", read_file_2)
+	fmt.Println("Scanning %s ...", read_file_2)
 	fq2, err := os.Open(read_file_2)
 	if err != nil {
 		panic(err)
@@ -168,7 +168,7 @@ func ReadFastqPair(read_file_1 string, read_file_2 string) chan Read {
 		close(reads_channel)
 	}()
 
-	log.Printf("Finish scanning reads")
+	fmt.Println("Finish scanning reads")
 
 	return reads_channel
 }
@@ -176,8 +176,8 @@ func ReadFastqPair(read_file_1 string, read_file_2 string) chan Read {
 func ReadFastqSingle(read_file_1 string) chan Read {
 	// defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
 
-	log.Printf("Opening fastq file")
-	log.Printf("Scanning %s ...", read_file_1)
+	fmt.Println("Opening fastq file")
+	fmt.Println("Scanning %s ...", read_file_1)
 	fq, err := os.Open(read_file_1)
 	if err != nil {
 		panic(err)
@@ -204,7 +204,7 @@ func ReadFastqSingle(read_file_1 string) chan Read {
 		close(reads_channel)
 	}()
 
-	log.Printf("Finish scanning reads")
+	fmt.Println("Finish scanning reads")
 	return reads_channel
 }
 
@@ -235,7 +235,7 @@ func (f *FilterInt64) OnlinePairQuery_Threads(read_file_1 string, read_file_2 st
 	var wg sync.WaitGroup
 	start_time := time.Now()
 	defer utils.TimeConsume(start_time, "\nQuery running time ")
-	log.Printf("Start querying...")
+	fmt.Println("Start querying...")
 
 	// StartProfile()
 	// defer Timer()()
@@ -265,7 +265,7 @@ func (f *FilterInt64) OnlinePairQuery_Threads(read_file_1 string, read_file_2 st
 
 	wg.Wait()
 	
-	log.Printf("Finish querying...")
+	fmt.Println("Finish querying...")
 	//utils.PrintMemUsage()
 }
 
