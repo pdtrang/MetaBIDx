@@ -20,7 +20,7 @@ For more optional parameters, run `metabidx build -h`
 
 Example:
 
-```go
+```
 metabidx build -refseq test_data/Two_refs/ -save two_refs_index.bin
 ```
 
@@ -37,7 +37,7 @@ where:
 For more optional parameters, run `metabidx query -h`
 
 Example:
-```go
+```
 metabidx query -load my_index.bin -r1 test_data/Reads/r1.fq -r2 test_data/Reads/r2.fq -out my_query_output.txt
 ```
 
@@ -78,7 +78,7 @@ where:
 For more optional parameters, run `metabidx predict -h`
 
 Example:
-```go
+```
 metabidx predict -load my_index.bin -r1 test_data/Reads/r1.fq -r2 test_data/Reads/r2.fq -out my_prediction_output.txt
 ```
 
