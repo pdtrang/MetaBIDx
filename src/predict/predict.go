@@ -4,11 +4,11 @@ import (
     "os"
     "os/exec"
     "fmt"
-    "log"
+    // "log"
 )
 
 func Predict(tmp_cov_output string, output_file string, python_path string) {
-	log.Printf("Predict species...")
+	fmt.Println("Predict species...")
     cmd := exec.Command(python_path, "predict/predict.py", tmp_cov_output, output_file)
     cmd.Stdout = os.Stdout
     cmd.Stderr = os.Stderr
