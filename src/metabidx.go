@@ -9,14 +9,17 @@ import (
     "metabidx/predict"
 )
 
+var VERSION = "v2.1.0"
+
 func printInfo() {
     fmt.Println("MetaBIDx - A new computational approach to bacteria identification in microbiomes")
-    fmt.Println("Version - 2.1.0")
+    fmt.Println(VERSION)
     fmt.Println("\nUsage: ./metabidx <command> [options]")
     fmt.Println("\nCommands:")
     fmt.Println("\tbuild\t\t\tbuild an index for microbiome")
     fmt.Println("\tquery\t\t\tquery metagenomes from an index")
     fmt.Println("\tpredict\t\t\tquery metagenomes from an index and predict species")
+    fmt.Println("\tversion\t\t\tprint version")
 }
 
 func printBuildInfo(){
@@ -59,6 +62,10 @@ func printQueryInfo(){
     fmt.Println("\t-kmer-qual INT\t\t\t\tThreshold for k-mer mean quality (default 20)")
     fmt.Println("Example:")
     fmt.Println("metabidx query -load references.bin -r1 test_data/Reads/read1.fq -r2 test_data/Reads/read2.fq -out my_query_output.txt")
+}
+
+func printVersion(){
+    fmt.Println(VERSION)
 }
 
 func main() {
@@ -131,6 +138,8 @@ func main() {
             tmp_cov_output := "tmp_out.csv"
             query.Query(*filter, *read_1, *read_2, *out, *kmer_qual, false, true)
             predict.Predict(tmp_cov_output, *out, *python_path)
+        case "version":
+            printVersion()
         default:
             printInfo()
     }
