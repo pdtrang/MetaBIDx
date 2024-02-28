@@ -30,9 +30,9 @@ metabidx query -load path/to/index_name.bin -r1 path/to/read_1.fq -r2 path/to/re
 ``` 
 where:
 - `index_name` is the name of the index
-- read_1 is read or the first read in pairs
-- read_2 is the second read in pairs. This input is optional.
-- query_output.txt is the file containing output of classifying reads. (Default: query_output.txt)
+- `read_1` is read or the first read in pairs
+- `read_2` is the second read in pairs. This input is optional.
+- `query_output.txt` is the file containing output of classifying reads. (Default: query_output.txt)
 
 For more optional parameters, run `metabidx query -h`
 
@@ -65,15 +65,15 @@ metabidx query -load my_index.bin -r1 test_data/Reads/r1.fq -r2 test_data/Reads/
 	pip install yellowbrick
 	pip install numpy
 	```
-
+#### Predict species
 ```
 metabidx predict -load path/to/index_name.bin -r1 path/to/read_1.fq -r2 path/to/read_2.fq -out prediction_output.txt -python-path /home/user/miniconda3/bin/python3
 ``` 
 where:
 - `index_name` is the name of the index
-- read_1 is read or the first read in pairs
-- read_2 is the second read in pairs. This input is optional.
-- prediction_outputs.txt is the file containing output of classifying reads. (Default: prediction_output.txt)
+- `read_1` is read or the first read in pairs
+- `read_2` is the second read in pairs. This input is optional.
+- `prediction_outputs.txt` is the file containing output of classifying reads. (Default: prediction_output.txt)
 
 For more optional parameters, run `metabidx predict -h`
 
