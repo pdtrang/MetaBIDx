@@ -102,7 +102,7 @@ func main() {
             if len(os.Args[2:]) == 0 {
                printBuildInfo()
                return 
-            } else if os.Args[2] == "-h" {
+            } else if os.Args[2] == "-h" || os.Args[2] == "--help" {
                 printBuildInfo()
                 return 
             }
@@ -112,7 +112,7 @@ func main() {
             if len(os.Args[2:]) == 0 {
                printQueryInfo()
                return 
-            } else if os.Args[2] == "-h" {
+            } else if os.Args[2] == "-h" || os.Args[2] == "--help" {
                 printQueryInfo()
                 return 
             }
@@ -122,17 +122,15 @@ func main() {
             if len(os.Args[2:]) == 0 {
                printPredictInfo()
                return 
-            } else if os.Args[2] == "-h" {
+            } else if os.Args[2] == "-h" || os.Args[2] == "--help" {
                 printPredictInfo()
                 return 
             }
-            // query_output := "/Users/dpham@dnanexus.com/Downloads/notebooks_csv_files_OneDrive_1_1-9-2024/Metabf_species/test_query_output.csv"
             predictCmd.Parse(os.Args[2:])
             tmp_cov_output := "tmp_out.csv"
             query.Query(*filter, *read_1, *read_2, *out, *kmer_qual, false, true)
             predict.Predict(tmp_cov_output, *out, *python_path)
         default:
-            fmt.Println("Expected 'build' or 'query' subcommands")
-            os.Exit(1)
+            printInfo()
     }
 }
