@@ -125,7 +125,7 @@ func ScanPairReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 }
 
 func ReadFastqPair(read_file_1 string, read_file_2 string) chan Read {
-	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
+	// defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
 
 	log.Printf("Opening fastq files")
 	log.Printf("Scanning %s ...", read_file_1)
@@ -168,11 +168,13 @@ func ReadFastqPair(read_file_1 string, read_file_2 string) chan Read {
 		close(reads_channel)
 	}()
 
+	log.Printf("Finish scanning reads")
+
 	return reads_channel
 }
 
 func ReadFastqSingle(read_file_1 string) chan Read {
-	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
+	// defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
 
 	log.Printf("Opening fastq file")
 	log.Printf("Scanning %s ...", read_file_1)
@@ -202,6 +204,7 @@ func ReadFastqSingle(read_file_1 string) chan Read {
 		close(reads_channel)
 	}()
 
+	log.Printf("Finish scanning reads")
 	return reads_channel
 }
 
@@ -218,7 +221,7 @@ func ScanReads2Channel(read_file_1 string, read_file_2 string) chan Read {
 //-----------------------------------------------------------------------------
 // Query
 //-----------------------------------------------------------------------------
-func (f *FilterInt64) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string, query_results SafeMap, kmer_qual int) {
+func (f *FilterInt64) OnlinePairQuery_Threads(read_file_1 string, read_file_2 string, query_results SafeMap, kmer_qual int, non_discard float64) {
 	// defer utils.TimeConsume(time.Now(), "Run time - parallel: ")
 
 	// fmt.Println("-----------------PARALLEL QUERY--------------------")
@@ -231,7 +234,7 @@ func (f *FilterInt64) OnlinePairQuery_Threads(read_file_1 string, read_file_2 st
 
 	var wg sync.WaitGroup
 	start_time := time.Now()
-	defer utils.TimeConsume(start_time, "\nQuery Time ")
+	defer utils.TimeConsume(start_time, "\nQuery running time ")
 	log.Printf("Start querying...")
 
 	// StartProfile()
@@ -252,7 +255,7 @@ func (f *FilterInt64) OnlinePairQuery_Threads(read_file_1 string, read_file_2 st
 					// fmt.Println(string(read.header), string(read.read1), string(read.read2), string(read.qual1), string(read.qual2), "\n")
 					// fmt.Println(read.header)
 					// fmt.Println("\nPairQuery-Threads ", "\n read1: ", string(read.read1), "\n read2: ", string(read.read2), "\n qual1: ", string(read.qual1), "\n qual2: ", string(read.qual2))
-					species := f.OnePhaseMajorityQuery(read.read1, read.read2, read.qual1, read.qual2, start_time, kmer_qual)
+					species := f.OnePhaseMajorityQuery(read.read1, read.read2, read.qual1, read.qual2, start_time, kmer_qual, non_discard)
 					query_results.Add(read.header, species)
 				}
 
@@ -262,6 +265,7 @@ func (f *FilterInt64) OnlinePairQuery_Threads(read_file_1 string, read_file_2 st
 
 	wg.Wait()
 	
+	log.Printf("Finish querying...")
 	//utils.PrintMemUsage()
 }
 

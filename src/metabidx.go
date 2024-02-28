@@ -86,6 +86,7 @@ func main() {
     qread_2 := queryCmd.String("r2", "", "path to fastq/fq file")
     qout := queryCmd.String("out", "query_result.txt", "path to output filename")
     qkmer_qual := queryCmd.Int("kmer-qual", 20, "threshold for k-mer mean quality")
+    qndiscard_threshold := queryCmd.Int("non-discard-threshold", 50, "threshold for non-discard k-mers")
 
     //  params for prediction
     predictCmd := flag.NewFlagSet("predict", flag.ExitOnError)
@@ -95,6 +96,7 @@ func main() {
     out := predictCmd.String("out", "prediction_result.txt", "path to output filename")
     kmer_qual := predictCmd.Int("kmer-qual", 20, "threshold for k-mer mean quality")
     python_path := predictCmd.String("python-path", "/usr/bin/python3", "path to Python3")
+    ndiscard_threshold := predictCmd.Int("non-discard-threshold", 50, "threshold for non-discard k-mers")
 
     if len(os.Args) < 2 {
         printInfo()
@@ -125,7 +127,7 @@ func main() {
                 return 
             }
             queryCmd.Parse(os.Args[2:])
-            query.Query(*qfilter, *qread_1, *qread_2, *qout, *qkmer_qual, true, false)
+            query.Query(*qfilter, *qread_1, *qread_2, *qout, *qkmer_qual, *qndiscard_threshold, true, false)
         case "predict":
             if len(os.Args[2:]) == 0 {
                printPredictInfo()
@@ -136,7 +138,7 @@ func main() {
             }
             predictCmd.Parse(os.Args[2:])
             tmp_cov_output := "tmp_out.csv"
-            query.Query(*filter, *read_1, *read_2, *out, *kmer_qual, false, true)
+            query.Query(*filter, *read_1, *read_2, *out, *kmer_qual, *ndiscard_threshold, false, true)
             predict.Predict(tmp_cov_output, *out, *python_path)
         case "version":
             printVersion()

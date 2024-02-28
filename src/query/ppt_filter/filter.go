@@ -12,8 +12,8 @@ import (
 	"unsafe"
 	"io/ioutil"
 	"sync"
-	"metabidx/query/utils"
-	"time"
+	// "metabidx/query/utils"
+	// "time"
 )
 
 const Unused = uint16(65535)
@@ -270,7 +270,7 @@ func (f *FilterInt64) Save(fn string) {
 //-----------------------------------------------------------------------------
 // load the table
 func LoadInt64(fn string) *FilterInt64 {
-	defer utils.TimeConsume(time.Now(), "Load filter: ")
+	// defer utils.TimeConsume(time.Now(), "Load filter: ")
 	filter := LoadFilterGobInt64(fn)
 	filter.table = _load_table_alone(fn+".table", filter.M)
 	return filter

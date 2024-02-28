@@ -53,10 +53,10 @@ metabidx query -load my_index.bin -r1 test_data/Reads/r1.fq -r2 test_data/Reads/
 - Python3 package: scikit-learn, yellowbrick, pandas, numpy
 	- Install via conda
 	```
-	conda install anaconda::pandas
-	conda install anaconda::scikit-learn
-	conda install conda-forge::yellowbrick
-	conda install anaconda::numpy
+	conda install -y anaconda::pandas
+	conda install -y anaconda::scikit-learn
+	conda install -y conda-forge::yellowbrick
+	conda install -y anaconda::numpy
 	```
 	- Install via pip
 	```

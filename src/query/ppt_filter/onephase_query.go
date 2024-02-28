@@ -12,7 +12,7 @@ const Dirty = uint16(65534)
 //-----------------------------------------------------------------------------
 // Majority
 //-----------------------------------------------------------------------------
-func FindMajority_GID(gidx map[uint16]int) uint16 {
+func FindMajority_GID(gidx map[uint16]int, non_discard float64) uint16 {
 	// fmt.Println("Find majority GID", gidx)
 	maxCount := 0
 	index := uint16(0)
@@ -25,7 +25,9 @@ func FindMajority_GID(gidx map[uint16]int) uint16 {
 		total_count += val
 	}
 	
-	if maxCount > total_count/2 {
+	threshold := float64(total_count) * non_discard
+	// fmt.Println("non_discard", non_discard, "threshold", threshold, "maxCount", maxCount)
+	if float64(maxCount) > threshold {
 		// fmt.Println(maxCount, total_count)
 		return index
 	}
@@ -33,7 +35,7 @@ func FindMajority_GID(gidx map[uint16]int) uint16 {
 	return uint16(0)
 }
 
-func (f *FilterInt64) OnePhaseMajorityQuery(read_1 string, read_2 string, qual1 string, qual2 string, start_time time.Time, kmer_qual_threshold int) string {
+func (f *FilterInt64) OnePhaseMajorityQuery(read_1 string, read_2 string, qual1 string, qual2 string, start_time time.Time, kmer_qual_threshold int, non_discard float64) string {
 	// defer Timer()()
 	gidx := make(map[uint16]int) // map to keep all the hit kmers for each genome
 
@@ -43,7 +45,7 @@ func (f *FilterInt64) OnePhaseMajorityQuery(read_1 string, read_2 string, qual1 
 		f.OnePhaseMajorityQueryRead(read_2, qual2, gidx, kmer_qual_threshold)
 	}
 		
-	idx := FindMajority_GID(gidx)	
+	idx := FindMajority_GID(gidx, non_discard)	
 
 	if idx != uint16(0) {
 		return f.Gid[idx]
