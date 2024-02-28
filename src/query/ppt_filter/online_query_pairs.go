@@ -128,7 +128,7 @@ func ReadFastqPair(read_file_1 string, read_file_2 string) chan Read {
 	// defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
 
 	fmt.Println("Opening fastq files")
-	fmt.Println("Scanning %s ...", read_file_1)
+	fmt.Println("Scanning ", read_file_1)
 	fq, err := os.Open(read_file_1)
 	if err != nil {
 		panic(err)
@@ -177,7 +177,7 @@ func ReadFastqSingle(read_file_1 string) chan Read {
 	// defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
 
 	fmt.Println("Opening fastq file")
-	fmt.Println("Scanning %s ...", read_file_1)
+	fmt.Println("Scanning ", read_file_1)
 	fq, err := os.Open(read_file_1)
 	if err != nil {
 		panic(err)
