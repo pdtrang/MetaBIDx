@@ -56,8 +56,8 @@ func NewRead(header string, read1 string, read2 string, qual1 string, qual2 stri
 func ScanSingleReads2Channel(read_file_1 string) chan Read {
 	defer utils.TimeConsume(time.Now(), "Run time - ScanReads2Channel: ")
 
-	log.Printf("Opening fastq files")
-	fmt.Printf("Scanning %s ...", read_file_1)
+	fmt.Printf("Opening fastq files")
+	fmt.Printf("Scanning ", read_file_1)
 	fq, err := os.Open(read_file_1)
 	if err != nil {
 		panic(err)
@@ -134,7 +134,7 @@ func ReadFastqPair(read_file_1 string, read_file_2 string) chan Read {
 		panic(err)
 	}
 
-	fmt.Println("Scanning %s ...", read_file_2)
+	fmt.Println("Scanning ", read_file_2)
 	fq2, err := os.Open(read_file_2)
 	if err != nil {
 		panic(err)
@@ -234,7 +234,7 @@ func (f *FilterInt64) OnlinePairQuery_Threads(read_file_1 string, read_file_2 st
 
 	var wg sync.WaitGroup
 	start_time := time.Now()
-	defer utils.TimeConsume(start_time, "\nQuery running time ")
+	defer utils.TimeConsume(start_time, "Query running time ")
 	fmt.Println("Start querying...")
 
 	// StartProfile()
