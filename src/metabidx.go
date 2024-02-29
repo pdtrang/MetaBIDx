@@ -72,7 +72,7 @@ func main() {
     // params for build
     buildCmd := flag.NewFlagSet("build", flag.ExitOnError)
     refseq_genomes := buildCmd.String("refseq", "", "path to reference sequence genome directory")    
-    K := buildCmd.Int("k", 16, "k-mer length")
+    K := buildCmd.Int("k", 31, "k-mer length")
     filter_name := buildCmd.String("load", "", "load existing index/filter file (without table)")
     filter_saved_file := buildCmd.String("save", "", "path/prefix of output filter")
     power := buildCmd.Int("p", 32, "power")

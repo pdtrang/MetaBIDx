@@ -19,7 +19,7 @@ metabidx build -refseq genome_folder -save index_name.bin -k 15
 where:
 - `genome_folder`: Path to reference sequence genome directory
 - `index_name`: prefix of an output index
-- `k`: k-mer length (Default: 16)
+- `k`: k-mer length (Default: 31)
 
 For more optional parameters, run `metabidx build -h`
 
@@ -78,7 +78,7 @@ where:
 - `index_name` is the name of the index
 - `read_1` is read or the first read in pairs
 - `read_2` is the second read in pairs. This input is optional.
-- `prediction_outputs.txt` is the file containing output of classified reads. (Default: prediction_output.txt)
+- `prediction_outputs.txt` is the file containing predicted species names. (Default: prediction_output.txt)
 
 For more optional parameters, run `metabidx predict -h`
 
@@ -88,4 +88,4 @@ metabidx predict -load my_index.bin -r1 test_data/Reads/r1.fq -r2 test_data/Read
 ```
 
 ### Predict output format
-- The predict output file contains all predicted species name which were classified from the reads.
+- The predict output file contains all predicted species names.
