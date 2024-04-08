@@ -24,8 +24,12 @@ type FastaSeq struct {
 
 //-----------------------------------------------------------------------------
 func NewFastaScanner(r io.Reader) *FastaScanner {
-	scanner := &FastaScanner{Scanner: bufio.NewScanner(r), Finished: false}
-	return scanner
+	scanner := bufio.NewScanner(r)
+	buf := make([]byte, 64*1024)
+	scanner.Buffer(buf, 1024*1024)
+	fascanner := &FastaScanner{Scanner: scanner, Finished: false}
+	// fascanner := &FastaScanner{Scanner: bufio.NewScanner(r), Finished: false}
+	return fascanner
 }
 
 func NewFastaSeq(header string, seq []byte) *FastaSeq {
